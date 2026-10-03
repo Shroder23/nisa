@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "420187056534",
+    "project_id": "nisa-matrimonial",
+    "storage_bucket": "nisa-matrimonial.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420187056534:android:64504ea586b2f415e115b7",
+        "android_client_info": {
+          "package_name": "com.example.nisa_e_sakina"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUTp7gItdRjbanXwbAA584zbCVu4XO0wQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
