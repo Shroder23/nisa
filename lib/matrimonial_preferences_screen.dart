@@ -407,7 +407,10 @@ class _MatrimonialPreferencesScreenState
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => VerificationScreen(profile: widget.profile),
+        builder: (context) => VerificationScreen(
+          profile: widget.profile,
+          isRegistration: true,
+        ),
       ),
     );
   }

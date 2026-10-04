@@ -13,8 +13,13 @@ import 'services/api_verification_service.dart';
 
 class ApiVerificationScreen extends StatefulWidget {
   final UserProfile profile;
+  final bool isRegistration;
 
-  const ApiVerificationScreen({super.key, required this.profile});
+  const ApiVerificationScreen({
+    super.key,
+    required this.profile,
+    this.isRegistration = false,
+  });
 
   @override
   State<ApiVerificationScreen> createState() => _ApiVerificationScreenState();
@@ -67,7 +72,7 @@ class _ApiVerificationScreenState extends State<ApiVerificationScreen> {
     }
   }
 
-  Future<void> _continueUnverified() async {
+  Future<void> _completeRegistration() async {
     if (_continuing) return;
     setState(() => _continuing = true);
     try {
@@ -203,10 +208,18 @@ class _ApiVerificationScreenState extends State<ApiVerificationScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _statusBody(data),
-                  if (!approved) ...[
+                  if (widget.isRegistration && approved) ...[
+                    const SizedBox(height: 14),
+                    FilledButton(
+                      onPressed: _continuing ? null : _completeRegistration,
+                      child: LocalizedText(
+                        _continuing ? 'Continuing…' : 'Continue',
+                      ),
+                    ),
+                  ] else if (widget.isRegistration && !approved) ...[
                     const SizedBox(height: 14),
                     OutlinedButton(
-                      onPressed: _continuing ? null : _continueUnverified,
+                      onPressed: _continuing ? null : _completeRegistration,
                       child: LocalizedText(
                         _continuing
                             ? 'Continuing…'

@@ -15,8 +15,13 @@ import 'verification_upload_screen.dart';
 
 class VerificationScreen extends StatelessWidget {
   final UserProfile profile;
+  final bool isRegistration;
 
-  const VerificationScreen({super.key, required this.profile});
+  const VerificationScreen({
+    super.key,
+    required this.profile,
+    this.isRegistration = false,
+  });
 
   Future<void> _getVerified(BuildContext context) async {
     // Safety guard: a verified or already-pending profile must never
@@ -100,7 +105,10 @@ class VerificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (ApiAppState.isSignedIn) {
-      return ApiVerificationScreen(profile: profile);
+      return ApiVerificationScreen(
+        profile: profile,
+        isRegistration: isRegistration,
+      );
     }
 
     if (profile.isVerified) {
