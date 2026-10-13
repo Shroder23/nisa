@@ -36,6 +36,7 @@ import 'api_moderator_requests_screen.dart';
 import 'api_moderator_recommendations_screen.dart';
 import 'api_admin_direct_ban_screen.dart';
 import 'api_admin_user_management_screen.dart';
+import 'api_matchmaker_screen.dart';
 
 /// PostgreSQL-backed account home. Firebase-only features are not linked here.
 class ApiHomeScreen extends StatefulWidget {
@@ -606,6 +607,19 @@ class _ApiHomeScreenState extends LanguageAwareState<ApiHomeScreen>
               onTap: () => _open(const ApiFamilyInvitationsScreen()),
             ),
             _verificationAction(),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _profileSection(
+          title: 'Matchmaker Network',
+          icon: Icons.handshake_outlined,
+          actions: [
+            _HomeAction(
+              icon: Icons.business_center_outlined,
+              title: 'Matchmaker Network',
+              subtitle: 'Apply, manage represented clients, imports and consent',
+              onTap: () => _open(const ApiMatchmakerScreen()),
+            ),
           ],
         ),
         const SizedBox(height: 8),
