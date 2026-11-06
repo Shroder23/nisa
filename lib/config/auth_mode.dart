@@ -7,6 +7,6 @@ class AuthMode {
 
   static const bool usePostgresPreview = bool.fromEnvironment(
     'NISA_USE_POSTGRES_AUTH_PREVIEW',
-    defaultValue: false,
+    defaultValue: true,
   );
 }

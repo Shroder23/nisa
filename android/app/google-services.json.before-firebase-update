@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "420187056534",
+    "project_id": "nisa-matrimonial",
+    "storage_bucket": "nisa-matrimonial.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420187056534:android:64504ea586b2f415e115b7",
+        "android_client_info": {
+          "package_name": "com.example.nisa_e_sakina"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "420187056534-98sr609t3vdude39snsihj5ipb631hp4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nisa_e_sakina",
+            "certificate_hash": "fcc82b6dfc643caafab431189a8104c79a4ace23"
+          }
+        },
+        {
+          "client_id": "420187056534-a84cv33rise6p98jo4bp3pf4gevci6gk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nisa_e_sakina",
+            "certificate_hash": "6ee1f63f84bd213a0033ceacd3d859956be4a85a"
+          }
+        },
+        {
+          "client_id": "420187056534-8egj374q1hvdtj5in956lo53o2s7evcr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUTp7gItdRjbanXwbAA584zbCVu4XO0wQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "420187056534-8egj374q1hvdtj5in956lo53o2s7evcr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "420187056534-rrd2e0djbijg53bsq5t8vucig53kjfq6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.nisaESakina"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

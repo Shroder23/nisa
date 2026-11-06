@@ -60,8 +60,11 @@ class MatchmakerImportService {
       final map = <String, dynamic>{};
       (rows[i] as Map).forEach((k, v) => map[_key(k.toString())] = v);
       final p = MatchmakerProfile.fromJson(map);
-      if (p.fullName.isEmpty || p.gender.isEmpty) warnings.add('Row ${i + 1}: name and gender are required.');
-      else profiles.add(p);
+      if (p.fullName.isEmpty || p.gender.isEmpty) {
+        warnings.add('Row ${i + 1}: name and gender are required.');
+      } else {
+        profiles.add(p);
+      }
     }
     return MatchmakerImportResult(_dedupe(profiles, warnings), warnings);
   }
@@ -75,10 +78,15 @@ class MatchmakerImportService {
     for (var i = 1; i < lines.length; i++) {
       final values = _csvRow(lines[i]);
       final map = <String, dynamic>{};
-      for (var c = 0; c < headers.length && c < values.length; c++) map[headers[c]] = values[c];
+      for (var c = 0; c < headers.length && c < values.length; c++) {
+        map[headers[c]] = values[c];
+      }
       final p = MatchmakerProfile.fromJson(map);
-      if (p.fullName.isEmpty || p.gender.isEmpty) warnings.add('CSV row ${i + 1}: name and gender are required.');
-      else profiles.add(p);
+      if (p.fullName.isEmpty || p.gender.isEmpty) {
+        warnings.add('CSV row ${i + 1}: name and gender are required.');
+      } else {
+        profiles.add(p);
+      }
     }
     return MatchmakerImportResult(_dedupe(profiles, warnings), warnings);
   }
@@ -89,7 +97,9 @@ class MatchmakerImportService {
       final ch = line[i];
       if (ch == '"') {
         if (quoted && i + 1 < line.length && line[i + 1] == '"') { b.write('"'); i++; }
-        else quoted = !quoted;
+        else {
+          quoted = !quoted;
+        }
       } else if (ch == ',' && !quoted) { out.add(b.toString().trim()); b.clear(); }
       else { b.write(ch); }
     }
