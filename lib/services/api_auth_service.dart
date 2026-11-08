@@ -41,10 +41,7 @@ class ApiAuthService {
       'linux' => 'Linux device',
       _ => 'Nisa app device',
     };
-    return {
-      'X-Nisa-Device-Platform': platform,
-      'X-Nisa-Device-Label': label,
-    };
+    return {'X-Nisa-Device-Platform': platform, 'X-Nisa-Device-Label': label};
   }
 
   /// Returns a random, per-install identifier used only for new-device alerts.
@@ -53,9 +50,10 @@ class ApiAuthService {
     var installId = await _storage.read(key: _installIdKey);
     if (installId == null || !RegExp(r'^[0-9a-f]{64}$').hasMatch(installId)) {
       final random = Random.secure();
-      installId = List<int>.generate(32, (_) => random.nextInt(256))
-          .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
-          .join();
+      installId = List<int>.generate(
+        32,
+        (_) => random.nextInt(256),
+      ).map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
       await _storage.write(key: _installIdKey, value: installId);
     }
     return {
@@ -133,12 +131,16 @@ class ApiAuthService {
           body: jsonEncode({'email': email.trim(), 'password': password}),
         )
         .timeout(const Duration(seconds: 20));
-    if (response.statusCode != 200) throw StateError(_errorMessage(response));
+    if (response.statusCode != 200) {
+      throw ApiAuthException.fromResponse(response);
+    }
     return _acceptSessionResponse(response);
   }
 
   static Future<ApiAuthSession> signInWithGoogle() async {
-    const serverClientId = String.fromEnvironment('NISA_GOOGLE_SERVER_CLIENT_ID');
+    const serverClientId = String.fromEnvironment(
+      'NISA_GOOGLE_SERVER_CLIENT_ID',
+    );
     final googleSignIn = GoogleSignIn(
       serverClientId: serverClientId.isEmpty ? null : serverClientId,
     );
@@ -194,7 +196,9 @@ class ApiAuthService {
     return _acceptSessionResponse(response);
   }
 
-  static Future<ApiAuthSession> _acceptSessionResponse(http.Response response) async {
+  static Future<ApiAuthSession> _acceptSessionResponse(
+    http.Response response,
+  ) async {
     final decoded = jsonDecode(response.body);
     if (decoded is! Map<String, dynamic> ||
         decoded['user'] is! Map<String, dynamic> ||
@@ -207,8 +211,10 @@ class ApiAuthService {
     final accessToken = tokens['access_token']?.toString();
     final refreshToken = tokens['refresh_token']?.toString();
 
-    if (accessToken == null || accessToken.isEmpty ||
-        refreshToken == null || refreshToken.isEmpty) {
+    if (accessToken == null ||
+        accessToken.isEmpty ||
+        refreshToken == null ||
+        refreshToken.isEmpty) {
       throw StateError('The server did not return a complete sign-in session.');
     }
 
@@ -225,7 +231,10 @@ class ApiAuthService {
   static Future<Map<String, dynamic>?> restoreAccount() async {
     var accessToken = await _storage.read(key: _accessTokenKey);
     final refreshToken = await _storage.read(key: _refreshTokenKey);
-    if (refreshToken == null || refreshToken.isEmpty) return null;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      await clearSession();
+      return null;
+    }
 
     if (accessToken == null || accessToken.isEmpty) {
       accessToken = await _refreshAccessToken(refreshToken);
@@ -255,10 +264,7 @@ class ApiAuthService {
   }
 
   static Future<http.Response> _getAccount(String accessToken) => http
-      .get(
-        _uri('/api/me'),
-        headers: {'Authorization': 'Bearer $accessToken'},
-      )
+      .get(_uri('/api/me'), headers: {'Authorization': 'Bearer $accessToken'})
       .timeout(const Duration(seconds: 20));
 
   /// Sends an authenticated API request and retries once after refreshing a
@@ -269,6 +275,7 @@ class ApiAuthService {
     var accessToken = await _storage.read(key: _accessTokenKey);
     final refreshToken = await _storage.read(key: _refreshTokenKey);
     if (refreshToken == null || refreshToken.isEmpty) {
+      await clearSession();
       throw StateError('Please sign in again.');
     }
     if (accessToken == null || accessToken.isEmpty) {
@@ -405,8 +412,10 @@ class ApiAuthService {
     }
     final accessToken = decoded['access_token']?.toString();
     final newRefreshToken = decoded['refresh_token']?.toString();
-    if (accessToken == null || accessToken.isEmpty ||
-        newRefreshToken == null || newRefreshToken.isEmpty) {
+    if (accessToken == null ||
+        accessToken.isEmpty ||
+        newRefreshToken == null ||
+        newRefreshToken.isEmpty) {
       throw StateError('The server did not return refreshed session tokens.');
     }
 
@@ -448,7 +457,10 @@ class ApiAuthService {
     try {
       final decoded = jsonDecode(response.body);
       if (decoded is Map<String, dynamic>) {
-        final detail = decoded['detail']?.toString();
+        final detailValue = decoded['detail'];
+        final detail = detailValue is Map<String, dynamic>
+            ? detailValue['message']?.toString()
+            : detailValue?.toString();
         if (detail != null && detail.isNotEmpty) {
           if (response.statusCode >= 500 &&
               detail.toLowerCase() == 'internal server error') {
@@ -473,6 +485,52 @@ class ApiAuthService {
     }
     return 'Nisa sign-in failed. The API returned HTTP ${response.statusCode}. Please try again.';
   }
+}
+
+/// Structured authentication failure returned by the API.
+///
+/// Callers must branch on [code], never on HTTP status alone: an ordinary
+/// incorrect password remains indistinguishable from an unknown email.
+class ApiAuthException implements Exception {
+  final String code;
+  final String message;
+
+  const ApiAuthException({required this.code, required this.message});
+
+  factory ApiAuthException.fromResponse(http.Response response) {
+    String? code;
+    String? message;
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        final detail = decoded['detail'];
+        if (detail is Map<String, dynamic>) {
+          code = detail['code']?.toString();
+          message = detail['message']?.toString();
+        } else {
+          message = detail?.toString();
+        }
+      }
+    } catch (_) {
+      // Fall through to the existing generic API error formatting.
+    }
+    return ApiAuthException(
+      code: code ?? 'authentication_failed',
+      message: message ?? ApiAuthService._errorMessage(response),
+    );
+  }
+
+  @override
+  String toString() => message;
+}
+
+class ApiAuthFailureCode {
+  ApiAuthFailureCode._();
+
+  static const passwordSetupRequired = 'password_setup_required';
+
+  static bool requiresPasswordSetup(Object error) =>
+      error is ApiAuthException && error.code == passwordSetupRequired;
 }
 
 class ApiAuthSession {

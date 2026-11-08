@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import '../widgets/localized_text.dart';
@@ -50,121 +52,126 @@ class _ApiSessionPreviewScreenState extends State<ApiSessionPreviewScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const LocalizedText('PostgreSQL session preview')),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            const Icon(Icons.cloud_done_outlined, size: 64),
-            const SizedBox(height: 16),
-            LocalizedText(
-              'PostgreSQL sign-in is connected',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 20),
-            _AccountRow(label: 'Email', value: email),
-            _AccountRow(
-              label: 'Profile',
-              value: _profile.name.isEmpty ? 'Not created yet' : _profile.name,
-            ),
-            _AccountRow(label: 'Account status', value: status),
-            _AccountRow(label: 'Registration step', value: step),
-            const SizedBox(height: 24),
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: LocalizedText(
-                  'Recommendations, interests, and matched conversations use PostgreSQL. Other app screens are still being connected.',
-                ),
+      body: NisaPageBody(
+        form: false,
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              const Icon(Icons.cloud_done_outlined, size: 64),
+              const SizedBox(height: 16),
+              LocalizedText(
+                'PostgreSQL sign-in is connected',
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => ApiDiscoveryScreen(currentUser: _profile),
-                ),
+              const SizedBox(height: 20),
+              _AccountRow(label: 'Email', value: email),
+              _AccountRow(
+                label: 'Profile',
+                value: _profile.name.isEmpty
+                    ? 'Not created yet'
+                    : _profile.name,
               ),
-              icon: const Icon(Icons.search),
-              label: const LocalizedText('Browse recommendations'),
-            ),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ApiIncomingInterestsScreen(),
-                ),
-              ),
-              icon: const Icon(Icons.favorite_outline),
-              label: const LocalizedText('Review incoming interests'),
-            ),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ApiSentInterestsScreen(),
-                ),
-              ),
-              icon: const Icon(Icons.outbox_outlined),
-              label: const LocalizedText('View sent interests'),
-            ),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ApiConversationsScreen(),
-                ),
-              ),
-              icon: const Icon(Icons.chat_bubble_outline),
-              label: const LocalizedText('Open messages'),
-            ),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ApiNotificationsScreen(),
-                ),
-              ),
-              icon: const Icon(Icons.notifications_outlined),
-              label: const LocalizedText('Open notifications'),
-            ),
-            const SizedBox(height: 18),
-            OutlinedButton.icon(
-              onPressed: () async {
-                final saved = await Navigator.of(context).push<bool>(
-                  MaterialPageRoute(
-                    builder: (_) => EditProfileScreen(profile: _profile),
+              _AccountRow(label: 'Account status', value: status),
+              _AccountRow(label: 'Registration step', value: step),
+              const SizedBox(height: 24),
+              const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: LocalizedText(
+                    'Recommendations, interests, and matched conversations use PostgreSQL. Other app screens are still being connected.',
                   ),
-                );
-                if (saved == true) await _refreshProfile();
-              },
-              icon: const Icon(Icons.edit_outlined),
-              label: const LocalizedText('Edit profile'),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: () async {
-                final saved = await Navigator.of(context).push<bool>(
+                ),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => MatrimonialPreferencesScreen(
-                      profile: _profile,
-                      isEditing: true,
+                    builder: (_) => ApiDiscoveryScreen(currentUser: _profile),
+                  ),
+                ),
+                icon: const Icon(Icons.search),
+                label: const LocalizedText('Browse recommendations'),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ApiIncomingInterestsScreen(),
+                  ),
+                ),
+                icon: const Icon(Icons.favorite_outline),
+                label: const LocalizedText('Review incoming interests'),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ApiSentInterestsScreen(),
+                  ),
+                ),
+                icon: const Icon(Icons.outbox_outlined),
+                label: const LocalizedText('View sent interests'),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ApiConversationsScreen(),
+                  ),
+                ),
+                icon: const Icon(Icons.chat_bubble_outline),
+                label: const LocalizedText('Open messages'),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ApiNotificationsScreen(),
+                  ),
+                ),
+                icon: const Icon(Icons.notifications_outlined),
+                label: const LocalizedText('Open notifications'),
+              ),
+              const SizedBox(height: 18),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final saved = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(
+                      builder: (_) => EditProfileScreen(profile: _profile),
                     ),
-                  ),
-                );
-                if (saved == true) await _refreshProfile();
-              },
-              icon: const Icon(Icons.tune),
-              label: const LocalizedText('Edit preferences'),
-            ),
-            const SizedBox(height: 20),
-            OutlinedButton.icon(
-              onPressed: () async {
-                await ApiAppState.signOut();
-              },
-              icon: const Icon(Icons.logout_rounded),
-              label: const LocalizedText('Sign out'),
-            ),
-          ],
+                  );
+                  if (saved == true) await _refreshProfile();
+                },
+                icon: const Icon(Icons.edit_outlined),
+                label: const LocalizedText('Edit profile'),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final saved = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(
+                      builder: (_) => MatrimonialPreferencesScreen(
+                        profile: _profile,
+                        isEditing: true,
+                      ),
+                    ),
+                  );
+                  if (saved == true) await _refreshProfile();
+                },
+                icon: const Icon(Icons.tune),
+                label: const LocalizedText('Edit preferences'),
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  await ApiAppState.signOut();
+                },
+                icon: const Icon(Icons.logout_rounded),
+                label: const LocalizedText('Sign out'),
+              ),
+            ],
+          ),
         ),
       ),
     );

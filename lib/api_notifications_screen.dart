@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'widgets/localized_text.dart';
@@ -296,46 +298,49 @@ class _ApiNotificationsScreenState extends State<ApiNotificationsScreen> {
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? _NotificationMessage(message: _error!, onRetry: _load)
-          : _notifications.isEmpty
-          ? const _NotificationMessage(message: 'No notifications yet.')
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView.separated(
-                itemCount: _notifications.length,
-                separatorBuilder: (_, _) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final notification = _notifications[index];
-                  final unread =
-                      !notification.isRead &&
-                      !_readLocally.contains(notification.id);
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: unread
-                          ? Theme.of(context).colorScheme.primaryContainer
-                          : null,
-                      child: Icon(_iconFor(notification.type)),
-                    ),
-                    title: Text(
-                      notification.title,
-                      style: TextStyle(
-                        fontWeight: unread
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+      body: NisaPageBody(
+        form: false,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? _NotificationMessage(message: _error!, onRetry: _load)
+            : _notifications.isEmpty
+            ? const _NotificationMessage(message: 'No notifications yet.')
+            : RefreshIndicator(
+                onRefresh: _load,
+                child: ListView.separated(
+                  itemCount: _notifications.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final notification = _notifications[index];
+                    final unread =
+                        !notification.isRead &&
+                        !_readLocally.contains(notification.id);
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: unread
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : null,
+                        child: Icon(_iconFor(notification.type)),
                       ),
-                    ),
-                    subtitle: Text(notification.body),
-                    trailing: unread
-                        ? const Icon(Icons.circle, size: 10)
-                        : Text(_formatDate(notification.createdAt)),
-                    onTap: () => _open(notification),
-                  );
-                },
+                      title: Text(
+                        notification.title,
+                        style: TextStyle(
+                          fontWeight: unread
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      subtitle: Text(notification.body),
+                      trailing: unread
+                          ? const Icon(Icons.circle, size: 10)
+                          : Text(_formatDate(notification.createdAt)),
+                      onTap: () => _open(notification),
+                    );
+                  },
+                ),
               ),
-            ),
+      ),
     );
   }
 

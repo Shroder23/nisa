@@ -40,10 +40,24 @@ service cloud.firestore {
         (resource.data.senderId == request.auth.uid ||
          resource.data.receiverId == request.auth.uid);
       allow create: if signedIn() &&
-        request.resource.data.senderId == request.auth.uid;
-      allow update: if signedIn() &&
-        (resource.data.senderId == request.auth.uid ||
-         resource.data.receiverId == request.auth.uid);
+        request.resource.data.senderId == request.auth.uid &&
+        request.resource.data.receiverId != request.auth.uid &&
+        request.resource.data.status == 'pending';
+      allow update: if signedIn() && (
+        (
+          resource.data.receiverId == request.auth.uid &&
+          resource.data.status == 'pending' &&
+          request.resource.data.status in ['accepted', 'declined']
+        ) || (
+          resource.data.senderId == request.auth.uid &&
+          resource.data.status == 'pending' &&
+          request.resource.data.status == 'cancelled'
+        )
+      ) &&
+        request.resource.data.senderId == resource.data.senderId &&
+        request.resource.data.receiverId == resource.data.receiverId &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'updatedAt', 'respondedAt']);
       allow delete: if signedIn() &&
         resource.data.senderId == request.auth.uid;
     }
@@ -52,38 +66,46 @@ service cloud.firestore {
       allow read: if signedIn() &&
         (resource.data.userA == request.auth.uid ||
          resource.data.userB == request.auth.uid);
-      allow create: if signedIn() &&
-        (request.resource.data.userA == request.auth.uid ||
-         request.resource.data.userB == request.auth.uid);
+      // Matches are authoritative server records in the active API design.
+      allow create: if false;
       allow update, delete: if false;
     }
 
     match /conversations/{conversationId} {
-      allow read, create: if signedIn() &&
-        (request.auth.uid in resource.data.participants ||
-         request.auth.uid in request.resource.data.participants);
-      allow update, delete: if signedIn() &&
+      allow read: if signedIn() &&
         request.auth.uid in resource.data.participants;
+      // Conversations are created by the server after a mutual match.
+      allow create, delete: if false;
+      allow update: if signedIn() &&
+        request.auth.uid in resource.data.participants &&
+        request.resource.data.participants == resource.data.participants &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['lastMessage', 'lastMessageAt', 'lastSenderId', 'updatedAt', 'readBy']);
 
       match /messages/{messageId} {
-        allow read, create: if signedIn() &&
+        allow read: if signedIn() &&
           request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
-        allow update: if signedIn() && (
-          request.auth.uid == resource.data.senderId ||
-          (
-            request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
-            request.auth.uid != resource.data.senderId &&
-            request.resource.data.diff(resource.data).affectedKeys()
-              .hasOnly(['deliveredAt', 'seenAt'])
-          )
-        );
+        allow create: if signedIn() &&
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
+          request.resource.data.senderId == request.auth.uid;
+        allow update: if signedIn() &&
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
+          request.auth.uid != resource.data.senderId &&
+          request.resource.data.senderId == resource.data.senderId &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['deliveredAt', 'seenAt']);
         allow delete: if false;
       }
     }
 
     match /family_members/{memberId} {
-      allow read, create, update, delete: if signedIn() &&
+      allow read, delete: if signedIn() &&
         request.auth.uid == resource.data.userId;
+      allow create: if signedIn() &&
+        request.auth.uid == request.resource.data.userId;
+      allow update: if signedIn() &&
+        request.auth.uid == resource.data.userId &&
+        request.resource.data.userId == resource.data.userId;
     }
   }
 }

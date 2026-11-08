@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -160,115 +162,134 @@ class _ApiVerificationUploadScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const LocalizedText('Parent Verification')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const LocalizedText(
-            'You must be 18 or older and have at least one profile photo. Your ID and video are private and can only be opened by an authorized Nisa reviewer. Approval adds the “Parent Verified” badge; it confirms this review and does not guarantee character or suitability.',
-          ),
-          const SizedBox(height: 18),
-          TextField(
-            controller: _nameController,
-            maxLength: 120,
-            decoration: InputDecoration(
-              labelText: AppLanguageService.translate('Parent or wali name'),
+      body: NisaPageBody(
+        form: true,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            const LocalizedText(
+              'You must be 18 or older and have at least one profile photo. Your ID and video are private and can only be opened by an authorized Nisa reviewer. Approval adds the “Parent Verified” badge; it confirms this review and does not guarantee character or suitability.',
             ),
-          ),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            initialValue: _relationship,
-            decoration: InputDecoration(
-              labelText: AppLanguageService.translate('Relationship'),
-            ),
-            items: const [
-              DropdownMenuItem(value: 'mother', child: LocalizedText('Mother')),
-              DropdownMenuItem(value: 'father', child: LocalizedText('Father')),
-              DropdownMenuItem(
-                value: 'wali',
-                child: LocalizedText('Alternate wali / guardian'),
-              ),
-            ],
-            onChanged: _submitting
-                ? null
-                : (value) {
-                    if (value != null) {
-                      setState(() => _relationship = value);
-                    }
-                  },
-          ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: _reviewerGenderPreference,
-            decoration: InputDecoration(
-              labelText: AppLanguageService.translate(
-                'Documents should be reviewed by',
+            const SizedBox(height: 18),
+            TextField(
+              controller: _nameController,
+              maxLength: 120,
+              decoration: InputDecoration(
+                labelText: AppLanguageService.translate('Parent or wali name'),
               ),
             ),
-            items: const [
-              DropdownMenuItem(value: 'male', child: LocalizedText('Male')),
-              DropdownMenuItem(value: 'female', child: LocalizedText('Female')),
-              DropdownMenuItem(value: 'any', child: LocalizedText('Any')),
-            ],
-            onChanged: _submitting
-                ? null
-                : (value) {
-                    if (value != null) {
-                      setState(() => _reviewerGenderPreference = value);
-                    }
-                  },
-          ),
-          const SizedBox(height: 12),
-          _fileRow('Parent or wali ID document', _guardianId, () async {
-            final file = await _pickDocument();
-            if (file != null && mounted) {
-              setState(() => _guardianId = file);
-            }
-          }),
-          if (_relationship == 'wali')
-            _fileRow(
-              'Wali relationship or authority proof',
-              _authorityProof,
-              () async {
-                final file = await _pickDocument();
-                if (file != null && mounted) {
-                  setState(() => _authorityProof = file);
-                }
-              },
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              itemHeight: null,
+              isDense: false,
+              initialValue: _relationship,
+              decoration: InputDecoration(
+                labelText: AppLanguageService.translate('Relationship'),
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: 'mother',
+                  child: LocalizedText('Mother'),
+                ),
+                DropdownMenuItem(
+                  value: 'father',
+                  child: LocalizedText('Father'),
+                ),
+                DropdownMenuItem(
+                  value: 'wali',
+                  child: LocalizedText('Alternate wali / guardian'),
+                ),
+              ],
+              onChanged: _submitting
+                  ? null
+                  : (value) {
+                      if (value != null) {
+                        setState(() => _relationship = value);
+                      }
+                    },
             ),
-          _fileRow('10 to 30 second confirmation video', _video, _pickVideo),
-          const Card(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: LocalizedText(
-                'The parent or wali should say their name and relationship, your name, confirm you are their son or daughter, and confirm they know you are seeking a spouse through Nisa and consent to being involved.',
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              itemHeight: null,
+              isDense: false,
+              initialValue: _reviewerGenderPreference,
+              decoration: InputDecoration(
+                labelText: AppLanguageService.translate(
+                  'Documents should be reviewed by',
+                ),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'male', child: LocalizedText('Male')),
+                DropdownMenuItem(
+                  value: 'female',
+                  child: LocalizedText('Female'),
+                ),
+                DropdownMenuItem(value: 'any', child: LocalizedText('Any')),
+              ],
+              onChanged: _submitting
+                  ? null
+                  : (value) {
+                      if (value != null) {
+                        setState(() => _reviewerGenderPreference = value);
+                      }
+                    },
+            ),
+            const SizedBox(height: 12),
+            _fileRow('Parent or wali ID document', _guardianId, () async {
+              final file = await _pickDocument();
+              if (file != null && mounted) {
+                setState(() => _guardianId = file);
+              }
+            }),
+            if (_relationship == 'wali')
+              _fileRow(
+                'Wali relationship or authority proof',
+                _authorityProof,
+                () async {
+                  final file = await _pickDocument();
+                  if (file != null && mounted) {
+                    setState(() => _authorityProof = file);
+                  }
+                },
+              ),
+            _fileRow('10 to 30 second confirmation video', _video, _pickVideo),
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: LocalizedText(
+                  'The parent or wali should say their name and relationship, your name, confirm you are their son or daughter, and confirm they know you are seeking a spouse through Nisa and consent to being involved.',
+                ),
               ),
             ),
-          ),
-          CheckboxListTile(
-            value: _consentConfirmed,
-            onChanged: _submitting
-                ? null
-                : (value) => setState(() => _consentConfirmed = value ?? false),
-            controlAffinity: ListTileControlAffinity.leading,
-            title: const LocalizedText(
-              'The parent or wali knows about and consents to this verification submission.',
+            CheckboxListTile(
+              value: _consentConfirmed,
+              onChanged: _submitting
+                  ? null
+                  : (value) =>
+                        setState(() => _consentConfirmed = value ?? false),
+              controlAffinity: ListTileControlAffinity.leading,
+              title: const LocalizedText(
+                'The parent or wali knows about and consents to this verification submission.',
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: _submitting ? null : _submit,
-            icon: _submitting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.lock_outline),
-            label: Text(
-              _submitting ? 'Submitting securely…' : 'Submit for review',
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: _submitting ? null : _submit,
+              icon: _submitting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.lock_outline),
+              label: Text(
+                _submitting ? 'Submitting securely…' : 'Submit for review',
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

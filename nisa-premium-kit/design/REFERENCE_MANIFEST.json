@@ -1,0 +1,23 @@
+[
+  {
+    "file": "design/references/01_core_screens_concept.png",
+    "width": 1536,
+    "height": 1024,
+    "purpose": "Concept reference only; do not render as app screen background",
+    "generator": "Image generation in this ChatGPT session, not Nano Banana 2"
+  },
+  {
+    "file": "design/references/02_supporting_screens_concept.png",
+    "width": 1536,
+    "height": 1024,
+    "purpose": "Concept reference only; do not render as app screen background",
+    "generator": "Image generation in this ChatGPT session, not Nano Banana 2"
+  },
+  {
+    "file": "design/references/03_home_portrait_concept.png",
+    "width": 852,
+    "height": 1846,
+    "purpose": "Concept reference only; do not render as app screen background",
+    "generator": "Image generation in this ChatGPT session, not Nano Banana 2"
+  }
+]

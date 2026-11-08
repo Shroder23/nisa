@@ -5,7 +5,7 @@ service firebase.storage {
 
     match /profile-images/{userId}/{allPaths=**} {
 
-      allow read: if true;
+      allow read: if request.auth != null;
 
       allow write: if request.auth != null
                    && request.auth.uid == userId;

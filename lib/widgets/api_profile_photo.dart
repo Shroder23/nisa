@@ -10,6 +10,7 @@ class ApiProfilePhoto extends StatelessWidget {
   final String? fallbackText;
   final bool showBorder;
   final bool enablePreview;
+  final BorderRadius? borderRadius;
 
   const ApiProfilePhoto({
     super.key,
@@ -18,6 +19,7 @@ class ApiProfilePhoto extends StatelessWidget {
     this.fallbackText,
     this.showBorder = false,
     this.enablePreview = true,
+    this.borderRadius,
   });
 
   @override
@@ -27,5 +29,6 @@ class ApiProfilePhoto extends StatelessWidget {
     fallbackText: fallbackText,
     showBorder: showBorder,
     enablePreview: enablePreview,
+    borderRadius: borderRadius,
   );
 }

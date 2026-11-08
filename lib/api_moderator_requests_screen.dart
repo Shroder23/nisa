@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/api_safety_service.dart';
@@ -319,206 +321,212 @@ class _ApiModeratorRequestsScreenState
         ),
       ],
     ),
-    body: RefreshIndicator(
-      onRefresh: () async => _refresh(),
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          if (widget.administrator) ...[
-            const LocalizedText(
-              'Only administrators can permanently ban or delete accounts.',
-            ),
-            const SizedBox(height: 10),
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: _cases,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Text(snapshot.error.toString());
-                }
-                if (!snapshot.hasData) {
-                  return const LinearProgressIndicator();
-                }
-                if (snapshot.data!.isEmpty) {
-                  return const LocalizedText('No requests yet.');
-                }
-                return Column(
-                  children: snapshot.data!.map(_adminCase).toList(),
-                );
-              },
-            ),
-          ] else ...[
-            const LocalizedText(
-              'Only administrators can permanently ban or delete accounts.',
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _target,
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('User ID'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _reason,
-              minLines: 3,
-              maxLines: 6,
-              maxLength: 2000,
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Reason'),
-              ),
-            ),
-            if (_reviewerGender == 'female') ...[
-              OutlinedButton.icon(
-                onPressed: _busy
-                    ? null
-                    : () async {
-                        final requestContext = context;
-                        final rows = await _witnesses;
-                        if (!requestContext.mounted) {
-                          return;
-                        }
-                        if (rows.isEmpty) {
-                          _message(
-                            'No eligible witness moderator is configured.',
-                          );
-                          return;
-                        }
-                        final picked = await showModalBottomSheet<String>(
-                          context: requestContext,
-                          builder: (context) => SafeArea(
-                            child: ListView(
-                              children: [
-                                ListTile(
-                                  title: const LocalizedText(
-                                    'Involve a witness',
-                                  ),
-                                  subtitle: const LocalizedText(
-                                    'You require one witness to support this request.',
-                                  ),
-                                ),
-                                ...rows.map(
-                                  (row) => ListTile(
-                                    title: Text(
-                                      row['display_name']?.toString() ??
-                                          row['user_id'].toString(),
-                                    ),
-                                    subtitle: LocalizedText(
-                                      row['reviewer_gender'] == 'male'
-                                          ? 'Male'
-                                          : 'Female',
-                                    ),
-                                    onTap: () => Navigator.pop(
-                                      context,
-                                      row['user_id'].toString(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                        if (picked != null && mounted) {
-                          setState(() => _witnessId = picked);
-                        }
-                      },
-                icon: const Icon(Icons.people_outline),
-                label: const LocalizedText('Involve a witness'),
-              ),
+    body: NisaPageBody(
+      form: false,
+      child: RefreshIndicator(
+        onRefresh: () async => _refresh(),
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (widget.administrator) ...[
               const LocalizedText(
-                'You require one witness to support this request.',
+                'Only administrators can permanently ban or delete accounts.',
               ),
-              if (_witnessId != null) const LocalizedText('Witness selected'),
-            ],
-            const SizedBox(height: 8),
-            FilledButton.icon(
-              onPressed: _busy ? null : () => _submitRequest(),
-              icon: const Icon(Icons.send),
-              label: const LocalizedText('Submit'),
-            ),
-            const SizedBox(height: 22),
-            Text(
-              AppLanguageService.translate('My requests'),
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: _requests,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Text(snapshot.error.toString());
-                }
-                if (!snapshot.hasData) {
-                  return const LinearProgressIndicator();
-                }
-                if (snapshot.data!.isEmpty) {
-                  return const LocalizedText('No requests yet.');
-                }
-                return Column(
-                  children: snapshot.data!
-                      .map(
-                        (item) => Card(
-                          child: ListTile(
-                            title: Text(
-                              item['target_name']?.toString() ??
-                                  item['target_user_id'].toString(),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                LocalizedText(
-                                  _statusLabel(
-                                    item['status']?.toString() ?? 'collecting',
+              const SizedBox(height: 10),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _cases,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text(snapshot.error.toString());
+                  }
+                  if (!snapshot.hasData) {
+                    return const LinearProgressIndicator();
+                  }
+                  if (snapshot.data!.isEmpty) {
+                    return const LocalizedText('No requests yet.');
+                  }
+                  return Column(
+                    children: snapshot.data!.map(_adminCase).toList(),
+                  );
+                },
+              ),
+            ] else ...[
+              const LocalizedText(
+                'Only administrators can permanently ban or delete accounts.',
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _target,
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('User ID'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _reason,
+                minLines: 3,
+                maxLines: 6,
+                maxLength: 2000,
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('Reason'),
+                ),
+              ),
+              if (_reviewerGender == 'female') ...[
+                OutlinedButton.icon(
+                  onPressed: _busy
+                      ? null
+                      : () async {
+                          final requestContext = context;
+                          final rows = await _witnesses;
+                          if (!requestContext.mounted) {
+                            return;
+                          }
+                          if (rows.isEmpty) {
+                            _message(
+                              'No eligible witness moderator is configured.',
+                            );
+                            return;
+                          }
+                          final picked = await showModalBottomSheet<String>(
+                            context: requestContext,
+                            builder: (context) => SafeArea(
+                              child: ListView(
+                                children: [
+                                  ListTile(
+                                    title: const LocalizedText(
+                                      'Involve a witness',
+                                    ),
+                                    subtitle: const LocalizedText(
+                                      'You require one witness to support this request.',
+                                    ),
                                   ),
-                                ),
-                                Row(
-                                  children: [
-                                    const LocalizedText('Support'),
-                                    const SizedBox(width: 6),
-                                    const LocalizedText('Male'),
-                                    Text(
-                                      item['male_support']?.toString() ?? '0',
+                                  ...rows.map(
+                                    (row) => ListTile(
+                                      title: Text(
+                                        row['display_name']?.toString() ??
+                                            row['user_id'].toString(),
+                                      ),
+                                      subtitle: LocalizedText(
+                                        row['reviewer_gender'] == 'male'
+                                            ? 'Male'
+                                            : 'Female',
+                                      ),
+                                      onTap: () => Navigator.pop(
+                                        context,
+                                        row['user_id'].toString(),
+                                      ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    const LocalizedText('Female'),
-                                    Text(
-                                      item['female_support']?.toString() ?? '0',
-                                    ),
-                                  ],
-                                ),
-                                Text(item['reason']?.toString() ?? ''),
-                              ],
+                                  ),
+                                ],
+                              ),
                             ),
-                            isThreeLine: true,
-                            trailing:
-                                item['witness_user_id'] != null &&
-                                    item['already_supported'] != true &&
-                                    item['status'] == 'collecting'
-                                ? TextButton(
-                                    onPressed: _busy
-                                        ? null
-                                        : () {
-                                            _target.text =
-                                                item['target_user_id']
-                                                    .toString();
-                                            _reason.text = item['reason']
-                                                .toString();
-                                            _reportId = item['report_id']
-                                                ?.toString();
-                                            _submitRequest(
-                                              proposalId: item['id'].toString(),
-                                            );
-                                          },
-                                    child: const LocalizedText('Support'),
-                                  )
-                                : null,
+                          );
+                          if (picked != null && mounted) {
+                            setState(() => _witnessId = picked);
+                          }
+                        },
+                  icon: const Icon(Icons.people_outline),
+                  label: const LocalizedText('Involve a witness'),
+                ),
+                const LocalizedText(
+                  'You require one witness to support this request.',
+                ),
+                if (_witnessId != null) const LocalizedText('Witness selected'),
+              ],
+              const SizedBox(height: 8),
+              FilledButton.icon(
+                onPressed: _busy ? null : () => _submitRequest(),
+                icon: const Icon(Icons.send),
+                label: const LocalizedText('Submit'),
+              ),
+              const SizedBox(height: 22),
+              Text(
+                AppLanguageService.translate('My requests'),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _requests,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text(snapshot.error.toString());
+                  }
+                  if (!snapshot.hasData) {
+                    return const LinearProgressIndicator();
+                  }
+                  if (snapshot.data!.isEmpty) {
+                    return const LocalizedText('No requests yet.');
+                  }
+                  return Column(
+                    children: snapshot.data!
+                        .map(
+                          (item) => Card(
+                            child: ListTile(
+                              title: Text(
+                                item['target_name']?.toString() ??
+                                    item['target_user_id'].toString(),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  LocalizedText(
+                                    _statusLabel(
+                                      item['status']?.toString() ??
+                                          'collecting',
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      const LocalizedText('Support'),
+                                      const SizedBox(width: 6),
+                                      const LocalizedText('Male'),
+                                      Text(
+                                        item['male_support']?.toString() ?? '0',
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const LocalizedText('Female'),
+                                      Text(
+                                        item['female_support']?.toString() ??
+                                            '0',
+                                      ),
+                                    ],
+                                  ),
+                                  Text(item['reason']?.toString() ?? ''),
+                                ],
+                              ),
+                              isThreeLine: true,
+                              trailing:
+                                  item['witness_user_id'] != null &&
+                                      item['already_supported'] != true &&
+                                      item['status'] == 'collecting'
+                                  ? TextButton(
+                                      onPressed: _busy
+                                          ? null
+                                          : () {
+                                              _target.text =
+                                                  item['target_user_id']
+                                                      .toString();
+                                              _reason.text = item['reason']
+                                                  .toString();
+                                              _reportId = item['report_id']
+                                                  ?.toString();
+                                              _submitRequest(
+                                                proposalId: item['id']
+                                                    .toString(),
+                                              );
+                                            },
+                                      child: const LocalizedText('Support'),
+                                    )
+                                  : null,
+                            ),
                           ),
-                        ),
-                      )
-                      .toList(),
-                );
-              },
-            ),
+                        )
+                        .toList(),
+                  );
+                },
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     ),
   );

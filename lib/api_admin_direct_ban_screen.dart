@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/api_safety_service.dart';
@@ -88,49 +90,54 @@ class _ApiAdminDirectBanScreenState extends State<ApiAdminDirectBanScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const LocalizedText('Permanent ban')),
-    body: ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        const SizedBox(height: 8),
-        TextField(
-          controller: _uid,
-          textInputAction: TextInputAction.next,
-          decoration: InputDecoration(
-            labelText: AppLanguageService.translate('User ID'),
-          ),
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _reason,
-          minLines: 3,
-          maxLines: 6,
-          maxLength: 1000,
-          decoration: InputDecoration(
-            labelText: AppLanguageService.translate('Reason'),
-          ),
-        ),
-        CheckboxListTile(
-          value: _denyEmail,
-          contentPadding: EdgeInsets.zero,
-          title: const LocalizedText('Block this email from registering again'),
-          onChanged: (value) => setState(() => _denyEmail = value ?? false),
-        ),
-        TextField(
-          controller: _phone,
-          keyboardType: TextInputType.phone,
-          decoration: InputDecoration(
-            labelText: AppLanguageService.translate(
-              'Phone number to block (optional)',
+    body: NisaPageBody(
+      form: true,
+      child: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          const SizedBox(height: 8),
+          TextField(
+            controller: _uid,
+            textInputAction: TextInputAction.next,
+            decoration: InputDecoration(
+              labelText: AppLanguageService.translate('User ID'),
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          onPressed: _busy ? null : _ban,
-          icon: const Icon(Icons.gavel),
-          label: LocalizedText(_busy ? 'Please wait…' : 'Permanent ban'),
-        ),
-      ],
+          const SizedBox(height: 10),
+          TextField(
+            controller: _reason,
+            minLines: 3,
+            maxLines: 6,
+            maxLength: 1000,
+            decoration: InputDecoration(
+              labelText: AppLanguageService.translate('Reason'),
+            ),
+          ),
+          CheckboxListTile(
+            value: _denyEmail,
+            contentPadding: EdgeInsets.zero,
+            title: const LocalizedText(
+              'Block this email from registering again',
+            ),
+            onChanged: (value) => setState(() => _denyEmail = value ?? false),
+          ),
+          TextField(
+            controller: _phone,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              labelText: AppLanguageService.translate(
+                'Phone number to block (optional)',
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: _busy ? null : _ban,
+            icon: const Icon(Icons.gavel),
+            label: LocalizedText(_busy ? 'Please wait…' : 'Permanent ban'),
+          ),
+        ],
+      ),
     ),
   );
 }

@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -303,138 +305,145 @@ class _ChatScreenState extends LanguageAwareState<ChatScreen>
           ),
         ],
       ),
-      body: uid == null || uid.isEmpty
-          ? const Center(child: LocalizedText('You are not signed in.'))
-          : Column(
-              children: [
-                Expanded(
-                  child: StreamBuilder<List<Message>>(
-                    stream: MessageService.watchMessages(widget.conversationId),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: LocalizedText(
-                              'Something went wrong. Please try again.',
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        );
-                      }
-
-                      if (!snapshot.hasData) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      final messages = snapshot.data!;
-
-                      _syncMessageReceipts(messages, uid);
-
-                      if (messages.isNotEmpty) {
-                        final newest = messages.first;
-                        if (newest.senderId != uid &&
-                            newest.id != _lastMarkedMessageId) {
-                          _lastMarkedMessageId = newest.id;
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            _markConversationRead();
-                          });
-                        }
-                      }
-
-                      if (messages.isEmpty) {
-                        return const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(24),
-                            child: LocalizedText(
-                              'You matched. Start a respectful conversation.',
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        );
-                      }
-
-                      return ListView.builder(
-                        reverse: true,
-                        padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
-                        itemCount: messages.length,
-                        itemBuilder: (context, index) {
-                          final message = messages[index];
-                          final mine = message.senderId == uid;
-
-                          return _MessageBubble(message: message, mine: mine);
-                        },
-                      );
-                    },
-                  ),
-                ),
-                if (_blockedBetween)
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(12, 8, 12, 0),
-                    child: Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Row(
-                          children: [
-                            Icon(Icons.block),
-                            SizedBox(width: 10),
-                            Expanded(
+      body: NisaPageBody(
+        form: false,
+        child: uid == null || uid.isEmpty
+            ? const Center(child: LocalizedText('You are not signed in.'))
+            : Column(
+                children: [
+                  Expanded(
+                    child: StreamBuilder<List<Message>>(
+                      stream: MessageService.watchMessages(
+                        widget.conversationId,
+                      ),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
                               child: LocalizedText(
-                                'Messaging is unavailable because one of you has blocked the other.',
+                                'Something went wrong. Please try again.',
+                                textAlign: TextAlign.center,
                               ),
                             ),
-                          ],
+                          );
+                        }
+
+                        if (!snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        final messages = snapshot.data!;
+
+                        _syncMessageReceipts(messages, uid);
+
+                        if (messages.isNotEmpty) {
+                          final newest = messages.first;
+                          if (newest.senderId != uid &&
+                              newest.id != _lastMarkedMessageId) {
+                            _lastMarkedMessageId = newest.id;
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              _markConversationRead();
+                            });
+                          }
+                        }
+
+                        if (messages.isEmpty) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(24),
+                              child: LocalizedText(
+                                'You matched. Start a respectful conversation.',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        }
+
+                        return ListView.builder(
+                          reverse: true,
+                          padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
+                          itemCount: messages.length,
+                          itemBuilder: (context, index) {
+                            final message = messages[index];
+                            final mine = message.senderId == uid;
+
+                            return _MessageBubble(message: message, mine: mine);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  if (_blockedBetween)
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(12, 8, 12, 0),
+                      child: Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              Icon(Icons.block),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: LocalizedText(
+                                  'Messaging is unavailable because one of you has blocked the other.',
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _controller,
-                            enabled: !_blockedBetween && !_checkingBlock,
-                            minLines: 1,
-                            maxLines: 5,
-                            maxLength: 2000,
-                            textCapitalization: TextCapitalization.sentences,
-                            decoration: InputDecoration(
-                              hintText: AppLanguageService.translate(
-                                'Write a message...',
+                  SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _controller,
+                              enabled: !_blockedBetween && !_checkingBlock,
+                              minLines: 1,
+                              maxLines: 5,
+                              maxLength: 2000,
+                              textCapitalization: TextCapitalization.sentences,
+                              decoration: InputDecoration(
+                                hintText: AppLanguageService.translate(
+                                  'Write a message...',
+                                ),
+                                border: OutlineInputBorder(),
+                                counterText: '',
                               ),
-                              border: OutlineInputBorder(),
-                              counterText: '',
+                              onSubmitted: (_) => _send(),
                             ),
-                            onSubmitted: (_) => _send(),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton.filled(
-                          onPressed:
-                              (_sending || _blockedBetween || _checkingBlock)
-                              ? null
-                              : _send,
-                          icon: _sending
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.send),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          IconButton.filled(
+                            onPressed:
+                                (_sending || _blockedBetween || _checkingBlock)
+                                ? null
+                                : _send,
+                            icon: _sending
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.send),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+      ),
     );
   }
 }
@@ -450,7 +459,9 @@ class _MessageBubble extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Align(
-      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: mine
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 320),
         margin: const EdgeInsets.only(bottom: 8),
@@ -465,7 +476,7 @@ class _MessageBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerStart,
               child: LocalizedText(
                 message.text,
                 style: const TextStyle(height: 1.35),

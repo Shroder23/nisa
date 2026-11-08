@@ -1,0 +1,4 @@
+# Add after the FROM line in the API app/Dockerfile (Debian/Ubuntu Python image):
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*

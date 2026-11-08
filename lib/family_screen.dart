@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'services/app_language_service.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
@@ -134,96 +135,99 @@ class FamilyScreen extends StatelessWidget {
               icon: const Icon(Icons.person_add_alt_1),
               label: const LocalizedText('Invite Member'),
             ),
-      body: uid == null || uid.isEmpty
-          ? const Center(child: LocalizedText('You are not signed in.'))
-          : StreamBuilder<List<FamilyMember>>(
-              stream: FamilyService.watchMembers(uid),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: LocalizedText(
-                        'Something went wrong. Please try again.',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  );
-                }
-
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final members = snapshot.data!;
-
-                return ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                  children: [
-                    const Card(
+      body: NisaPageBody(
+        form: false,
+        child: uid == null || uid.isEmpty
+            ? const Center(child: LocalizedText('You are not signed in.'))
+            : StreamBuilder<List<FamilyMember>>(
+                stream: FamilyService.watchMembers(uid),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
                       child: Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(24),
                         child: LocalizedText(
-                          'Invite a trusted adult family member or guardian. '
-                          'For this phase, in-app acceptance works when the '
-                          'invite uses the same email address as their Nisa '
-                          'account. Nisa does not send an external email or '
-                          'SMS yet.',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (members.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.all(28),
-                        child: LocalizedText(
-                          'No family member is linked yet.\n\n'
-                          'Tap Invite Member to create an invitation.',
+                          'Something went wrong. Please try again.',
                           textAlign: TextAlign.center,
                         ),
-                      )
-                    else
-                      ...members.map(
-                        (member) => Card(
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              child: Icon(
-                                member.invitationStatus ==
-                                        FamilyInvitationStatus.accepted
-                                    ? Icons.verified_user
-                                    : Icons.family_restroom,
-                              ),
-                            ),
-                            title: LocalizedText(member.name),
-                            subtitle: LocalizedRichText(
-                              spanBuilder: () => TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: AppLanguageService.translate(
-                                      _roleLabel(member.role),
-                                    ),
-                                  ),
-                                  const TextSpan(text: ' • '),
-                                  TextSpan(
-                                    text: AppLanguageService.translate(
-                                      _statusLabel(member.invitationStatus),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            trailing: IconButton(
-                              tooltip: AppLanguageService.translate('Remove'),
-                              icon: const Icon(Icons.delete_outline),
-                              onPressed: () => _removeMember(context, member),
-                            ),
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final members = snapshot.data!;
+
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                    children: [
+                      const Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: LocalizedText(
+                            'Invite a trusted adult family member or guardian. '
+                            'For this phase, in-app acceptance works when the '
+                            'invite uses the same email address as their Nisa '
+                            'account. Nisa does not send an external email or '
+                            'SMS yet.',
                           ),
                         ),
                       ),
-                  ],
-                );
-              },
-            ),
+                      const SizedBox(height: 8),
+                      if (members.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.all(28),
+                          child: LocalizedText(
+                            'No family member is linked yet.\n\n'
+                            'Tap Invite Member to create an invitation.',
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      else
+                        ...members.map(
+                          (member) => Card(
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                child: Icon(
+                                  member.invitationStatus ==
+                                          FamilyInvitationStatus.accepted
+                                      ? Icons.verified_user
+                                      : Icons.family_restroom,
+                                ),
+                              ),
+                              title: LocalizedText(member.name),
+                              subtitle: LocalizedRichText(
+                                spanBuilder: () => TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: AppLanguageService.translate(
+                                        _roleLabel(member.role),
+                                      ),
+                                    ),
+                                    const TextSpan(text: ' • '),
+                                    TextSpan(
+                                      text: AppLanguageService.translate(
+                                        _statusLabel(member.invitationStatus),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              trailing: IconButton(
+                                tooltip: AppLanguageService.translate('Remove'),
+                                icon: const Icon(Icons.delete_outline),
+                                onPressed: () => _removeMember(context, member),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+      ),
     );
   }
 }
@@ -335,6 +339,9 @@ class _AddFamilyMemberDialogState
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<FamilyRole>(
+                isExpanded: true,
+                itemHeight: null,
+                isDense: false,
                 initialValue: _role,
                 decoration: InputDecoration(
                   labelText: AppLanguageService.translate('Role'),

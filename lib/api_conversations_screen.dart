@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'widgets/localized_text.dart';
@@ -78,101 +80,112 @@ class _ApiConversationsScreenState
               ],
             )
           : null,
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? _ConversationMessage(message: _error!, onRetry: _load)
-          : _conversations.isEmpty
-          ? const _ConversationMessage(
-              message: 'No messages yet. Start a conversation from one of your matches.',
-            )
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView.separated(
-                itemCount: _conversations.length,
-                separatorBuilder: (_, _) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final conversation = _conversations[index];
-                  final otherId = conversation.otherParticipant(currentUserId);
-                  final name =
-                      conversation.participantNames[otherId]
-                              ?.trim()
-                              .isNotEmpty ==
-                          true
-                      ? conversation.participantNames[otherId]!.trim()
-                      : 'Nisa member';
-                  final unread = conversation.unreadFor.contains(currentUserId);
-                  return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
-                    ),
-                    leading: ApiProfilePhoto(
-                      imageUrl: conversation.participantPhotos[otherId],
-                      radius: 29,
-                      fallbackText: name,
-                    ),
-                    title: Text(
-                      name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontWeight: unread ? FontWeight.w700 : FontWeight.w600,
+      body: NisaPageBody(
+        form: false,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? _ConversationMessage(message: _error!, onRetry: _load)
+            : _conversations.isEmpty
+            ? const _ConversationMessage(
+                message: 'No messages yet. Start a conversation from one of your matches.',
+              )
+            : RefreshIndicator(
+                onRefresh: _load,
+                child: ListView.separated(
+                  itemCount: _conversations.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final conversation = _conversations[index];
+                    final otherId = conversation.otherParticipant(
+                      currentUserId,
+                    );
+                    final name =
+                        conversation.participantNames[otherId]
+                                ?.trim()
+                                .isNotEmpty ==
+                            true
+                        ? conversation.participantNames[otherId]!.trim()
+                        : 'Nisa member';
+                    final unread = conversation.unreadFor.contains(
+                      currentUserId,
+                    );
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
                       ),
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ApiPresenceLabel(
-                            userId: otherId,
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                            compact: true,
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            conversation.lastMessage.isEmpty
-                                ? 'Matched. Start a conversation.'
-                                : conversation.lastMessage,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontWeight: unread
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
+                      leading: ApiProfilePhoto(
+                        imageUrl: conversation.participantPhotos[otherId],
+                        radius: 29,
+                        fallbackText: name,
+                      ),
+                      title: Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: unread
+                              ? FontWeight.w700
+                              : FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ApiPresenceLabel(
+                              userId: otherId,
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary,
+                                  ),
+                              compact: true,
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              conversation.lastMessage.isEmpty
+                                  ? 'Matched. Start a conversation.'
+                                  : conversation.lastMessage,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: unread
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      trailing: unread
+                          ? Badge(
+                              smallSize: 10,
+                              child: const Icon(Icons.chevron_right),
+                            )
+                          : const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ApiChatScreen(
+                              conversationId: conversation.id,
+                              otherUserName: name,
+                              otherUserId: otherId,
+                              otherUserPhoto:
+                                  conversation.participantPhotos[otherId],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    trailing: unread
-                        ? Badge(
-                            smallSize: 10,
-                            child: const Icon(Icons.chevron_right),
-                          )
-                        : const Icon(Icons.chevron_right),
-                    onTap: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ApiChatScreen(
-                            conversationId: conversation.id,
-                            otherUserName: name,
-                            otherUserId: otherId,
-                            otherUserPhoto:
-                                conversation.participantPhotos[otherId],
-                          ),
-                        ),
-                      );
-                      if (mounted) await _load();
-                    },
-                  );
-                },
+                        );
+                        if (mounted) await _load();
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
+      ),
     );
   }
 }

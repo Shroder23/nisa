@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:async';
 
 import 'widgets/localized_text.dart';
@@ -179,64 +181,69 @@ class _ProfileDetailsScreenState
         ),
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              Row(
-                children: [
-                  for (int i = 0; i < 4; i++) ...[
-                    Expanded(
-                      child: Container(
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(10),
+      body: NisaPageBody(
+        form: false,
+        child: SafeArea(
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Row(
+                  children: [
+                    for (int i = 0; i < 4; i++) ...[
+                      Expanded(
+                        child: Container(
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
-                    ),
-                    if (i < 3) const SizedBox(width: 6),
+                      if (i < 3) const SizedBox(width: 6),
+                    ],
                   ],
-                ],
-              ),
-
-              const SizedBox(height: 28),
-
-              LocalizedText(
-                'Tell us a little more',
-                style: Theme.of(context).textTheme.headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 8),
-
-              LocalizedText(
-                'These details help families understand your background and preferences.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-
-              const SizedBox(height: 28),
-
-              DropdownButtonFormField<String>(
-                initialValue: LocationService.heightOptions.contains(_height)
-                    ? _height
-                    : null,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Height'),
-                  prefixIcon: Icon(Icons.height),
-                  border: OutlineInputBorder(),
                 ),
-                items: LocationService.heightOptions
-                    .map(
-                      (value) => DropdownMenuItem(
-                        value: value,
-                        child: LocalizedHeightText(value),
-                      ),
-                    )
-                    .toList(),
-                /* items: const [
+
+                const SizedBox(height: 28),
+
+                LocalizedText(
+                  'Tell us a little more',
+                  style: Theme.of(context).textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 8),
+
+                LocalizedText(
+                  'These details help families understand your background and preferences.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+
+                const SizedBox(height: 28),
+
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
+                  initialValue: LocationService.heightOptions.contains(_height)
+                      ? _height
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Height'),
+                    prefixIcon: Icon(Icons.height),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: LocationService.heightOptions
+                      .map(
+                        (value) => DropdownMenuItem(
+                          value: value,
+                          child: LocalizedHeightText(value),
+                        ),
+                      )
+                      .toList(),
+                  /* items: const [
                   DropdownMenuItem(value: '4\'10"', child: LocalizedText('4\'10"')),
                   DropdownMenuItem(value: '4\'11"', child: LocalizedText('4\'11"')),
                   DropdownMenuItem(value: '5\'0"', child: LocalizedText('5\'0"')),
@@ -257,231 +264,254 @@ class _ProfileDetailsScreenState
                   DropdownMenuItem(value: '6\'3"', child: LocalizedText('6\'3"')),
                   DropdownMenuItem(value: '6\'4"', child: LocalizedText('6\'4"')),
                 ], */
-                onChanged: (value) {
-                  setState(() {
-                    _height = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select your height';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 18),
-
-              const SizedBox(height: 18),
-
-              TextFormField(
-                controller: _professionController,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Profession'),
-                  prefixIcon: Icon(Icons.work_outline),
-                  border: OutlineInputBorder(),
+                  onChanged: (value) {
+                    setState(() {
+                      _height = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select your height';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter your profession';
-                  }
-                  return null;
-                },
-              ),
 
-              const SizedBox(height: 18),
+                const SizedBox(height: 18),
 
-              DropdownButtonFormField<String>(
-                initialValue: _sects.contains(_sect) ? _sect : null,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Sect'),
-                  prefixIcon: const Icon(Icons.account_tree_outlined),
-                  border: const OutlineInputBorder(),
+                const SizedBox(height: 18),
+
+                TextFormField(
+                  controller: _professionController,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Profession'),
+                    prefixIcon: Icon(Icons.work_outline),
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter your profession';
+                    }
+                    return null;
+                  },
                 ),
-                items: _sects
-                    .map(
-                      (value) => DropdownMenuItem(
-                        value: value,
-                        child: LocalizedText(value),
+
+                const SizedBox(height: 18),
+
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
+                  initialValue: _sects.contains(_sect) ? _sect : null,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Sect'),
+                    prefixIcon: const Icon(Icons.account_tree_outlined),
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: _sects
+                      .map(
+                        (value) => DropdownMenuItem(
+                          value: value,
+                          child: LocalizedText(value),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: _sectsLoading
+                      ? null
+                      : (value) => setState(() => _sect = value),
+                  validator: (value) {
+                    if (_sectsLoading) return null;
+                    if (value == null) return 'Please select an option';
+                    return null;
+                  },
+                ),
+
+                if (_sectsLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: LinearProgressIndicator(),
+                  ),
+
+                const SizedBox(height: 18),
+
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
+                  initialValue: _castes.contains(_caste) ? _caste : null,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Caste'),
+                    prefixIcon: const Icon(Icons.groups_outlined),
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: _castes
+                      .map(
+                        (value) => DropdownMenuItem(
+                          value: value,
+                          child: LocalizedText(value),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: _castesLoading
+                      ? null
+                      : (value) => setState(() => _caste = value),
+                ),
+                if (_castesLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: LinearProgressIndicator(),
+                  ),
+
+                const SizedBox(height: 18),
+
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
+                  initialValue:
+                      const [
+                        'Practicing',
+                        'Moderately Practicing',
+                        'Prefer not to say',
+                      ].contains(_religiousPractice)
+                      ? _religiousPractice
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate(
+                      'Religious Practice',
+                    ),
+                    prefixIcon: Icon(Icons.mosque_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Practicing',
+                      child: LocalizedText('Practicing'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Moderately Practicing',
+                      child: LocalizedText('Moderately Practicing'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Prefer not to say',
+                      child: LocalizedText('Prefer not to say'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _religiousPractice = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select an option';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 18),
+
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
+                  initialValue: _languages.contains(_language)
+                      ? _language
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Primary Language'),
+                    prefixIcon: Icon(Icons.language),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _languages
+                      .map(
+                        (value) => DropdownMenuItem(
+                          value: value,
+                          child: LocalizedText(value),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _language = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a language';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 18),
+
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
+                  initialValue:
+                      const [
+                        'Willing to relocate',
+                        'Not willing to relocate',
+                        'Maybe',
+                      ].contains(_relocation)
+                      ? _relocation
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate(
+                      'Willing to Relocate',
+                    ),
+                    prefixIcon: Icon(Icons.flight_takeoff_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Willing to relocate',
+                      child: LocalizedText('Willing to relocate'),
+                    ),
+
+                    DropdownMenuItem(
+                      value: 'Not willing to relocate',
+                      child: LocalizedText('Not willing to relocate'),
+                    ),
+
+                    DropdownMenuItem(
+                      value: 'Maybe',
+                      child: LocalizedText('Maybe'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _relocation = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select an option';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 32),
+
+                SizedBox(
+                  height: 56,
+                  child: FilledButton(
+                    onPressed: _continue,
+                    child: const LocalizedText(
+                      'Continue',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
                       ),
-                    )
-                    .toList(),
-                onChanged: _sectsLoading
-                    ? null
-                    : (value) => setState(() => _sect = value),
-                validator: (value) {
-                  if (_sectsLoading) return null;
-                  if (value == null) return 'Please select an option';
-                  return null;
-                },
-              ),
-
-              if (_sectsLoading)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: LinearProgressIndicator(),
-                ),
-
-              const SizedBox(height: 18),
-
-              DropdownButtonFormField<String>(
-                initialValue: _castes.contains(_caste) ? _caste : null,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Caste'),
-                  prefixIcon: const Icon(Icons.groups_outlined),
-                  border: const OutlineInputBorder(),
-                ),
-                items: _castes
-                    .map(
-                      (value) => DropdownMenuItem(
-                        value: value,
-                        child: LocalizedText(value),
-                      ),
-                    )
-                    .toList(),
-                onChanged: _castesLoading
-                    ? null
-                    : (value) => setState(() => _caste = value),
-              ),
-              if (_castesLoading)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: LinearProgressIndicator(),
-                ),
-
-              const SizedBox(height: 18),
-
-              DropdownButtonFormField<String>(
-                initialValue:
-                    const [
-                      'Practicing',
-                      'Moderately Practicing',
-                      'Prefer not to say',
-                    ].contains(_religiousPractice)
-                    ? _religiousPractice
-                    : null,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Religious Practice'),
-                  prefixIcon: Icon(Icons.mosque_outlined),
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem(
-                    value: 'Practicing',
-                    child: LocalizedText('Practicing'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Moderately Practicing',
-                    child: LocalizedText('Moderately Practicing'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Prefer not to say',
-                    child: LocalizedText('Prefer not to say'),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _religiousPractice = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select an option';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 18),
-
-              DropdownButtonFormField<String>(
-                initialValue: _languages.contains(_language) ? _language : null,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Primary Language'),
-                  prefixIcon: Icon(Icons.language),
-                  border: OutlineInputBorder(),
-                ),
-                items: _languages
-                    .map(
-                      (value) => DropdownMenuItem(
-                        value: value,
-                        child: LocalizedText(value),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _language = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select a language';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 18),
-
-              DropdownButtonFormField<String>(
-                initialValue:
-                    const [
-                      'Willing to relocate',
-                      'Not willing to relocate',
-                      'Maybe',
-                    ].contains(_relocation)
-                    ? _relocation
-                    : null,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate(
-                    'Willing to Relocate',
-                  ),
-                  prefixIcon: Icon(Icons.flight_takeoff_outlined),
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem(
-                    value: 'Willing to relocate',
-                    child: LocalizedText('Willing to relocate'),
-                  ),
-
-                  DropdownMenuItem(
-                    value: 'Not willing to relocate',
-                    child: LocalizedText('Not willing to relocate'),
-                  ),
-
-                  DropdownMenuItem(
-                    value: 'Maybe',
-                    child: LocalizedText('Maybe'),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _relocation = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select an option';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 32),
-
-              SizedBox(
-                height: 56,
-                child: FilledButton(
-                  onPressed: _continue,
-                  child: const LocalizedText(
-                    'Continue',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

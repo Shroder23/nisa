@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -166,75 +168,78 @@ class _ApiSessionManagementScreenState
         title: const LocalizedText('Signed-in devices'),
         actions: const [LanguageSelectorButton()],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+      body: NisaPageBody(
+        form: false,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const LocalizedText('Could not load sessions.'),
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: _loadSessions,
+                      child: const LocalizedText('Try again'),
+                    ),
+                  ],
+                ),
+              )
+            : ListView(
                 children: [
-                  const LocalizedText('Could not load sessions.'),
-                  const SizedBox(height: 12),
-                  OutlinedButton(
-                    onPressed: _loadSessions,
-                    child: const LocalizedText('Try again'),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: LocalizedText('Manage your active sessions.'),
                   ),
+                  if (_sessions.isEmpty)
+                    const ListTile(
+                      leading: Icon(Icons.devices_other_outlined),
+                      title: LocalizedText('No active sessions found.'),
+                    ),
+                  for (final session in _sessions)
+                    ListTile(
+                      leading: Icon(
+                        session['is_current'] == true
+                            ? Icons.phone_android
+                            : Icons.devices_other_outlined,
+                      ),
+                      title: Text(
+                        session['device_label']?.toString().trim().isNotEmpty ==
+                                true
+                            ? session['device_label'].toString()
+                            : AppLanguageService.translate('Unknown device'),
+                      ),
+                      subtitle: Text(
+                        [
+                          if (_lastActive(session['last_used_at']).isNotEmpty)
+                            _lastActive(session['last_used_at']),
+                        ].join(' · '),
+                      ),
+                      trailing: session['is_current'] == true
+                          ? const Chip(label: LocalizedText('This device'))
+                          : TextButton(
+                              onPressed: _busy ? null : () => _revoke(session),
+                              child: const LocalizedText('Revoke'),
+                            ),
+                    ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: OutlinedButton.icon(
+                      onPressed: _busy ? null : _signOutEverywhere,
+                      icon: const Icon(Icons.logout),
+                      label: const LocalizedText('Sign out of all devices'),
+                    ),
+                  ),
+                  if (_busy)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: LinearProgressIndicator(),
+                    ),
                 ],
               ),
-            )
-          : ListView(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: LocalizedText('Manage your active sessions.'),
-                ),
-                if (_sessions.isEmpty)
-                  const ListTile(
-                    leading: Icon(Icons.devices_other_outlined),
-                    title: LocalizedText('No active sessions found.'),
-                  ),
-                for (final session in _sessions)
-                  ListTile(
-                    leading: Icon(
-                      session['is_current'] == true
-                          ? Icons.phone_android
-                          : Icons.devices_other_outlined,
-                    ),
-                    title: Text(
-                      session['device_label']?.toString().trim().isNotEmpty ==
-                              true
-                          ? session['device_label'].toString()
-                          : AppLanguageService.translate('Unknown device'),
-                    ),
-                    subtitle: Text(
-                      [
-                        if (_lastActive(session['last_used_at']).isNotEmpty)
-                          _lastActive(session['last_used_at']),
-                      ].join(' · '),
-                    ),
-                    trailing: session['is_current'] == true
-                        ? const Chip(label: LocalizedText('This device'))
-                        : TextButton(
-                            onPressed: _busy ? null : () => _revoke(session),
-                            child: const LocalizedText('Revoke'),
-                          ),
-                  ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: OutlinedButton.icon(
-                    onPressed: _busy ? null : _signOutEverywhere,
-                    icon: const Icon(Icons.logout),
-                    label: const LocalizedText('Sign out of all devices'),
-                  ),
-                ),
-                if (_busy)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: LinearProgressIndicator(),
-                  ),
-              ],
-            ),
+      ),
     );
   }
 }

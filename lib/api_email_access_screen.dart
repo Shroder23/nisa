@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -201,112 +203,115 @@ class _ApiEmailAccessScreenState
           ),
         ],
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            const Icon(Icons.mark_email_read_outlined, size: 56),
-            const SizedBox(height: 16),
-            LocalizedText(
-              _codeRequested
-                  ? 'Enter your verification code'
-                  : 'Sign in or create an account',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _emailController,
-              enabled: !_codeRequested && !_busy,
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: _codeRequested
-                  ? TextInputAction.next
-                  : TextInputAction.done,
-              autofillHints: const [AutofillHints.email],
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Email'),
-                border: const OutlineInputBorder(),
-              ),
-              onSubmitted: (_) {
-                if (!_codeRequested) unawaited(_submit());
-              },
-            ),
-            if (!_codeRequested) ...[
+      body: NisaPageBody(
+        form: true,
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              const Icon(Icons.mark_email_read_outlined, size: 56),
               const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                enabled: !_busy,
-                obscureText: true,
-                textInputAction: TextInputAction.next,
-                autofillHints: const [AutofillHints.newPassword],
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Password'),
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _confirmPasswordController,
-                enabled: !_busy,
-                obscureText: true,
-                textInputAction: TextInputAction.done,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Confirm password'),
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-            ],
-            if (_codeRequested) ...[
-              const SizedBox(height: 16),
-              TextField(
-                controller: _codeController,
-                enabled: !_busy,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.done,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                maxLength: 6,
-                autofillHints: const [AutofillHints.oneTimeCode],
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('6-digit code'),
-                  border: const OutlineInputBorder(),
-                ),
-                onSubmitted: (_) => _submit(),
-              ),
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: _busy || _secondsLeft > 0 ? null : _resend,
-                    child: Text(resendLabel),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: _busy ? null : _changeEmail,
-                    child: const LocalizedText('Change email'),
-                  ),
-                ],
-              ),
-            ],
-            if (_error != null) ...[
-              const SizedBox(height: 8),
               LocalizedText(
-                _error!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                _codeRequested
+                    ? 'Enter your verification code'
+                    : 'Sign in or create an account',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              const SizedBox(height: 24),
+              TextField(
+                controller: _emailController,
+                enabled: !_codeRequested && !_busy,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: _codeRequested
+                    ? TextInputAction.next
+                    : TextInputAction.done,
+                autofillHints: const [AutofillHints.email],
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('Email'),
+                  border: const OutlineInputBorder(),
+                ),
+                onSubmitted: (_) {
+                  if (!_codeRequested) unawaited(_submit());
+                },
+              ),
+              if (!_codeRequested) ...[
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _passwordController,
+                  enabled: !_busy,
+                  obscureText: true,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.newPassword],
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Password'),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _confirmPasswordController,
+                  enabled: !_busy,
+                  obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Confirm password'),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ],
+              if (_codeRequested) ...[
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _codeController,
+                  enabled: !_busy,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  maxLength: 6,
+                  autofillHints: const [AutofillHints.oneTimeCode],
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('6-digit code'),
+                    border: const OutlineInputBorder(),
+                  ),
+                  onSubmitted: (_) => _submit(),
+                ),
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: _busy || _secondsLeft > 0 ? null : _resend,
+                      child: Text(resendLabel),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: _busy ? null : _changeEmail,
+                      child: const LocalizedText('Change email'),
+                    ),
+                  ],
+                ),
+              ],
+              if (_error != null) ...[
+                const SizedBox(height: 8),
+                LocalizedText(
+                  _error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ],
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: _busy ? null : _submit,
+                child: _busy
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : LocalizedText(
+                        _codeRequested ? 'Verify and continue' : 'Send code',
+                      ),
               ),
             ],
-            const SizedBox(height: 20),
-            FilledButton(
-              onPressed: _busy ? null : _submit,
-              child: _busy
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : LocalizedText(
-                      _codeRequested ? 'Verify and continue' : 'Send code',
-                    ),
-            ),
-          ],
+          ),
         ),
       ),
     );

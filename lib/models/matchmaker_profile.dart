@@ -66,26 +66,28 @@ class MatchmakerProfile {
     'external_reference': externalReference,
   };
 
-  factory MatchmakerProfile.fromJson(Map<String, dynamic> json) => MatchmakerProfile(
-    id: json['id']?.toString(),
-    fullName: (json['full_name'] ?? json['name'] ?? '').toString(),
-    gender: (json['gender'] ?? '').toString(),
-    age: int.tryParse(json['age']?.toString() ?? ''),
-    city: (json['city'] ?? '').toString(),
-    country: (json['country'] ?? 'Pakistan').toString(),
-    height: (json['height'] ?? '').toString(),
-    maritalStatus: (json['marital_status'] ?? '').toString(),
-    education: (json['education'] ?? '').toString(),
-    profession: (json['profession'] ?? '').toString(),
-    religion: (json['religion'] ?? 'Islam').toString(),
-    sect: (json['sect'] ?? '').toString(),
-    phone: (json['phone'] ?? '').toString(),
-    email: (json['email'] ?? '').toString(),
-    partnerPreferences: (json['partner_preferences'] ?? '').toString(),
-    notes: (json['notes'] ?? '').toString(),
-    consentStatus: (json['consent_status'] ?? 'pending').toString(),
-    verificationStatus: (json['verification_status'] ?? 'unverified').toString(),
-    visibility: (json['visibility'] ?? 'private').toString(),
-    externalReference: (json['external_reference'] ?? '').toString(),
-  );
+  factory MatchmakerProfile.fromJson(Map<String, dynamic> json) =>
+      MatchmakerProfile(
+        id: json['id']?.toString(),
+        fullName: (json['full_name'] ?? json['name'] ?? '').toString(),
+        gender: (json['gender'] ?? '').toString(),
+        age: int.tryParse(json['age']?.toString() ?? ''),
+        city: (json['city'] ?? '').toString(),
+        country: (json['country'] ?? 'Pakistan').toString(),
+        height: (json['height'] ?? '').toString(),
+        maritalStatus: (json['marital_status'] ?? '').toString(),
+        education: (json['education'] ?? '').toString(),
+        profession: (json['profession'] ?? '').toString(),
+        religion: (json['religion'] ?? 'Islam').toString(),
+        sect: (json['sect'] ?? '').toString(),
+        phone: (json['phone'] ?? '').toString(),
+        email: (json['email'] ?? '').toString(),
+        partnerPreferences: (json['partner_preferences'] ?? '').toString(),
+        notes: (json['notes'] ?? '').toString(),
+        consentStatus: (json['consent_status'] ?? 'pending').toString(),
+        verificationStatus: (json['verification_status'] ?? 'unverified')
+            .toString(),
+        visibility: (json['visibility'] ?? 'private').toString(),
+        externalReference: (json['external_reference'] ?? '').toString(),
+      );
 }

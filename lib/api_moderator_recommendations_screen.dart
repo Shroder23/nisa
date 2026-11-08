@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/api_safety_service.dart';
@@ -102,6 +104,9 @@ class _ApiModeratorRecommendationsScreenState
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
+                isExpanded: true,
+                itemHeight: null,
+                isDense: false,
                 initialValue: status,
                 decoration: InputDecoration(
                   labelText: AppLanguageService.translate('Status'),
@@ -195,165 +200,176 @@ class _ApiModeratorRecommendationsScreenState
         ),
       ],
     ),
-    body: RefreshIndicator(
-      onRefresh: () async => _refresh(),
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          if (!widget.administrator) ...[
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _category,
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Category'),
+    body: NisaPageBody(
+      form: false,
+      child: RefreshIndicator(
+        onRefresh: () async => _refresh(),
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (!widget.administrator) ...[
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                itemHeight: null,
+                isDense: false,
+                initialValue: _category,
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('Category'),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: 'security',
+                    child: LocalizedText('Security'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'member_safety',
+                    child: LocalizedText('Safety'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'verification',
+                    child: LocalizedText('Verification'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'workflow',
+                    child: LocalizedText('Workflow'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'other',
+                    child: LocalizedText('Other'),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _category = value);
+                  }
+                },
               ),
-              items: const [
-                DropdownMenuItem(
-                  value: 'security',
-                  child: LocalizedText('Security'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _title,
+                maxLength: 140,
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('Title'),
                 ),
-                DropdownMenuItem(
-                  value: 'member_safety',
-                  child: LocalizedText('Safety'),
+              ),
+              TextField(
+                controller: _details,
+                minLines: 3,
+                maxLines: 6,
+                maxLength: 2000,
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('Recommendation'),
                 ),
-                DropdownMenuItem(
-                  value: 'verification',
-                  child: LocalizedText('Verification'),
-                ),
-                DropdownMenuItem(
-                  value: 'workflow',
-                  child: LocalizedText('Workflow'),
-                ),
-                DropdownMenuItem(value: 'other', child: LocalizedText('Other')),
-              ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _category = value);
+              ),
+              FilledButton.icon(
+                onPressed: _busy ? null : _submit,
+                icon: const Icon(Icons.send),
+                label: const LocalizedText('Submit'),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                AppLanguageService.translate('My recommendations'),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ] else ...[
+              const SizedBox(height: 12),
+            ],
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: _items,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text(snapshot.error.toString());
                 }
-              },
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _title,
-              maxLength: 140,
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Title'),
-              ),
-            ),
-            TextField(
-              controller: _details,
-              minLines: 3,
-              maxLines: 6,
-              maxLength: 2000,
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Recommendation'),
-              ),
-            ),
-            FilledButton.icon(
-              onPressed: _busy ? null : _submit,
-              icon: const Icon(Icons.send),
-              label: const LocalizedText('Submit'),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              AppLanguageService.translate('My recommendations'),
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ] else ...[
-            const SizedBox(height: 12),
-          ],
-          FutureBuilder<List<Map<String, dynamic>>>(
-            future: _items,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Text(snapshot.error.toString());
-              }
-              if (!snapshot.hasData) {
-                return const LinearProgressIndicator();
-              }
-              if (snapshot.data!.isEmpty) {
-                return const LocalizedText(
-                  'No recommendations have been submitted.',
-                );
-              }
-              return Column(
-                children: snapshot.data!
-                    .map(
-                      (item) => Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      item['title']?.toString() ?? '',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium,
+                if (!snapshot.hasData) {
+                  return const LinearProgressIndicator();
+                }
+                if (snapshot.data!.isEmpty) {
+                  return const LocalizedText(
+                    'No recommendations have been submitted.',
+                  );
+                }
+                return Column(
+                  children: snapshot.data!
+                      .map(
+                        (item) => Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        item['title']?.toString() ?? '',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
+                                      ),
+                                    ),
+                                    Chip(
+                                      label: LocalizedText(
+                                        _statusLabel(
+                                          item['status']?.toString() ?? 'new',
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    LocalizedText(
+                                      _categoryLabel(
+                                        item['category']?.toString() ?? 'other',
+                                      ),
+                                    ),
+                                    const Text(' · '),
+                                    Text(
+                                      item['author_name']?.toString() ?? 'You',
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(item['details']?.toString() ?? ''),
+                                if (widget.administrator &&
+                                    (item['admin_note']?.toString() ?? '')
+                                        .isNotEmpty) ...[
+                                  const SizedBox(height: 6),
+                                  ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    title: const LocalizedText(
+                                      'Private moderator note',
+                                    ),
+                                    subtitle: Text(
+                                      item['admin_note']?.toString() ?? '',
                                     ),
                                   ),
-                                  Chip(
-                                    label: LocalizedText(
-                                      _statusLabel(
-                                        item['status']?.toString() ?? 'new',
+                                ],
+                                if (widget.administrator)
+                                  Align(
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    child: TextButton.icon(
+                                      onPressed: _busy
+                                          ? null
+                                          : () => _update(item),
+                                      icon: const Icon(Icons.edit_outlined),
+                                      label: const LocalizedText(
+                                        'Save decision',
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  LocalizedText(
-                                    _categoryLabel(
-                                      item['category']?.toString() ?? 'other',
-                                    ),
-                                  ),
-                                  const Text(' · '),
-                                  Text(
-                                    item['author_name']?.toString() ?? 'You',
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(item['details']?.toString() ?? ''),
-                              if (widget.administrator &&
-                                  (item['admin_note']?.toString() ?? '')
-                                      .isNotEmpty) ...[
-                                const SizedBox(height: 6),
-                                ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  title: const LocalizedText(
-                                    'Private moderator note',
-                                  ),
-                                  subtitle: Text(
-                                    item['admin_note']?.toString() ?? '',
-                                  ),
-                                ),
                               ],
-                              if (widget.administrator)
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton.icon(
-                                    onPressed: _busy
-                                        ? null
-                                        : () => _update(item),
-                                    icon: const Icon(Icons.edit_outlined),
-                                    label: const LocalizedText('Save decision'),
-                                  ),
-                                ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                    .toList(),
-              );
-            },
-          ),
-        ],
+                      )
+                      .toList(),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     ),
   );

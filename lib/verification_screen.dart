@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:async';
 
 import 'widgets/localized_text.dart';
@@ -130,76 +132,79 @@ class VerificationScreen extends StatelessWidget {
         ),
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            const SizedBox(height: 20),
-            Icon(
-              Icons.verified_user_outlined,
-              size: 76,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 20),
-            LocalizedText(
-              'Family Verification',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            const LocalizedText(
-              'A verified badge is given only after parent or guardian verification is reviewed and approved.',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 28),
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    LocalizedText(
-                      'Required for verification:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 12),
-                    _Point('Linked parent or guardian'),
-                    _Point('Parent/guardian ID image'),
-                    _Point('Parent/guardian confirmation video'),
-                    _Point('Manual approval before badge appears'),
-                  ],
-                ),
+      body: NisaPageBody(
+        form: false,
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              const SizedBox(height: 20),
+              Icon(
+                Icons.verified_user_outlined,
+                size: 76,
+                color: Theme.of(context).colorScheme.primary,
               ),
-            ),
-            const SizedBox(height: 24),
-            if (ApiAppState.isSignedIn)
+              const SizedBox(height: 20),
+              LocalizedText(
+                'Family Verification',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              const LocalizedText(
+                'A verified badge is given only after parent or guardian verification is reviewed and approved.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 28),
               const Card(
                 child: Padding(
                   padding: EdgeInsets.all(16),
-                  child: LocalizedText(
-                    'Family verification upload is not connected to PostgreSQL yet. Continuing below will leave this profile unverified.',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      LocalizedText(
+                        'Required for verification:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 12),
+                      _Point('Linked parent or guardian'),
+                      _Point('Parent/guardian ID image'),
+                      _Point('Parent/guardian confirmation video'),
+                      _Point('Manual approval before badge appears'),
+                    ],
                   ),
                 ),
-              )
-            else
-              FilledButton.icon(
-                onPressed: () => _getVerified(context),
-                icon: const Icon(Icons.upload_file_outlined),
-                label: const LocalizedText('Start Verification Upload'),
               ),
-            const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: () => _continueUnverified(context),
-              child: const LocalizedText('Continue Without Verification'),
-            ),
-            const SizedBox(height: 16),
-            const LocalizedText(
-              'Unverified profiles can use core Nisa features. Approved profiles display the Parent Verified badge.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12),
-            ),
-          ],
+              const SizedBox(height: 24),
+              if (ApiAppState.isSignedIn)
+                const Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: LocalizedText(
+                      'Family verification upload is not connected to PostgreSQL yet. Continuing below will leave this profile unverified.',
+                    ),
+                  ),
+                )
+              else
+                FilledButton.icon(
+                  onPressed: () => _getVerified(context),
+                  icon: const Icon(Icons.upload_file_outlined),
+                  label: const LocalizedText('Start Verification Upload'),
+                ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: () => _continueUnverified(context),
+                child: const LocalizedText('Continue Without Verification'),
+              ),
+              const SizedBox(height: 16),
+              const LocalizedText(
+                'Unverified profiles can use core Nisa features. Approved profiles display the Parent Verified badge.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -224,63 +229,66 @@ class _VerifiedStatusScreen extends StatelessWidget {
         ),
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            const SizedBox(height: 48),
-            Icon(
-              Icons.verified,
-              size: 92,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 22),
-            LocalizedText(
-              'Parent Verified',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            LocalizedRichText(
-              spanBuilder: () => TextSpan(
-                children: [
-                  if (profile.name.isNotEmpty) ...[
-                    TextSpan(text: profile.name),
-                    const TextSpan(text: ' · '),
-                  ],
-                  TextSpan(
-                    text: AppLanguageService.translate('Parent Verified'),
-                  ),
-                ],
+      body: NisaPageBody(
+        form: false,
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              const SizedBox(height: 48),
+              Icon(
+                Icons.verified,
+                size: 92,
+                color: Theme.of(context).colorScheme.primary,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(18),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 22),
+              LocalizedText(
+                'Parent Verified',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              LocalizedRichText(
+                spanBuilder: () => TextSpan(
                   children: [
-                    Icon(Icons.check_circle_outline),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: LocalizedText(
-                        'No further verification upload is required. Your verified badge remains active unless your verification status is changed by moderation.',
-                      ),
+                    if (profile.name.isNotEmpty) ...[
+                      TextSpan(text: profile.name),
+                      const TextSpan(text: ' · '),
+                    ],
+                    TextSpan(
+                      text: AppLanguageService.translate('Parent Verified'),
                     ),
                   ],
                 ),
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.done),
-              label: const LocalizedText('Done'),
-            ),
-          ],
+              const SizedBox(height: 24),
+              const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(18),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.check_circle_outline),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: LocalizedText(
+                          'No further verification upload is required. Your verified badge remains active unless your verification status is changed by moderation.',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.done),
+                label: const LocalizedText('Done'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -305,53 +313,56 @@ class _PendingStatusScreen extends StatelessWidget {
         ),
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            const SizedBox(height: 48),
-            Icon(
-              Icons.hourglass_top,
-              size: 88,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 22),
-            LocalizedText(
-              'Verification Under Review',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            const LocalizedText(
-              'Your verification documents have already been submitted. You do not need to upload them again while the request is being reviewed.',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(18),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.info_outline),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: LocalizedText(
-                        'When the review is completed, your status will change to verified or you will receive a reason if another submission is required.',
+      body: NisaPageBody(
+        form: false,
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              const SizedBox(height: 48),
+              Icon(
+                Icons.hourglass_top,
+                size: 88,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(height: 22),
+              LocalizedText(
+                'Verification Under Review',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              const LocalizedText(
+                'Your verification documents have already been submitted. You do not need to upload them again while the request is being reviewed.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(18),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info_outline),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: LocalizedText(
+                          'When the review is completed, your status will change to verified or you will receive a reason if another submission is required.',
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.done),
-              label: const LocalizedText('Done'),
-            ),
-          ],
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.done),
+                label: const LocalizedText('Done'),
+              ),
+            ],
+          ),
         ),
       ),
     );

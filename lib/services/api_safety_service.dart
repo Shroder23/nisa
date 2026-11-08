@@ -52,7 +52,9 @@ class ApiSafetyService {
   }
 
   static Future<bool> canReviewModeratorLogs() async {
-    final response = await ApiAuthService.get('/api/admin/moderation/capability');
+    final response = await ApiAuthService.get(
+      '/api/admin/moderation/capability',
+    );
     final data = _decode(response);
     _check(response, data);
     return data?['is_admin'] == true;
@@ -173,18 +175,28 @@ class ApiSafetyService {
     _check(response, data);
     final rows = data?['restrictions'];
     if (rows is! List) return const [];
-    return rows.whereType<Map>().map((row) => Map<String, dynamic>.from(row)).toList();
+    return rows
+        .whereType<Map>()
+        .map((row) => Map<String, dynamic>.from(row))
+        .toList();
   }
 
-  static Future<Map<String, dynamic>> getModeratorLogsPage({int? beforeId}) async {
+  static Future<Map<String, dynamic>> getModeratorLogsPage({
+    int? beforeId,
+  }) async {
     final query = beforeId == null ? '' : '?before_id=$beforeId';
-    final response = await ApiAuthService.get('/api/admin/moderation/logs$query');
+    final response = await ApiAuthService.get(
+      '/api/admin/moderation/logs$query',
+    );
     final data = _decode(response);
     _check(response, data);
     final rows = data?['logs'];
     return {
       'logs': rows is List
-          ? rows.whereType<Map>().map((row) => Map<String, dynamic>.from(row)).toList()
+          ? rows
+                .whereType<Map>()
+                .map((row) => Map<String, dynamic>.from(row))
+                .toList()
           : const <Map<String, dynamic>>[],
       'next_before_id': data?['next_before_id'],
     };
@@ -196,7 +208,10 @@ class ApiSafetyService {
     _check(response, data);
     final rows = data?['cases'];
     if (rows is! List) return const [];
-    return rows.whereType<Map>().map((row) => Map<String, dynamic>.from(row)).toList();
+    return rows
+        .whereType<Map>()
+        .map((row) => Map<String, dynamic>.from(row))
+        .toList();
   }
 
   static Future<void> decideAdminModerationCase(
@@ -208,35 +223,52 @@ class ApiSafetyService {
   }) async {
     final response = await ApiAuthService.postJson(
       '/api/admin/moderation/cases/${Uri.encodeComponent(caseId)}/decision',
-      {'decision': decision, 'notes': notes, 'deny_email': denyEmail,
-       if (denyPhone != null && denyPhone.trim().isNotEmpty) 'deny_phone': denyPhone.trim()},
+      {
+        'decision': decision,
+        'notes': notes,
+        'deny_email': denyEmail,
+        if (denyPhone != null && denyPhone.trim().isNotEmpty)
+          'deny_phone': denyPhone.trim(),
+      },
     );
     _check(response, _decode(response));
   }
 
   static Future<Map<String, dynamic>> getModeratorUiCapability() async {
-    final response = await ApiAuthService.get('/api/admin/moderation/moderator-capability');
+    final response = await ApiAuthService.get(
+      '/api/admin/moderation/moderator-capability',
+    );
     final data = _decode(response);
     _check(response, data);
     return data ?? const {};
   }
 
   static Future<List<Map<String, dynamic>>> getModeratorWitnesses() async {
-    final response = await ApiAuthService.get('/api/admin/moderation/witnesses');
+    final response = await ApiAuthService.get(
+      '/api/admin/moderation/witnesses',
+    );
     final data = _decode(response);
     _check(response, data);
     final rows = data?['moderators'];
     if (rows is! List) return const [];
-    return rows.whereType<Map>().map((row) => Map<String, dynamic>.from(row)).toList();
+    return rows
+        .whereType<Map>()
+        .map((row) => Map<String, dynamic>.from(row))
+        .toList();
   }
 
   static Future<List<Map<String, dynamic>>> getMyPermanentBanRequests() async {
-    final response = await ApiAuthService.get('/api/admin/moderation/my-requests');
+    final response = await ApiAuthService.get(
+      '/api/admin/moderation/my-requests',
+    );
     final data = _decode(response);
     _check(response, data);
     final rows = data?['requests'];
     if (rows is! List) return const [];
-    return rows.whereType<Map>().map((row) => Map<String, dynamic>.from(row)).toList();
+    return rows
+        .whereType<Map>()
+        .map((row) => Map<String, dynamic>.from(row))
+        .toList();
   }
 
   static Future<Map<String, dynamic>> submitModeratorRecommendation({
@@ -244,21 +276,28 @@ class ApiSafetyService {
     required String title,
     required String details,
   }) async {
-    final response = await ApiAuthService.postJson('/api/admin/moderation/recommendations', {
-      'category': category, 'title': title, 'details': details,
-    });
+    final response = await ApiAuthService.postJson(
+      '/api/admin/moderation/recommendations',
+      {'category': category, 'title': title, 'details': details},
+    );
     final data = _decode(response);
     _check(response, data);
     return data ?? const {};
   }
 
-  static Future<List<Map<String, dynamic>>> getModeratorRecommendations() async {
-    final response = await ApiAuthService.get('/api/admin/moderation/recommendations');
+  static Future<List<Map<String, dynamic>>>
+  getModeratorRecommendations() async {
+    final response = await ApiAuthService.get(
+      '/api/admin/moderation/recommendations',
+    );
     final data = _decode(response);
     _check(response, data);
     final rows = data?['recommendations'];
     if (rows is! List) return const [];
-    return rows.whereType<Map>().map((row) => Map<String, dynamic>.from(row)).toList();
+    return rows
+        .whereType<Map>()
+        .map((row) => Map<String, dynamic>.from(row))
+        .toList();
   }
 
   static Future<void> updateModeratorRecommendation({
@@ -303,8 +342,12 @@ class ApiSafetyService {
   }) async {
     final response = await ApiAuthService.postJson(
       '/api/admin/moderation/users/${Uri.encodeComponent(userId)}/permanent-ban',
-      {'reason': reason, 'deny_email': denyEmail,
-       if (denyPhone != null && denyPhone.trim().isNotEmpty) 'deny_phone': denyPhone.trim()},
+      {
+        'reason': reason,
+        'deny_email': denyEmail,
+        if (denyPhone != null && denyPhone.trim().isNotEmpty)
+          'deny_phone': denyPhone.trim(),
+      },
     );
     _check(response, _decode(response));
   }
@@ -315,7 +358,10 @@ class ApiSafetyService {
     _check(response, data);
     final rows = data?['reports'];
     if (rows is! List) return const [];
-    return rows.whereType<Map>().map((row) => Map<String, dynamic>.from(row)).toList();
+    return rows
+        .whereType<Map>()
+        .map((row) => Map<String, dynamic>.from(row))
+        .toList();
   }
 
   static Future<List<Map<String, dynamic>>> getReportQueue({
@@ -329,7 +375,10 @@ class ApiSafetyService {
     _check(response, data);
     final rows = data?['reports'];
     if (rows is! List) return const [];
-    return rows.whereType<Map>().map((row) => Map<String, dynamic>.from(row)).toList();
+    return rows
+        .whereType<Map>()
+        .map((row) => Map<String, dynamic>.from(row))
+        .toList();
   }
 
   static Future<Map<String, dynamic>> getReportMetrics() async {
@@ -371,16 +420,19 @@ class ApiSafetyService {
     String? otherUserId,
     String? reportId,
   }) async {
-    final response = await ApiAuthService.postJson('/api/admin/moderation/sanctions', {
-      'target_user_id': targetUserId,
-      'sanction_type': sanctionType,
-      'reason_code': reasonCode,
-      'reason': reason,
-      'user_notice': userNotice,
-      'duration_days': durationDays,
-      'other_user_id': ?otherUserId,
-      'report_id': ?reportId,
-    });
+    final response = await ApiAuthService.postJson(
+      '/api/admin/moderation/sanctions',
+      {
+        'target_user_id': targetUserId,
+        'sanction_type': sanctionType,
+        'reason_code': reasonCode,
+        'reason': reason,
+        'user_notice': userNotice,
+        'duration_days': durationDays,
+        'other_user_id': ?otherUserId,
+        'report_id': ?reportId,
+      },
+    );
     _check(response, _decode(response));
   }
 
@@ -399,13 +451,16 @@ class ApiSafetyService {
     String? proposalId,
     String? witnessUserId,
   }) async {
-    final response = await ApiAuthService.postJson('/api/admin/moderation/permanent-ban-proposals', {
-      'target_user_id': targetUserId,
-      'reason': reason,
-      'report_id': ?reportId,
-      'proposal_id': ?proposalId,
-      'witness_user_id': ?witnessUserId,
-    });
+    final response = await ApiAuthService.postJson(
+      '/api/admin/moderation/permanent-ban-proposals',
+      {
+        'target_user_id': targetUserId,
+        'reason': reason,
+        'report_id': ?reportId,
+        'proposal_id': ?proposalId,
+        'witness_user_id': ?witnessUserId,
+      },
+    );
     final data = _decode(response);
     _check(response, data);
     return data ?? const {};
@@ -455,13 +510,11 @@ class ApiSafetyService {
     }
   }
 
-  static void _check(
-    http.Response response,
-    Map<String, dynamic>? data,
-  ) {
+  static void _check(http.Response response, Map<String, dynamic>? data) {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw StateError(
-        data?['detail']?.toString() ?? 'The safety request could not be completed.',
+        data?['detail']?.toString() ??
+            'The safety request could not be completed.',
       );
     }
   }

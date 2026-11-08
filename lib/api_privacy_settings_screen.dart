@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/api_privacy_service.dart';
@@ -78,64 +80,67 @@ class _ApiPrivacySettingsScreenState
         title: const LocalizedText('Privacy settings'),
         actions: const [LanguageSelectorButton()],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+      body: NisaPageBody(
+        form: true,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LocalizedText(_error!),
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: _load,
+                      child: const LocalizedText('Try again'),
+                    ),
+                  ],
+                ),
+              )
+            : ListView(
                 children: [
-                  LocalizedText(_error!),
-                  const SizedBox(height: 12),
-                  OutlinedButton(
-                    onPressed: _load,
-                    child: const LocalizedText('Try again'),
+                  SwitchListTile.adaptive(
+                    value: _settings.showOnlineStatus,
+                    onChanged: _saving
+                        ? null
+                        : (value) => _save(
+                            ApiPrivacySettings(
+                              showOnlineStatus: value,
+                              shareReadReceipts: _settings.shareReadReceipts,
+                            ),
+                          ),
+                    title: const LocalizedText('Online and last seen'),
+                    subtitle: const LocalizedText(
+                      'Matched members can see your online status and last-seen time.',
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  SwitchListTile.adaptive(
+                    value: _settings.shareReadReceipts,
+                    onChanged: _saving
+                        ? null
+                        : (value) => _save(
+                            ApiPrivacySettings(
+                              showOnlineStatus: _settings.showOnlineStatus,
+                              shareReadReceipts: value,
+                            ),
+                          ),
+                    title: const LocalizedText('Read receipts'),
+                    subtitle: const LocalizedText(
+                      'Matched members can see when you have read their messages.',
+                    ),
+                  ),
+                  if (_saving) const LinearProgressIndicator(minHeight: 2),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 24),
+                    child: LocalizedText(
+                      'Privacy settings apply only to members you have matched with.',
+                    ),
                   ),
                 ],
               ),
-            )
-          : ListView(
-              children: [
-                SwitchListTile.adaptive(
-                  value: _settings.showOnlineStatus,
-                  onChanged: _saving
-                      ? null
-                      : (value) => _save(
-                          ApiPrivacySettings(
-                            showOnlineStatus: value,
-                            shareReadReceipts: _settings.shareReadReceipts,
-                          ),
-                        ),
-                  title: const LocalizedText('Online and last seen'),
-                  subtitle: const LocalizedText(
-                    'Matched members can see your online status and last-seen time.',
-                  ),
-                ),
-                const Divider(height: 1),
-                SwitchListTile.adaptive(
-                  value: _settings.shareReadReceipts,
-                  onChanged: _saving
-                      ? null
-                      : (value) => _save(
-                          ApiPrivacySettings(
-                            showOnlineStatus: _settings.showOnlineStatus,
-                            shareReadReceipts: value,
-                          ),
-                        ),
-                  title: const LocalizedText('Read receipts'),
-                  subtitle: const LocalizedText(
-                    'Matched members can see when you have read their messages.',
-                  ),
-                ),
-                if (_saving) const LinearProgressIndicator(minHeight: 2),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 24),
-                  child: LocalizedText(
-                    'Privacy settings apply only to members you have matched with.',
-                  ),
-                ),
-              ],
-            ),
+      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/app_language_service.dart';
@@ -170,38 +172,41 @@ class _ApiFamilyScreenState extends State<ApiFamilyScreen> {
       icon: const Icon(Icons.person_add_alt_1),
       label: const LocalizedText('Invite member'),
     ),
-    body: _loading
-        ? const Center(child: CircularProgressIndicator())
-        : _error != null
-        ? _FamilyMessage(message: _error!, onRetry: _load)
-        : RefreshIndicator(
-            onRefresh: _load,
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              children: [
-                const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: LocalizedText(
-                      'Invitations appear in Nisa when the recipient signs in with the invited email. No email or SMS is sent in this phase. Phone-only invitations cannot be accepted yet. Family information stays private and is not shown in discovery. Accepting does not grant a verification badge.',
+    body: NisaPageBody(
+      form: false,
+      child: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+          ? _FamilyMessage(message: _error!, onRetry: _load)
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                children: [
+                  const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: LocalizedText(
+                        'Invitations appear in Nisa when the recipient signs in with the invited email. No email or SMS is sent in this phase. Phone-only invitations cannot be accepted yet. Family information stays private and is not shown in discovery. Accepting does not grant a verification badge.',
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                if (_members.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(28),
-                    child: LocalizedText(
-                      'No family members yet. Use Invite member to add a parent, guardian, or trusted family member.',
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                else
-                  ..._members.map(_memberCard),
-              ],
+                  const SizedBox(height: 8),
+                  if (_members.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(28),
+                      child: LocalizedText(
+                        'No family members yet. Use Invite member to add a parent, guardian, or trusted family member.',
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  else
+                    ..._members.map(_memberCard),
+                ],
+              ),
             ),
-          ),
+    ),
   );
 
   Widget _memberCard(Map<String, dynamic> member) {
@@ -322,6 +327,9 @@ class _InviteFamilyDialogState extends State<_InviteFamilyDialog> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
+              isExpanded: true,
+              itemHeight: null,
+              isDense: false,
               initialValue: _role,
               decoration: InputDecoration(
                 labelText: AppLanguageService.translate('Role'),

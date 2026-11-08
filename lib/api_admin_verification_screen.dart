@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
@@ -52,64 +54,67 @@ class _ApiAdminVerificationScreenState
         IconButton(onPressed: _refresh, icon: const Icon(Icons.refresh)),
       ],
     ),
-    body: FutureBuilder<List<Map<String, dynamic>>>(
-      future: _queue,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: LocalizedText('Something went wrong. Please try again.'),
-          );
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final requests = snapshot.data!;
-        if (requests.isEmpty) {
-          return const Center(
-            child: LocalizedText(
-              'No verification requests are waiting for review.',
+    body: NisaPageBody(
+      form: false,
+      child: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _queue,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: LocalizedText('Something went wrong. Please try again.'),
+            );
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final requests = snapshot.data!;
+          if (requests.isEmpty) {
+            return const Center(
+              child: LocalizedText(
+                'No verification requests are waiting for review.',
+              ),
+            );
+          }
+          return RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: requests.length,
+              itemBuilder: (context, index) {
+                final request = requests[index];
+                final name =
+                    request['applicant_name']?.toString() ?? 'Nisa member';
+                final relation =
+                    request['guardian_relationship']?.toString() ?? 'guardian';
+                return ListTile(
+                  leading: const CircleAvatar(
+                    child: Icon(Icons.verified_user_outlined),
+                  ),
+                  title: Text(name),
+                  subtitle: LocalizedRichText(
+                    spanBuilder: () => TextSpan(
+                      children: [
+                        TextSpan(
+                          text: request['applicant_email']?.toString() ?? '',
+                        ),
+                        const TextSpan(text: '\n'),
+                        TextSpan(
+                          text: request['guardian_name']?.toString() ?? '',
+                        ),
+                        const TextSpan(text: ' · '),
+                        TextSpan(text: AppLanguageService.translate(relation)),
+                      ],
+                    ),
+                  ),
+                  isThreeLine: true,
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _open(request),
+                );
+              },
             ),
           );
-        }
-        return RefreshIndicator(
-          onRefresh: _refresh,
-          child: ListView.builder(
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: requests.length,
-            itemBuilder: (context, index) {
-              final request = requests[index];
-              final name =
-                  request['applicant_name']?.toString() ?? 'Nisa member';
-              final relation =
-                  request['guardian_relationship']?.toString() ?? 'guardian';
-              return ListTile(
-                leading: const CircleAvatar(
-                  child: Icon(Icons.verified_user_outlined),
-                ),
-                title: Text(name),
-                subtitle: LocalizedRichText(
-                  spanBuilder: () => TextSpan(
-                    children: [
-                      TextSpan(
-                        text: request['applicant_email']?.toString() ?? '',
-                      ),
-                      const TextSpan(text: '\n'),
-                      TextSpan(
-                        text: request['guardian_name']?.toString() ?? '',
-                      ),
-                      const TextSpan(text: ' · '),
-                      TextSpan(text: AppLanguageService.translate(relation)),
-                    ],
-                  ),
-                ),
-                isThreeLine: true,
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _open(request),
-              );
-            },
-          ),
-        );
-      },
+        },
+      ),
     ),
   );
 }
@@ -293,103 +298,113 @@ class _VerificationReviewDetailState extends State<_VerificationReviewDetail> {
     final controller = _videoController;
     return Scaffold(
       appBar: AppBar(title: const LocalizedText('Review evidence')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: LocalizedText('Something went wrong. Please try again.'),
+      body: NisaPageBody(
+        form: false,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: LocalizedText(
+                    'Something went wrong. Please try again.',
+                  ),
+                ),
+              )
+            : ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  LocalizedRichText(
+                    spanBuilder: () => TextSpan(
+                      children: [
+                        TextSpan(
+                          text:
+                              widget.request['applicant_name']?.toString() ??
+                              '',
+                        ),
+                        const TextSpan(text: ' · '),
+                        TextSpan(
+                          text:
+                              widget.request['applicant_email']?.toString() ??
+                              '',
+                        ),
+                      ],
+                    ),
+                  ),
+                  LocalizedRichText(
+                    spanBuilder: () => TextSpan(
+                      children: [
+                        TextSpan(
+                          text: AppLanguageService.translate('Parent/wali'),
+                        ),
+                        const TextSpan(text: ': '),
+                        TextSpan(
+                          text:
+                              widget.request['guardian_name']?.toString() ?? '',
+                        ),
+                        const TextSpan(text: ' ('),
+                        TextSpan(
+                          text: AppLanguageService.translate(
+                            widget.request['guardian_relationship']
+                                    ?.toString() ??
+                                'guardian',
+                          ),
+                        ),
+                        const TextSpan(text: ')'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _evidenceImage('Parent or wali ID', _idImage),
+                  if (_authorityImage != null)
+                    _evidenceImage('Wali authority evidence', _authorityImage),
+                  Card(
+                    child: Column(
+                      children: [
+                        const ListTile(
+                          title: LocalizedText('Consent video (10–30 seconds)'),
+                        ),
+                        if (controller != null &&
+                            controller.value.isInitialized)
+                          AspectRatio(
+                            aspectRatio: controller.value.aspectRatio,
+                            child: VideoPlayer(controller),
+                          ),
+                        if (controller != null)
+                          IconButton(
+                            icon: Icon(
+                              controller.value.isPlaying
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
+                            ),
+                            onPressed: () => setState(
+                              () => controller.value.isPlaying
+                                  ? controller.pause()
+                                  : controller.play(),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    onPressed: _reviewing ? null : () => _review('approve'),
+                    icon: const Icon(Icons.check),
+                    label: const LocalizedText('Approve · Parent Verified'),
+                  ),
+                  OutlinedButton(
+                    onPressed: _reviewing
+                        ? null
+                        : () => _review('request_resubmission'),
+                    child: const LocalizedText('Request resubmission'),
+                  ),
+                  TextButton(
+                    onPressed: _reviewing ? null : () => _review('reject'),
+                    child: const LocalizedText('Reject'),
+                  ),
+                ],
               ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                LocalizedRichText(
-                  spanBuilder: () => TextSpan(
-                    children: [
-                      TextSpan(
-                        text:
-                            widget.request['applicant_name']?.toString() ?? '',
-                      ),
-                      const TextSpan(text: ' · '),
-                      TextSpan(
-                        text:
-                            widget.request['applicant_email']?.toString() ?? '',
-                      ),
-                    ],
-                  ),
-                ),
-                LocalizedRichText(
-                  spanBuilder: () => TextSpan(
-                    children: [
-                      TextSpan(
-                        text: AppLanguageService.translate('Parent/wali'),
-                      ),
-                      const TextSpan(text: ': '),
-                      TextSpan(
-                        text: widget.request['guardian_name']?.toString() ?? '',
-                      ),
-                      const TextSpan(text: ' ('),
-                      TextSpan(
-                        text: AppLanguageService.translate(
-                          widget.request['guardian_relationship']?.toString() ??
-                              'guardian',
-                        ),
-                      ),
-                      const TextSpan(text: ')'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _evidenceImage('Parent or wali ID', _idImage),
-                if (_authorityImage != null)
-                  _evidenceImage('Wali authority evidence', _authorityImage),
-                Card(
-                  child: Column(
-                    children: [
-                      const ListTile(
-                        title: LocalizedText('Consent video (10–30 seconds)'),
-                      ),
-                      if (controller != null && controller.value.isInitialized)
-                        AspectRatio(
-                          aspectRatio: controller.value.aspectRatio,
-                          child: VideoPlayer(controller),
-                        ),
-                      if (controller != null)
-                        IconButton(
-                          icon: Icon(
-                            controller.value.isPlaying
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                          ),
-                          onPressed: () => setState(
-                            () => controller.value.isPlaying
-                                ? controller.pause()
-                                : controller.play(),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                FilledButton.icon(
-                  onPressed: _reviewing ? null : () => _review('approve'),
-                  icon: const Icon(Icons.check),
-                  label: const LocalizedText('Approve · Parent Verified'),
-                ),
-                OutlinedButton(
-                  onPressed: _reviewing
-                      ? null
-                      : () => _review('request_resubmission'),
-                  child: const LocalizedText('Request resubmission'),
-                ),
-                TextButton(
-                  onPressed: _reviewing ? null : () => _review('reject'),
-                  child: const LocalizedText('Reject'),
-                ),
-              ],
-            ),
+      ),
     );
   }
 }

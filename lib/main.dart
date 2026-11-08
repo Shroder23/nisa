@@ -1,3 +1,4 @@
+import 'widgets/google_sign_in_button.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
 
@@ -6,6 +7,9 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'account_type_screen.dart';
@@ -64,28 +68,31 @@ class FirebaseStartupErrorApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: AppLanguageService.translate('Nisa'),
-      theme: NisaTheme.light,
+      theme: NisaPremiumTheme.apply(NisaTheme.light),
       home: Scaffold(
         appBar: AppBar(
           title: const LocalizedText('Nisa Startup Error'),
           actions: const [LanguageSelectorButton()],
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error_outline_rounded, size: 70),
-                const SizedBox(height: 20),
-                const LocalizedText(
-                  'Nisa could not start Firebase.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                LocalizedText(error, textAlign: TextAlign.center),
-              ],
+        body: NisaPageBody(
+          form: false,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline_rounded, size: 70),
+                  const SizedBox(height: 20),
+                  const LocalizedText(
+                    'Nisa could not start Firebase.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  LocalizedText(error, textAlign: TextAlign.center),
+                ],
+              ),
             ),
           ),
         ),
@@ -117,7 +124,13 @@ class NisaApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          theme: NisaTheme.light,
+          builder: (context, child) => Directionality(
+            textDirection: AppLanguageService.textDirectionFor(
+              AppLanguageService.selected,
+            ),
+            child: child ?? const SizedBox.shrink(),
+          ),
+          theme: NisaPremiumTheme.apply(NisaTheme.light),
           home: const AuthGate(),
         );
       },
@@ -448,7 +461,12 @@ class _StartupLoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return const Scaffold(
+      body: NisaPageBody(
+        form: false,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+    );
   }
 }
 
@@ -471,42 +489,45 @@ class _StartupErrorScreen extends StatelessWidget {
         centerTitle: true,
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.cloud_off_rounded,
-                  size: 72,
-                  color: Color(0xFF7B2CBF),
-                ),
-                const SizedBox(height: 24),
-                const LocalizedText(
-                  'Could not restore your account',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                LocalizedText(
-                  error,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.black54),
-                ),
-                const SizedBox(height: 28),
-                FilledButton.icon(
-                  onPressed: _retryPressed,
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: const LocalizedText('Try Again'),
-                ),
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: onSignOut,
-                  child: const LocalizedText('Sign out'),
-                ),
-              ],
+      body: NisaPageBody(
+        form: false,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.cloud_off_rounded,
+                    size: 72,
+                    color: Color(0xFF7B2CBF),
+                  ),
+                  const SizedBox(height: 24),
+                  const LocalizedText(
+                    'Could not restore your account',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  LocalizedText(
+                    error,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.black54),
+                  ),
+                  const SizedBox(height: 28),
+                  FilledButton.icon(
+                    onPressed: _retryPressed,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const LocalizedText('Try Again'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: onSignOut,
+                    child: const LocalizedText('Sign out'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -543,7 +564,7 @@ class _WelcomeScreenState extends LanguageAwareState<WelcomeScreen> {
                 Padding(
                   padding: EdgeInsets.fromLTRB(24, 4, 24, 12),
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: LocalizedText(
                       'Choose language',
                       style: TextStyle(
@@ -662,203 +683,105 @@ class _WelcomeScreenState extends LanguageAwareState<WelcomeScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: const Color(0xFFF9F3FA),
-      body: SafeArea(
-        child: Stack(
+  Widget build(BuildContext context) => Scaffold(
+    body: NisaPageBody(
+      form: true,
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           children: [
-            Positioned(
-              top: 18,
-              left: 22,
-              child: ValueListenableBuilder<String>(
-                valueListenable: AppLanguageService.selectedCode,
-                builder: (context, _, _) => TextButton.icon(
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                TextButton.icon(
                   onPressed: _showLanguagePicker,
-                  icon: const Icon(Icons.language_rounded, size: 21),
+                  icon: const Icon(Icons.language_rounded),
                   label: Text(AppLanguageService.selected.nativeName),
                 ),
-              ),
-            ),
-            Positioned(
-              top: 18,
-              right: 22,
-              child: IconButton(
-                onPressed: _showWelcomeHelp,
-                tooltip: AppLanguageService.translate('Help'),
-                icon: const Icon(Icons.help_outline_rounded, size: 27),
-              ),
-            ),
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(28, 112, 28, 0),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 92,
-                      height: 92,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: .25,
-                            ),
-                            blurRadius: 22,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.favorite_rounded,
-                        color: Colors.white,
-                        size: 50,
-                      ),
-                    ),
-                    const SizedBox(height: 22),
-                    LocalizedText(
-                      'Nisa e Sakina',
-                      style: TextStyle(
-                        fontSize: 34,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -.7,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    LocalizedText(
-                      'Where meaningful connections begin',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 17,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+
+                IconButton(
+                  onPressed: _showWelcomeHelp,
+                  tooltip: AppLanguageService.translate('Help'),
+                  icon: const Icon(Icons.help_outline_rounded),
                 ),
+              ],
+            ),
+            const SizedBox(height: 48),
+            const Icon(
+              Icons.favorite_rounded,
+              color: NisaPremiumTheme.gold,
+              size: 56,
+            ),
+            const SizedBox(height: 20),
+            LocalizedText(
+              'Nisa e Sakina',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                color: NisaPremiumTheme.plum,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(26, 28, 26, 20),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(34)),
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      LocalizedText(
-                        'Join Nisa e Sakina',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 7),
-                      LocalizedText(
-                        'Choose how you would like to continue',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.black54),
-                      ),
-                      const SizedBox(height: 22),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: OutlinedButton.icon(
-                          onPressed: _googleLoading
-                              ? null
-                              : _continueWithGoogle,
-                          icon: const _GoogleMark(),
-                          label: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const LocalizedText(
-                                'Continue with Google',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              if (_googleLoading) ...[
-                                const SizedBox(width: 10),
-                                const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: FilledButton.icon(
-                          onPressed: _continueWithEmail,
-                          icon: const Icon(Icons.email_outlined),
-                          label: LocalizedText(
-                            'Continue with email',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      TextButton(
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => AuthMode.usePostgresPreview
-                                ? const ApiLoginScreen()
-                                : const LoginScreen(),
-                          ),
-                        ),
-                        child: LocalizedText('Already have an account? Log in'),
-                      ),
-                      const SizedBox(height: 4),
-                      const LocalizedText(
-                        'By continuing, you agree to our Terms and Privacy Policy.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, color: Colors.black45),
-                      ),
-                    ],
+            const SizedBox(height: 12),
+            const LocalizedText(
+              'Where meaningful connections begin',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 48),
+            NisaSurface(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LocalizedText(
+                    'Join Nisa e Sakina',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  const LocalizedText(
+                    'Choose how you would like to continue',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: _googleLoading ? null : _continueWithEmail,
+                    icon: const Icon(Icons.email_outlined),
+                    label: const LocalizedText('Continue with email'),
+                  ),
+                  const SizedBox(height: 12),
+                  GoogleSignInButton(
+                    onPressed: _googleLoading ? null : _continueWithGoogle,
+                    busy: _googleLoading,
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: _googleLoading
+                        ? null
+                        : () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => AuthMode.usePostgresPreview
+                                  ? const ApiLoginScreen()
+                                  : const LoginScreen(),
+                            ),
+                          ),
+                    child: const LocalizedText(
+                      'Already have an account? Log in',
+                    ),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(height: 24),
+            LocalizedText(
+              'By continuing, you agree to our Terms and Privacy Policy.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _GoogleMark extends StatelessWidget {
-  const _GoogleMark();
-
-  @override
-  Widget build(BuildContext context) {
-    return const LocalizedText(
-      'G',
-      style: TextStyle(
-        fontSize: 25,
-        fontWeight: FontWeight.w800,
-        color: Color(0xFF4285F4),
-      ),
-    );
-  }
+    ),
+  );
 }
 
 class AgeConfirmationScreen extends StatelessWidget {
@@ -877,71 +800,74 @@ class AgeConfirmationScreen extends StatelessWidget {
         ),
         actions: const [LanguageSelectorButton()],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Spacer(),
+      body: NisaPageBody(
+        form: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 24),
 
-            const Icon(
-              Icons.verified_user_rounded,
-              size: 80,
-              color: Color(0xFF7B2CBF),
-            ),
-
-            const SizedBox(height: 28),
-
-            const LocalizedAgeText(
-              'Are you {age} or older?',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 16),
-
-            const LocalizedText(
-              'Nisa is intended for adults seeking a serious and respectful marriage.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                height: 1.5,
-                color: Colors.black54,
+              const Icon(
+                Icons.verified_user_rounded,
+                size: 80,
+                color: NisaPremiumTheme.plum,
               ),
-            ),
 
-            const Spacer(),
+              const SizedBox(height: 28),
 
-            SizedBox(
-              height: 54,
-              child: FilledButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const LocalizedAgeText(
-                  'Yes, I am {age} or older',
-                  style: TextStyle(fontSize: 16),
+              const LocalizedAgeText(
+                'Are you {age} or older?',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              ),
+
+              const SizedBox(height: 16),
+
+              const LocalizedText(
+                'Nisa is intended for adults seeking a serious and respectful marriage.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  height: 1.5,
+                  color: Colors.black54,
                 ),
               ),
-            ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 24),
 
-            SizedBox(
-              height: 54,
-              child: OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: const LocalizedAgeText(
-                  'No, I am under {age}',
-                  style: TextStyle(fontSize: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                  child: const LocalizedAgeText(
+                    'Yes, I am {age} or older',
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 12),
+
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  child: const LocalizedAgeText(
+                    'No, I am under {age}',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );

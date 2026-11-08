@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'services/app_language_service.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
@@ -315,335 +316,344 @@ class _CandidateDetailsScreenState
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          // --------------------------------------------------
-          // PROFILE HEADER
-          // --------------------------------------------------
+      body: NisaPageBody(
+        form: false,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            // --------------------------------------------------
+            // PROFILE HEADER
+            // --------------------------------------------------
 
-          Center(
-            child: ProfilePhoto(
-              imageUrl: candidate.profilePhoto,
-              radius: 55,
-              fallbackText: candidate.name,
-              showBorder: true,
+            Center(
+              child: ProfilePhoto(
+                imageUrl: candidate.profilePhoto,
+                radius: 55,
+                fallbackText: candidate.name,
+                showBorder: true,
+              ),
             ),
-          ),
 
-          const SizedBox(height: 18),
+            const SizedBox(height: 18),
 
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: LocalizedText(
-                    candidate.age > 0
-                        ? '${candidate.name}, ${AppLanguageService.formatAgeNumber(candidate.age)}'
-                        : candidate.name,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ),
-
-                if (candidate.verified) ...[
-                  const SizedBox(width: 8),
-                  Tooltip(
-                    message: AppLanguageService.translate('Parent verified'),
-                    child: Icon(
-                      Icons.verified,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          Center(
-            child: LocalizedRichText(
-              spanBuilder: () => TextSpan(
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextSpan(text: candidate.city),
-                  const TextSpan(text: ', '),
-                  TextSpan(text: candidate.country),
-                ],
-              ),
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ),
-
-          if (candidate.verificationPending)
-            const Padding(
-              padding: EdgeInsets.only(top: 8),
-              child: Center(
-                child: LocalizedText(
-                  'Verification pending',
-                  style: TextStyle(fontSize: 13),
-                ),
-              ),
-            ),
-
-          const SizedBox(height: 28),
-
-          // --------------------------------------------------
-          // COMPATIBILITY
-          // --------------------------------------------------
-          _InfoCard(
-            title: AppLanguageService.translate('Compatibility'),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    LocalizedText(
-                      '{percent}%',
-                      substitutions: {
-                        'percent': AppLanguageService.formatNumber(compatibility.percentage),
-                      },
-                      style: Theme.of(context).textTheme.headlineMedium
+                  Flexible(
+                    child: LocalizedText(
+                      candidate.age > 0
+                          ? '${candidate.name}, ${AppLanguageService.formatAgeNumber(candidate.age)}'
+                          : candidate.name,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: LocalizedText(
-                        compatibility.label,
-                        style: Theme.of(context).textTheme.titleMedium,
+                  ),
+
+                  if (candidate.verified) ...[
+                    const SizedBox(width: 8),
+                    Tooltip(
+                      message: AppLanguageService.translate('Parent verified'),
+                      child: Icon(
+                        Icons.verified,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(value: compatibility.percentage / 100),
-                const SizedBox(height: 12),
-                LocalizedText(
-                  'Based only on the matrimonial preferences you have specified. '
-                  'Use this as a guide for review, not as a judgment of personal suitability.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                if (compatibility.strengths.isNotEmpty) ...[
-                  const SizedBox(height: 14),
-                  LocalizedText(
-                    'Aligned preferences',
-                    style: Theme.of(context).textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: compatibility.strengths
-                        .map(
-                          (item) => Chip(
-                            avatar: const Icon(Icons.check, size: 16),
-                            label: LocalizedText(item),
-                            visualDensity: VisualDensity.compact,
-                          ),
-                        )
-                        .toList(),
-                  ),
                 ],
-                if (compatibility.differences.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  ExpansionTile(
-                    tilePadding: EdgeInsets.zero,
-                    childrenPadding: EdgeInsets.zero,
-                    title: const LocalizedText('Preferences to review'),
-                    children: compatibility.differences
-                        .map(
-                          (item) => ListTile(
-                            dense: true,
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.info_outline, size: 20),
-                            title: LocalizedText(item),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          // --------------------------------------------------
-          // ABOUT
-          // --------------------------------------------------
-          _InfoCard(
-            title: AppLanguageService.translate('About'),
-            child: LocalizedText(
-              candidate.about?.isNotEmpty == true
-                  ? candidate.about!
-                  : 'No introduction provided.',
-            ),
-          ),
-
-          // --------------------------------------------------
-          // PERSONAL DETAILS
-          // --------------------------------------------------
-          _InfoCard(
-            title: AppLanguageService.translate('Personal Details'),
-            child: Column(
-              children: [
-                _InfoRow(
-                  label: AppLanguageService.translate('Age'),
-                  value: AppLanguageService.formatAgeNumber(candidate.age),
-                ),
-                _InfoRow(
-                  label: AppLanguageService.translate('City'),
-                  value: candidate.city,
-                ),
-                _InfoRow(
-                  label: AppLanguageService.translate('Country'),
-                  value: candidate.country,
-                ),
-                _InfoRow(
-                  label: AppLanguageService.translate('Marital Status'),
-                  value: candidate.maritalStatus.isEmpty
-                      ? 'Not specified'
-                      : candidate.maritalStatus,
-                ),
-                _InfoRow(
-                  label: AppLanguageService.translate('Height'),
-                  value: candidate.height == null
-                      ? 'Not specified'
-                      : AppLanguageService.formatHeight(candidate.height!),
-                ),
-              ],
-            ),
-          ),
-
-          // --------------------------------------------------
-          // EDUCATION & CAREER
-          // --------------------------------------------------
-          _InfoCard(
-            title: AppLanguageService.translate('Education & Career'),
-            child: Column(
-              children: [
-                _InfoRow(
-                  label: AppLanguageService.translate('Education'),
-                  value: candidate.education ?? 'Not specified',
-                ),
-                _InfoRow(
-                  label: AppLanguageService.translate('Profession'),
-                  value: candidate.profession ?? 'Not specified',
-                ),
-              ],
-            ),
-          ),
-
-          // --------------------------------------------------
-          // MATRIMONIAL INFORMATION
-          // --------------------------------------------------
-          _InfoCard(
-            title: AppLanguageService.translate('Matrimonial Information'),
-            child: Column(
-              children: [
-                _InfoRow(
-                  label: AppLanguageService.translate('Religious Practice'),
-                  value: candidate.religiousPractice ?? 'Not specified',
-                ),
-                _InfoRow(
-                  label: AppLanguageService.translate('Relocation'),
-                  value: candidate.relocation ?? 'Not specified',
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // --------------------------------------------------
-          // MATCH / INTEREST ACTION
-          // --------------------------------------------------
-          if (_isBlockedBetween)
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Icon(Icons.block),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: LocalizedText(
-                        'Interaction is unavailable because one of you has blocked the other.',
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
 
-          SizedBox(
-            height: 56,
-            child: _isBlockedBetween
-                ? const FilledButton(
-                    onPressed: null,
-                    child: LocalizedText('Interaction Unavailable'),
-                  )
-                : _isMatched
-                ? FilledButton.icon(
-                    onPressed: _openingChat ? null : _openChat,
-                    icon: _openingChat
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.chat_bubble_outline),
-                    label: const LocalizedText('Message'),
-                  )
-                : FilledButton.icon(
-                    onPressed:
-                        (_interestSent ||
-                            _isSendingInterest ||
-                            _isCheckingInterest)
-                        ? null
-                        : _sendInterest,
-                    icon: _isCheckingInterest || _isSendingInterest
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Icon(
-                            _interestSent ? Icons.check : Icons.favorite_border,
-                          ),
-                    label: LocalizedText(
-                      _isCheckingInterest
-                          ? 'Checking...'
-                          : _isSendingInterest
-                          ? 'Sending...'
-                          : _interestSent
-                          ? 'Interest Sent'
-                          : 'Send Interest',
-                    ),
+            const SizedBox(height: 8),
+
+            Center(
+              child: LocalizedRichText(
+                spanBuilder: () => TextSpan(
+                  children: [
+                    TextSpan(text: candidate.city),
+                    const TextSpan(text: ', '),
+                    TextSpan(text: candidate.country),
+                  ],
+                ),
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+
+            if (candidate.verificationPending)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Center(
+                  child: LocalizedText(
+                    'Verification pending',
+                    style: TextStyle(fontSize: 13),
                   ),
-          ),
+                ),
+              ),
 
-          const SizedBox(height: 12),
+            const SizedBox(height: 28),
 
-          // --------------------------------------------------
-          // PRIVACY MESSAGE
-          // --------------------------------------------------
-          LocalizedText(
-            'Contact details remain private until mutual acceptance.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+            // --------------------------------------------------
+            // COMPATIBILITY
+            // --------------------------------------------------
+            _InfoCard(
+              title: AppLanguageService.translate('Compatibility'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      LocalizedText(
+                        '{percent}%',
+                        substitutions: {
+                          'percent': AppLanguageService.formatNumber(
+                            compatibility.percentage,
+                          ),
+                        },
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: LocalizedText(
+                          compatibility.label,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: compatibility.percentage / 100,
+                  ),
+                  const SizedBox(height: 12),
+                  LocalizedText(
+                    'Based only on the matrimonial preferences you have specified. '
+                    'Use this as a guide for review, not as a judgment of personal suitability.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  if (compatibility.strengths.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    LocalizedText(
+                      'Aligned preferences',
+                      style: Theme.of(context).textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: compatibility.strengths
+                          .map(
+                            (item) => Chip(
+                              avatar: const Icon(Icons.check, size: 16),
+                              label: LocalizedText(item),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                  if (compatibility.differences.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      childrenPadding: EdgeInsets.zero,
+                      title: const LocalizedText('Preferences to review'),
+                      children: compatibility.differences
+                          .map(
+                            (item) => ListTile(
+                              dense: true,
+                              contentPadding: EdgeInsets.zero,
+                              leading: const Icon(Icons.info_outline, size: 20),
+                              title: LocalizedText(item),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
 
-          const SizedBox(height: 10),
+            // --------------------------------------------------
+            // ABOUT
+            // --------------------------------------------------
+            _InfoCard(
+              title: AppLanguageService.translate('About'),
+              child: LocalizedText(
+                candidate.about?.isNotEmpty == true
+                    ? candidate.about!
+                    : 'No introduction provided.',
+              ),
+            ),
 
-          LocalizedText(
-            _isMatched ? 'You are matched. Messaging is now available.' : 'Messaging becomes available after an incoming interest is accepted.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall
-                ?.copyWith(color: Colors.black54),
-          ),
-        ],
+            // --------------------------------------------------
+            // PERSONAL DETAILS
+            // --------------------------------------------------
+            _InfoCard(
+              title: AppLanguageService.translate('Personal Details'),
+              child: Column(
+                children: [
+                  _InfoRow(
+                    label: AppLanguageService.translate('Age'),
+                    value: AppLanguageService.formatAgeNumber(candidate.age),
+                  ),
+                  _InfoRow(
+                    label: AppLanguageService.translate('City'),
+                    value: candidate.city,
+                  ),
+                  _InfoRow(
+                    label: AppLanguageService.translate('Country'),
+                    value: candidate.country,
+                  ),
+                  _InfoRow(
+                    label: AppLanguageService.translate('Marital Status'),
+                    value: candidate.maritalStatus.isEmpty
+                        ? 'Not specified'
+                        : candidate.maritalStatus,
+                  ),
+                  _InfoRow(
+                    label: AppLanguageService.translate('Height'),
+                    value: candidate.height == null
+                        ? 'Not specified'
+                        : AppLanguageService.formatHeight(candidate.height!),
+                  ),
+                ],
+              ),
+            ),
+
+            // --------------------------------------------------
+            // EDUCATION & CAREER
+            // --------------------------------------------------
+            _InfoCard(
+              title: AppLanguageService.translate('Education & Career'),
+              child: Column(
+                children: [
+                  _InfoRow(
+                    label: AppLanguageService.translate('Education'),
+                    value: candidate.education ?? 'Not specified',
+                  ),
+                  _InfoRow(
+                    label: AppLanguageService.translate('Profession'),
+                    value: candidate.profession ?? 'Not specified',
+                  ),
+                ],
+              ),
+            ),
+
+            // --------------------------------------------------
+            // MATRIMONIAL INFORMATION
+            // --------------------------------------------------
+            _InfoCard(
+              title: AppLanguageService.translate('Matrimonial Information'),
+              child: Column(
+                children: [
+                  _InfoRow(
+                    label: AppLanguageService.translate('Religious Practice'),
+                    value: candidate.religiousPractice ?? 'Not specified',
+                  ),
+                  _InfoRow(
+                    label: AppLanguageService.translate('Relocation'),
+                    value: candidate.relocation ?? 'Not specified',
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // --------------------------------------------------
+            // MATCH / INTEREST ACTION
+            // --------------------------------------------------
+            if (_isBlockedBetween)
+              const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(Icons.block),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: LocalizedText(
+                          'Interaction is unavailable because one of you has blocked the other.',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            SizedBox(
+              height: 56,
+              child: _isBlockedBetween
+                  ? const FilledButton(
+                      onPressed: null,
+                      child: LocalizedText('Interaction Unavailable'),
+                    )
+                  : _isMatched
+                  ? FilledButton.icon(
+                      onPressed: _openingChat ? null : _openChat,
+                      icon: _openingChat
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.chat_bubble_outline),
+                      label: const LocalizedText('Message'),
+                    )
+                  : FilledButton.icon(
+                      onPressed:
+                          (_interestSent ||
+                              _isSendingInterest ||
+                              _isCheckingInterest)
+                          ? null
+                          : _sendInterest,
+                      icon: _isCheckingInterest || _isSendingInterest
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              _interestSent
+                                  ? Icons.check
+                                  : Icons.favorite_border,
+                            ),
+                      label: LocalizedText(
+                        _isCheckingInterest
+                            ? 'Checking...'
+                            : _isSendingInterest
+                            ? 'Sending...'
+                            : _interestSent
+                            ? 'Interest Sent'
+                            : 'Send Interest',
+                      ),
+                    ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // --------------------------------------------------
+            // PRIVACY MESSAGE
+            // --------------------------------------------------
+            LocalizedText(
+              'Contact details remain private until mutual acceptance.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+
+            const SizedBox(height: 10),
+
+            LocalizedText(
+              _isMatched ? 'You are matched. Messaging is now available.' : 'Messaging becomes available after an incoming interest is accepted.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: Colors.black54),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,11 +1,11 @@
 {
-    "name": "nisa_e_sakina",
-    "short_name": "nisa_e_sakina",
+    "name": "Nisa e Sakina",
+    "short_name": "Nisa",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFF8F4",
+    "theme_color": "#7A2947",
+    "description": "A privacy-focused Muslim matrimonial platform.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'widgets/localized_text.dart';
@@ -150,6 +152,9 @@ class _ApiCandidateDetailsScreenState
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
+                isExpanded: true,
+                itemHeight: null,
+                isDense: false,
                 initialValue: reason,
                 decoration: InputDecoration(
                   labelText: AppLanguageService.translate('Reason'),
@@ -294,106 +299,112 @@ class _ApiCandidateDetailsScreenState
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: LocalizedText(
-                  'Something went wrong. Please try again.',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                Center(
-                  child: ApiProfilePhoto(
-                    imageUrl: candidate.profilePhoto,
-                    radius: 58,
-                    fallbackText: candidate.name,
-                    showBorder: true,
+      body: NisaPageBody(
+        form: false,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: LocalizedText(
+                    'Something went wrong. Please try again.',
+                    textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        candidate.age > 0
-                            ? '${candidate.name}, ${candidate.age}'
-                            : candidate.name,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
+              )
+            : ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  Center(
+                    child: ApiProfilePhoto(
+                      imageUrl: candidate.profilePhoto,
+                      radius: 58,
+                      fallbackText: candidate.name,
+                      showBorder: true,
                     ),
-                    if (candidate.verified) ...[
-                      const SizedBox(width: 6),
-                      Tooltip(
-                        message: AppLanguageService.translate(
-                          'Parent verified',
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          candidate.age > 0
+                              ? '${candidate.name}, ${candidate.age}'
+                              : candidate.name,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
-                        child: const Icon(Icons.verified, color: Colors.blue),
                       ),
+                      if (candidate.verified) ...[
+                        const SizedBox(width: 6),
+                        Tooltip(
+                          message: AppLanguageService.translate(
+                            'Parent verified',
+                          ),
+                          child: Icon(
+                            Icons.verified,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                        ),
+                      ],
                     ],
+                  ),
+                  if (location.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Center(child: Text(location)),
                   ],
-                ),
-                if (location.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Center(child: Text(location)),
+                  if (candidate.verificationPending) ...[
+                    const SizedBox(height: 6),
+                    const Center(child: LocalizedText('Verification pending')),
+                  ],
+                  const SizedBox(height: 24),
+                  _detailsCard('Personal details', [
+                    _detail('Gender', candidate.gender),
+                    _detail('Marital status', candidate.maritalStatus),
+                    _detail('Height', candidate.height),
+                    _detail('Country', candidate.country),
+                    _detail('City', candidate.city),
+                  ]),
+                  _detailsCard('Education and career', [
+                    _detail('Education', candidate.education),
+                    _detail('Profession', candidate.profession),
+                  ]),
+                  _detailsCard('Matrimonial information', [
+                    _detail('Religious practice', candidate.religiousPractice),
+                    _detail('Relocation', candidate.relocation),
+                  ]),
+                  const SizedBox(height: 12),
+                  if (_blocked)
+                    const LocalizedText(
+                      'Interaction is unavailable because one of you has blocked the other.',
+                    ),
+                  if (!_blocked &&
+                      !_loadingRelation &&
+                      _matchConversation != null)
+                    FilledButton.icon(
+                      onPressed: _openChat,
+                      icon: const Icon(Icons.chat_bubble_outline),
+                      label: const LocalizedText('Open messages'),
+                    )
+                  else if (!_blocked && _interestExists)
+                    const FilledButton(
+                      onPressed: null,
+                      child: LocalizedText('Interest already exists'),
+                    )
+                  else if (!_blocked)
+                    FilledButton.icon(
+                      onPressed: _loadingRelation || _sending
+                          ? null
+                          : _sendInterest,
+                      icon: const Icon(Icons.favorite_border),
+                      label: Text(_sending ? 'Sending…' : 'Send interest'),
+                    ),
                 ],
-                if (candidate.verificationPending) ...[
-                  const SizedBox(height: 6),
-                  const Center(child: LocalizedText('Verification pending')),
-                ],
-                const SizedBox(height: 24),
-                _detailsCard('Personal details', [
-                  _detail('Gender', candidate.gender),
-                  _detail('Marital status', candidate.maritalStatus),
-                  _detail('Height', candidate.height),
-                  _detail('Country', candidate.country),
-                  _detail('City', candidate.city),
-                ]),
-                _detailsCard('Education and career', [
-                  _detail('Education', candidate.education),
-                  _detail('Profession', candidate.profession),
-                ]),
-                _detailsCard('Matrimonial information', [
-                  _detail('Religious practice', candidate.religiousPractice),
-                  _detail('Relocation', candidate.relocation),
-                ]),
-                const SizedBox(height: 12),
-                if (_blocked)
-                  const LocalizedText(
-                    'Interaction is unavailable because one of you has blocked the other.',
-                  ),
-                if (!_blocked &&
-                    !_loadingRelation &&
-                    _matchConversation != null)
-                  FilledButton.icon(
-                    onPressed: _openChat,
-                    icon: const Icon(Icons.chat_bubble_outline),
-                    label: const LocalizedText('Open messages'),
-                  )
-                else if (!_blocked && _interestExists)
-                  const FilledButton(
-                    onPressed: null,
-                    child: LocalizedText('Interest already exists'),
-                  )
-                else if (!_blocked)
-                  FilledButton.icon(
-                    onPressed: _loadingRelation || _sending
-                        ? null
-                        : _sendInterest,
-                    icon: const Icon(Icons.favorite_border),
-                    label: Text(_sending ? 'Sending…' : 'Send interest'),
-                  ),
-              ],
-            ),
+              ),
+      ),
     );
   }
 

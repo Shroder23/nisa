@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'services/app_language_service.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
@@ -61,110 +62,113 @@ class AccountTypeScreen extends StatelessWidget {
         ),
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              LocalizedText(
-                isExistingAccount
-                    ? 'Complete your Nisa profile'
-                    : 'How would you like to join Nisa?',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              LocalizedText(
-                isExistingAccount
-                    ? 'Your Firebase account already exists. '
-                          'Choose your account type to continue setup.'
-                    : 'Choose the account type that best suits you.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 15,
-                  height: 1.4,
-                  color: Colors.black54,
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              AccountCard(
-                icon: Icons.verified_rounded,
-                title: 'Parent/guardian verified account',
-                subtitle: 'Build trust through family verification',
-                description:
-                    'A parent or guardian completes Nisa’s family '
-                    'verification process. This badge does not verify '
-                    'the member’s own photo or government ID.',
-                features: const [
-                  'Family verification badge on your profile',
-                  'Parent identification document',
-                  'Parent confirmation video',
-                  'Greater trust with potential matches',
-                ],
-                buttonText: 'Choose Verified',
-                isVerified: true,
-                onPressed: () {
-                  _openCreateAccount(context, true);
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              AccountCard(
-                icon: Icons.person_outline_rounded,
-                title: 'Unverified Account',
-                subtitle: 'Start using Nisa immediately',
-                description:
-                    'Create your profile and use Nisa without '
-                    'completing verification.',
-                features: const [
-                  'Create your personal profile',
-                  'Discover potential matches',
-                  'Use Nisa normally',
-                  'No verification badge',
-                ],
-                buttonText: 'Choose Unverified',
-                isVerified: false,
-                onPressed: () {
-                  _openCreateAccount(context, false);
-                },
-              ),
-
-              const SizedBox(height: 24),
-
-              if (isExistingAccount)
-                const LocalizedText(
-                  'You are already signed in. '
-                  'Nisa will continue your existing account '
-                  'instead of creating another one.',
+      body: NisaPageBody(
+        form: true,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LocalizedText(
+                  isExistingAccount
+                      ? 'Complete your Nisa profile'
+                      : 'How would you like to join Nisa?',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Colors.black45),
-                )
-              else
-                const LocalizedText(
-                  'You can learn more about verification before '
-                  'making your choice.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Colors.black45),
+                  style: const TextStyle(
+                    fontSize: 27,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
 
-              if (isExistingAccount) ...[
-                const SizedBox(height: 18),
-                OutlinedButton.icon(
-                  onPressed: () => _useDifferentAccount(context),
-                  icon: const Icon(Icons.switch_account_outlined),
-                  label: const LocalizedText('Use a different account'),
+                const SizedBox(height: 10),
+
+                LocalizedText(
+                  isExistingAccount
+                      ? 'Your Firebase account already exists. '
+                            'Choose your account type to continue setup.'
+                      : 'Choose the account type that best suits you.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    height: 1.4,
+                    color: Colors.black54,
+                  ),
                 ),
+
+                const SizedBox(height: 24),
+
+                AccountCard(
+                  icon: Icons.verified_rounded,
+                  title: 'Parent/guardian verified account',
+                  subtitle: 'Build trust through family verification',
+                  description:
+                      'A parent or guardian completes Nisa’s family '
+                      'verification process. This badge does not verify '
+                      'the member’s own photo or government ID.',
+                  features: const [
+                    'Family verification badge on your profile',
+                    'Parent identification document',
+                    'Parent confirmation video',
+                    'Greater trust with potential matches',
+                  ],
+                  buttonText: 'Choose Verified',
+                  isVerified: true,
+                  onPressed: () {
+                    _openCreateAccount(context, true);
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                AccountCard(
+                  icon: Icons.person_outline_rounded,
+                  title: 'Unverified Account',
+                  subtitle: 'Start using Nisa immediately',
+                  description:
+                      'Create your profile and use Nisa without '
+                      'completing verification.',
+                  features: const [
+                    'Create your personal profile',
+                    'Discover potential matches',
+                    'Use Nisa normally',
+                    'No verification badge',
+                  ],
+                  buttonText: 'Choose Unverified',
+                  isVerified: false,
+                  onPressed: () {
+                    _openCreateAccount(context, false);
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                if (isExistingAccount)
+                  const LocalizedText(
+                    'You are already signed in. '
+                    'Nisa will continue your existing account '
+                    'instead of creating another one.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: Colors.black45),
+                  )
+                else
+                  const LocalizedText(
+                    'You can learn more about verification before '
+                    'making your choice.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: Colors.black45),
+                  ),
+
+                if (isExistingAccount) ...[
+                  const SizedBox(height: 18),
+                  OutlinedButton.icon(
+                    onPressed: () => _useDifferentAccount(context),
+                    icon: const Icon(Icons.switch_account_outlined),
+                    label: const LocalizedText('Use a different account'),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

@@ -1,0 +1,5 @@
+# Copy this file to android/key.properties and keep the real file private.
+storePassword=replace-with-keystore-password
+keyPassword=replace-with-key-password
+keyAlias=replace-with-key-alias
+storeFile=replace-with-absolute-or-app-relative-keystore-path

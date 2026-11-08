@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/api_safety_service.dart';
@@ -136,162 +138,165 @@ class _ApiAdminUserManagementScreenState
         ),
       ],
     ),
-    body: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: TextField(
-            controller: _query,
-            textInputAction: TextInputAction.search,
-            onSubmitted: (_) => _loadUsers(reset: true),
-            decoration: InputDecoration(
-              labelText: AppLanguageService.translate(
-                'Search by name, registered email, or phone',
+    body: NisaPageBody(
+      form: false,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: TextField(
+              controller: _query,
+              textInputAction: TextInputAction.search,
+              onSubmitted: (_) => _loadUsers(reset: true),
+              decoration: InputDecoration(
+                labelText: AppLanguageService.translate(
+                  'Search by name, registered email, or phone',
+                ),
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  tooltip: AppLanguageService.translate('Search'),
+                  onPressed: _searching ? null : () => _loadUsers(reset: true),
+                  icon: const Icon(Icons.arrow_forward),
+                ),
+                border: const OutlineInputBorder(),
               ),
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: IconButton(
-                tooltip: AppLanguageService.translate('Search'),
-                onPressed: _searching ? null : () => _loadUsers(reset: true),
-                icon: const Icon(Icons.arrow_forward),
-              ),
-              border: const OutlineInputBorder(),
             ),
           ),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: LocalizedText(
-              'Phone search only finds numbers saved on an account. Phone registration is not available yet.',
-              style: TextStyle(fontSize: 12),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: LocalizedText(
+                'Phone search only finds numbers saved on an account. Phone registration is not available yet.',
+                style: TextStyle(fontSize: 12),
+              ),
             ),
           ),
-        ),
-        Expanded(
-          child: FutureBuilder<Map<String, dynamic>>(
-            future: _results,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(snapshot.error.toString()),
-                        TextButton(
-                          onPressed: () => _loadUsers(reset: true),
-                          child: const LocalizedText('Try again'),
+          Expanded(
+            child: FutureBuilder<Map<String, dynamic>>(
+              future: _results,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(snapshot.error.toString()),
+                          TextButton(
+                            onPressed: () => _loadUsers(reset: true),
+                            child: const LocalizedText('Try again'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final users = (snapshot.data!['users'] as List)
+                    .cast<Map<String, dynamic>>();
+                _nextOffset = snapshot.data!['next_offset'] as int?;
+                if (users.isEmpty) {
+                  return RefreshIndicator(
+                    onRefresh: () => _loadUsers(reset: true),
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                        SizedBox(height: 160),
+                        Center(
+                          child: LocalizedText('No matching accounts found.'),
                         ),
                       ],
                     ),
-                  ),
-                );
-              }
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final users = (snapshot.data!['users'] as List)
-                  .cast<Map<String, dynamic>>();
-              _nextOffset = snapshot.data!['next_offset'] as int?;
-              if (users.isEmpty) {
+                  );
+                }
                 return RefreshIndicator(
                   onRefresh: () => _loadUsers(reset: true),
-                  child: ListView(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
                     physics: const AlwaysScrollableScrollPhysics(),
-                    children: const [
-                      SizedBox(height: 160),
-                      Center(
-                        child: LocalizedText('No matching accounts found.'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return RefreshIndicator(
-                onRefresh: () => _loadUsers(reset: true),
-                child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: users.length + (_nextOffset == null ? 0 : 1),
-                  separatorBuilder: (_, _) => const SizedBox(height: 4),
-                  itemBuilder: (context, index) {
-                    if (index == users.length) {
-                      return Center(
-                        child: TextButton.icon(
-                          onPressed: _loadingMore ? null : _loadMore,
-                          icon: _loadingMore
-                              ? const SizedBox.square(
-                                  dimension: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                    itemCount: users.length + (_nextOffset == null ? 0 : 1),
+                    separatorBuilder: (_, _) => const SizedBox(height: 4),
+                    itemBuilder: (context, index) {
+                      if (index == users.length) {
+                        return Center(
+                          child: TextButton.icon(
+                            onPressed: _loadingMore ? null : _loadMore,
+                            icon: _loadingMore
+                                ? const SizedBox.square(
+                                    dimension: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.expand_more),
+                            label: const LocalizedText('Load more'),
+                          ),
+                        );
+                      }
+                      final row = users[index];
+                      final name = row['full_name']?.toString().trim();
+                      final email = row['email']?.toString() ?? '';
+                      final phone = row['phone_number']?.toString() ?? '';
+                      final activeModerator =
+                          row['moderator_active'] == true &&
+                          (row['can_review_reports'] == true ||
+                              row['can_review_verification'] == true);
+                      return Card(
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            child: Icon(
+                              row['platform_admin'] == true
+                                  ? Icons.admin_panel_settings_outlined
+                                  : activeModerator
+                                  ? Icons.shield_outlined
+                                  : Icons.person_outline,
+                            ),
+                          ),
+                          title: Text(
+                            (name == null || name.isEmpty)
+                                ? (row['display_name']?.toString() ??
+                                      row['id'].toString())
+                                : name,
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (email.isNotEmpty) Text(email),
+                              if (phone.isNotEmpty) Text(phone),
+                              Wrap(
+                                spacing: 4,
+                                children: [
+                                  const LocalizedText('Account status'),
+                                  LocalizedText(
+                                    _accountStatusLabel(
+                                      row['account_status']?.toString(),
+                                    ),
                                   ),
-                                )
-                              : const Icon(Icons.expand_more),
-                          label: const LocalizedText('Load more'),
+                                ],
+                              ),
+                              if (activeModerator)
+                                const LocalizedText('Moderator'),
+                              if (row['platform_admin'] == true)
+                                const LocalizedText('Platform administrator'),
+                            ],
+                          ),
+                          isThreeLine: true,
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => _openUser(row),
                         ),
                       );
-                    }
-                    final row = users[index];
-                    final name = row['full_name']?.toString().trim();
-                    final email = row['email']?.toString() ?? '';
-                    final phone = row['phone_number']?.toString() ?? '';
-                    final activeModerator =
-                        row['moderator_active'] == true &&
-                        (row['can_review_reports'] == true ||
-                            row['can_review_verification'] == true);
-                    return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: Icon(
-                            row['platform_admin'] == true
-                                ? Icons.admin_panel_settings_outlined
-                                : activeModerator
-                                ? Icons.shield_outlined
-                                : Icons.person_outline,
-                          ),
-                        ),
-                        title: Text(
-                          (name == null || name.isEmpty)
-                              ? (row['display_name']?.toString() ??
-                                    row['id'].toString())
-                              : name,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (email.isNotEmpty) Text(email),
-                            if (phone.isNotEmpty) Text(phone),
-                            Wrap(
-                              spacing: 4,
-                              children: [
-                                const LocalizedText('Account status'),
-                                LocalizedText(
-                                  _accountStatusLabel(
-                                    row['account_status']?.toString(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (activeModerator)
-                              const LocalizedText('Moderator'),
-                            if (row['platform_admin'] == true)
-                              const LocalizedText('Platform administrator'),
-                          ],
-                        ),
-                        isThreeLine: true,
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => _openUser(row),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
+                    },
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
@@ -406,6 +411,9 @@ class _ApiAdminUserDetailScreenState extends State<ApiAdminUserDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
                   initialValue: gender,
                   decoration: InputDecoration(
                     labelText: AppLanguageService.translate('Reviewer gender'),
@@ -710,120 +718,123 @@ class _ApiAdminUserDetailScreenState extends State<ApiAdminUserDetailScreen> {
     final status = _user['account_status']?.toString() ?? 'unknown';
     return Scaffold(
       appBar: AppBar(title: const LocalizedText('Account administration')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Card(
-            child: ListTile(
-              leading: CircleAvatar(
-                child: Icon(
-                  _isPlatformAdmin
-                      ? Icons.admin_panel_settings_outlined
-                      : _isModerator
-                      ? Icons.shield_outlined
-                      : Icons.person_outline,
+      body: NisaPageBody(
+        form: false,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Card(
+              child: ListTile(
+                leading: CircleAvatar(
+                  child: Icon(
+                    _isPlatformAdmin
+                        ? Icons.admin_panel_settings_outlined
+                        : _isModerator
+                        ? Icons.shield_outlined
+                        : Icons.person_outline,
+                  ),
                 ),
+                title: Text(displayName),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 4,
+                      children: [
+                        const LocalizedText('User ID'),
+                        Text(_user['id'].toString()),
+                      ],
+                    ),
+                    if ((_user['email']?.toString() ?? '').isNotEmpty)
+                      Wrap(
+                        spacing: 4,
+                        children: [
+                          const LocalizedText('Email'),
+                          Text(_user['email'].toString()),
+                        ],
+                      ),
+                    if ((_user['phone_number']?.toString() ?? '').isNotEmpty)
+                      Wrap(
+                        spacing: 4,
+                        children: [
+                          const LocalizedText('Phone'),
+                          Text(_user['phone_number'].toString()),
+                        ],
+                      ),
+                    Wrap(
+                      spacing: 4,
+                      children: [
+                        const LocalizedText('Account status'),
+                        LocalizedText(_accountStatusLabel(status)),
+                      ],
+                    ),
+                    if (_isModerator)
+                      Wrap(
+                        spacing: 4,
+                        children: [
+                          const LocalizedText('Moderator'),
+                          _user['reviewer_gender'] == 'male'
+                              ? const LocalizedText('Male')
+                              : const LocalizedText('Female'),
+                          if (_user['can_review_verification'] == true)
+                            const LocalizedText('Verification'),
+                          if (_user['can_review_reports'] == true)
+                            const LocalizedText('Reports'),
+                        ],
+                      ),
+                    if (_isPlatformAdmin)
+                      const LocalizedText('Platform administrator account'),
+                  ],
+                ),
+                isThreeLine: true,
               ),
-              title: Text(displayName),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    spacing: 4,
-                    children: [
-                      const LocalizedText('User ID'),
-                      Text(_user['id'].toString()),
-                    ],
-                  ),
-                  if ((_user['email']?.toString() ?? '').isNotEmpty)
-                    Wrap(
-                      spacing: 4,
-                      children: [
-                        const LocalizedText('Email'),
-                        Text(_user['email'].toString()),
-                      ],
-                    ),
-                  if ((_user['phone_number']?.toString() ?? '').isNotEmpty)
-                    Wrap(
-                      spacing: 4,
-                      children: [
-                        const LocalizedText('Phone'),
-                        Text(_user['phone_number'].toString()),
-                      ],
-                    ),
-                  Wrap(
-                    spacing: 4,
-                    children: [
-                      const LocalizedText('Account status'),
-                      LocalizedText(_accountStatusLabel(status)),
-                    ],
-                  ),
-                  if (_isModerator)
-                    Wrap(
-                      spacing: 4,
-                      children: [
-                        const LocalizedText('Moderator'),
-                        _user['reviewer_gender'] == 'male'
-                            ? const LocalizedText('Male')
-                            : const LocalizedText('Female'),
-                        if (_user['can_review_verification'] == true)
-                          const LocalizedText('Verification'),
-                        if (_user['can_review_reports'] == true)
-                          const LocalizedText('Reports'),
-                      ],
-                    ),
-                  if (_isPlatformAdmin)
-                    const LocalizedText('Platform administrator account'),
-                ],
-              ),
-              isThreeLine: true,
             ),
-          ),
-          const SizedBox(height: 12),
-          FilledButton.tonalIcon(
-            onPressed: _busy ? null : _showActivity,
-            icon: const Icon(Icons.history),
-            label: const LocalizedText('View account activity'),
-          ),
-          const SizedBox(height: 12),
-          if (_user['account_status'] == 'active') ...[
-            if (_isModerator) ...[
+            const SizedBox(height: 12),
+            FilledButton.tonalIcon(
+              onPressed: _busy ? null : _showActivity,
+              icon: const Icon(Icons.history),
+              label: const LocalizedText('View account activity'),
+            ),
+            const SizedBox(height: 12),
+            if (_user['account_status'] == 'active') ...[
+              if (_isModerator) ...[
+                OutlinedButton.icon(
+                  onPressed: _busy ? null : _setModerator,
+                  icon: const Icon(Icons.manage_accounts_outlined),
+                  label: const LocalizedText('Edit moderator permissions'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: _busy ? null : _removeModerator,
+                  icon: const Icon(Icons.person_remove_alt_1_outlined),
+                  label: const LocalizedText('Remove moderator access'),
+                ),
+              ] else
+                OutlinedButton.icon(
+                  onPressed: _busy ? null : _setModerator,
+                  icon: const Icon(Icons.shield_outlined),
+                  label: const LocalizedText('Set as moderator'),
+                ),
+              if (!_isPlatformAdmin && _user['account_status'] == 'active') ...[
+                const SizedBox(height: 8),
+                FilledButton.tonalIcon(
+                  onPressed: _busy ? null : () => _ban(deletion: false),
+                  icon: const Icon(Icons.gavel_outlined),
+                  label: const LocalizedText('Permanently ban account'),
+                ),
+              ],
+            ],
+            if (!_isPlatformAdmin && _user['account_status'] != 'deleted')
               OutlinedButton.icon(
-                onPressed: _busy ? null : _setModerator,
-                icon: const Icon(Icons.manage_accounts_outlined),
-                label: const LocalizedText('Edit moderator permissions'),
+                onPressed: _busy ? null : () => _ban(deletion: true),
+                icon: const Icon(Icons.delete_forever_outlined),
+                label: const LocalizedText('Delete account'),
               ),
-              OutlinedButton.icon(
-                onPressed: _busy ? null : _removeModerator,
-                icon: const Icon(Icons.person_remove_alt_1_outlined),
-                label: const LocalizedText('Remove moderator access'),
-              ),
-            ] else
-              OutlinedButton.icon(
-                onPressed: _busy ? null : _setModerator,
-                icon: const Icon(Icons.shield_outlined),
-                label: const LocalizedText('Set as moderator'),
-              ),
-            if (!_isPlatformAdmin && _user['account_status'] == 'active') ...[
-              const SizedBox(height: 8),
-              FilledButton.tonalIcon(
-                onPressed: _busy ? null : () => _ban(deletion: false),
-                icon: const Icon(Icons.gavel_outlined),
-                label: const LocalizedText('Permanently ban account'),
-              ),
+            if (_busy) ...[
+              const SizedBox(height: 12),
+              const LinearProgressIndicator(),
             ],
           ],
-          if (!_isPlatformAdmin && _user['account_status'] != 'deleted')
-            OutlinedButton.icon(
-              onPressed: _busy ? null : () => _ban(deletion: true),
-              icon: const Icon(Icons.delete_forever_outlined),
-              label: const LocalizedText('Delete account'),
-            ),
-          if (_busy) ...[
-            const SizedBox(height: 12),
-            const LinearProgressIndicator(),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -887,71 +898,74 @@ class _ApiAdminUserActivityScreenState
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const LocalizedText('Account activity')),
-    body: FutureBuilder<List<Map<String, dynamic>>>(
-      future: _activities,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(child: Text(snapshot.error.toString()));
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final activities = snapshot.data!;
-        if (activities.isEmpty) {
-          return const Center(
-            child: LocalizedText('No recorded account activity.'),
-          );
-        }
-        return ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: activities.length,
-          separatorBuilder: (_, _) => const Divider(height: 1),
-          itemBuilder: (context, index) {
-            final event = activities[index];
-            final reason = event['reason']?.toString() ?? '';
-            return ListTile(
-              leading: const Icon(Icons.history),
-              title: LocalizedText(
-                _eventLabel(event['event_type']?.toString()),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (reason.isNotEmpty) Text(reason),
-                  Wrap(
-                    spacing: 4,
-                    children: [
-                      const LocalizedText('Actor'),
-                      Text(
-                        event['actor_user_id']?.toString() ??
-                            AppLanguageService.translate('System'),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                  if (event['target_user_id'] != null)
+    body: NisaPageBody(
+      form: false,
+      child: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _activities,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final activities = snapshot.data!;
+          if (activities.isEmpty) {
+            return const Center(
+              child: LocalizedText('No recorded account activity.'),
+            );
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: activities.length,
+            separatorBuilder: (_, _) => const Divider(height: 1),
+            itemBuilder: (context, index) {
+              final event = activities[index];
+              final reason = event['reason']?.toString() ?? '';
+              return ListTile(
+                leading: const Icon(Icons.history),
+                title: LocalizedText(
+                  _eventLabel(event['event_type']?.toString()),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (reason.isNotEmpty) Text(reason),
                     Wrap(
                       spacing: 4,
                       children: [
-                        const LocalizedText('Target'),
+                        const LocalizedText('Actor'),
                         Text(
-                          event['target_user_id'].toString(),
+                          event['actor_user_id']?.toString() ??
+                              AppLanguageService.translate('System'),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
                     ),
-                  if (event['occurred_at'] != null)
-                    Text(
-                      event['occurred_at'].toString(),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                ],
-              ),
-              isThreeLine: true,
-            );
-          },
-        );
-      },
+                    if (event['target_user_id'] != null)
+                      Wrap(
+                        spacing: 4,
+                        children: [
+                          const LocalizedText('Target'),
+                          Text(
+                            event['target_user_id'].toString(),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    if (event['occurred_at'] != null)
+                      Text(
+                        event['occurred_at'].toString(),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                  ],
+                ),
+                isThreeLine: true,
+              );
+            },
+          );
+        },
+      ),
     ),
   );
 }

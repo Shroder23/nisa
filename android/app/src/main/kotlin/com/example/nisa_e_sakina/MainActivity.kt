@@ -1,4 +1,4 @@
-package com.example.nisa_e_sakina
+package com.nisaesakina.app
 
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity

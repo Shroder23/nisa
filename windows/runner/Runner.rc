@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "nisa_e_sakina" "\0"
+            VALUE "CompanyName", "Nisa e Sakina" "\0"
+            VALUE "FileDescription", "Nisa e Sakina" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "nisa_e_sakina" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Nisa e Sakina. All rights reserved." "\0"
             VALUE "OriginalFilename", "nisa_e_sakina.exe" "\0"
-            VALUE "ProductName", "nisa_e_sakina" "\0"
+            VALUE "ProductName", "Nisa e Sakina" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

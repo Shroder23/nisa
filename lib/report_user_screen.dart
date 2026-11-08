@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'services/app_language_service.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
@@ -129,78 +130,84 @@ class _ReportUserScreenState extends LanguageAwareState<ReportUserScreen> {
         title: const LocalizedText('Report Profile'),
         actions: const [LanguageSelectorButton()],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Icon(
-            Icons.flag_outlined,
-            size: 56,
-            color: Theme.of(context).colorScheme.error,
-          ),
-          const SizedBox(height: 16),
-          LocalizedText(
-            'Report {name}',
-            substitutions: {'name': name},
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const LocalizedText(
-            'Use this only for genuine safety, privacy, honesty, or misuse concerns.',
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          DropdownButtonFormField<String>(
-            initialValue: _reason,
-            decoration: InputDecoration(
-              labelText: AppLanguageService.translate('Reason'),
-              border: OutlineInputBorder(),
+      body: NisaPageBody(
+        form: true,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            Icon(
+              Icons.flag_outlined,
+              size: 56,
+              color: Theme.of(context).colorScheme.error,
             ),
-            items: _reasons
-                .map(
-                  (reason) => DropdownMenuItem(
-                    value: reason,
-                    child: LocalizedText(reason),
-                  ),
-                )
-                .toList(),
-            onChanged: _submitting
-                ? null
-                : (value) {
-                    if (value == null) return;
-                    setState(() => _reason = value);
-                  },
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _detailsController,
-            enabled: !_submitting,
-            minLines: 4,
-            maxLines: 7,
-            decoration: InputDecoration(
-              labelText: AppLanguageService.translate('Details'),
-              hintText: AppLanguageService.translate(
-                'Explain what happened. Do not include private documents unless necessary.',
+            const SizedBox(height: 16),
+            LocalizedText(
+              'Report {name}',
+              substitutions: {'name': name},
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const LocalizedText(
+              'Use this only for genuine safety, privacy, honesty, or misuse concerns.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              itemHeight: null,
+              isDense: false,
+              initialValue: _reason,
+              decoration: InputDecoration(
+                labelText: AppLanguageService.translate('Reason'),
+                border: OutlineInputBorder(),
               ),
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 20),
-          FilledButton.icon(
-            onPressed: _submitting ? null : _submit,
-            icon: _submitting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+              items: _reasons
+                  .map(
+                    (reason) => DropdownMenuItem(
+                      value: reason,
+                      child: LocalizedText(reason),
+                    ),
                   )
-                : const Icon(Icons.send_outlined),
-            label: LocalizedText(
-              _submitting ? 'Submitting...' : 'Submit Report',
+                  .toList(),
+              onChanged: _submitting
+                  ? null
+                  : (value) {
+                      if (value == null) return;
+                      setState(() => _reason = value);
+                    },
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            TextField(
+              controller: _detailsController,
+              enabled: !_submitting,
+              minLines: 4,
+              maxLines: 7,
+              decoration: InputDecoration(
+                labelText: AppLanguageService.translate('Details'),
+                hintText: AppLanguageService.translate(
+                  'Explain what happened. Do not include private documents unless necessary.',
+                ),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: _submitting ? null : _submit,
+              icon: _submitting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.send_outlined),
+              label: LocalizedText(
+                _submitting ? 'Submitting...' : 'Submit Report',
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

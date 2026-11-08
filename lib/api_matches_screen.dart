@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'api_candidate_details_screen.dart';
@@ -53,50 +55,53 @@ class _ApiMatchesScreenState extends LanguageAwareState<ApiMatchesScreen> {
               ],
             )
           : null,
-      body: FutureBuilder<List<Conversation>>(
-        future: _matches,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return _MatchesMessage(
-              message: 'Could not load matches: ${snapshot.error}',
-              onRetry: _refresh,
+      body: NisaPageBody(
+        form: false,
+        child: FutureBuilder<List<Conversation>>(
+          future: _matches,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return _MatchesMessage(
+                message: 'Could not load matches: ${snapshot.error}',
+                onRetry: _refresh,
+              );
+            }
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final matches = snapshot.data!;
+            if (matches.isEmpty) {
+              return const _MatchesMessage(
+                message: 'No matches yet. When you accept an incoming interest, the match will appear here.',
+              );
+            }
+            return RefreshIndicator(
+              onRefresh: _refresh,
+              child: ListView.separated(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: matches.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 2),
+                itemBuilder: (context, index) {
+                  final match = matches[index];
+                  final otherId = match.otherParticipant(currentUserId);
+                  final name =
+                      match.participantNames[otherId]?.trim().isNotEmpty == true
+                      ? match.participantNames[otherId]!.trim()
+                      : 'Nisa member';
+                  return _MatchCard(
+                    conversation: match,
+                    otherUserId: otherId,
+                    fallbackName: name,
+                    fallbackPhoto: match.participantPhotos[otherId],
+                    currentUser: widget.currentUser,
+                    onReturn: _refresh,
+                  );
+                },
+              ),
             );
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final matches = snapshot.data!;
-          if (matches.isEmpty) {
-            return const _MatchesMessage(
-              message: 'No matches yet. When you accept an incoming interest, the match will appear here.',
-            );
-          }
-          return RefreshIndicator(
-            onRefresh: _refresh,
-            child: ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: matches.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 2),
-              itemBuilder: (context, index) {
-                final match = matches[index];
-                final otherId = match.otherParticipant(currentUserId);
-                final name =
-                    match.participantNames[otherId]?.trim().isNotEmpty == true
-                    ? match.participantNames[otherId]!.trim()
-                    : 'Nisa member';
-                return _MatchCard(
-                  conversation: match,
-                  otherUserId: otherId,
-                  fallbackName: name,
-                  fallbackPhoto: match.participantPhotos[otherId],
-                  currentUser: widget.currentUser,
-                  onReturn: _refresh,
-                );
-              },
-            ),
-          );
-        },
+          },
+        ),
       ),
     );
   }

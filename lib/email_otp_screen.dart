@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
 
@@ -313,91 +314,94 @@ class _EmailOtpScreenState extends LanguageAwareState<EmailOtpScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 10, 24, 8),
-          child: Column(
-            children: [
-              Expanded(
-                flex: 6,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.mark_email_read_outlined,
-                        size: 38,
-                        color: theme.colorScheme.primary,
-                      ),
-                      const SizedBox(height: 12),
-                      LocalizedText(
-                        AppLanguageService.translate('Verification code'),
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.4,
+      body: NisaPageBody(
+        form: true,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 10, 24, 8),
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 6,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.mark_email_read_outlined,
+                          size: 38,
+                          color: theme.colorScheme.primary,
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      LocalizedText(
-                        AppLanguageService.translate(
-                          'Please enter the 6-digit code sent to',
+                        const SizedBox(height: 12),
+                        LocalizedText(
+                          AppLanguageService.translate('Verification code'),
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.4,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                        const SizedBox(height: 10),
+                        LocalizedText(
+                          AppLanguageService.translate(
+                            'Please enter the 6-digit code sent to',
+                          ),
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 3),
-                      LocalizedText(
-                        widget.email,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
+                        const SizedBox(height: 3),
+                        LocalizedText(
+                          widget.email,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 28),
-                      _codeSlots(context),
-                      const SizedBox(height: 15),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 180),
-                        child: _error == null
-                            ? const SizedBox(height: 22)
-                            : LocalizedText(
-                                _error!,
-                                key: ValueKey(_error),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: theme.colorScheme.error,
+                        const SizedBox(height: 28),
+                        _codeSlots(context),
+                        const SizedBox(height: 15),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 180),
+                          child: _error == null
+                              ? const SizedBox(height: 22)
+                              : LocalizedText(
+                                  _error!,
+                                  key: ValueKey(_error),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: theme.colorScheme.error,
+                                  ),
                                 ),
-                              ),
-                      ),
-                      const SizedBox(height: 20),
-                      LocalizedText(
-                        _seconds > 0
-                            ? 'You can request a new code in $_seconds seconds'
-                            : 'Didn’t receive the code?',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                      ),
-                      TextButton(
-                        onPressed: _seconds == 0 && !_busy ? _resend : null,
-                        child: LocalizedText('Resend code'),
-                      ),
-                    ],
+                        const SizedBox(height: 20),
+                        LocalizedText(
+                          _seconds > 0
+                              ? 'You can request a new code in $_seconds seconds'
+                              : 'Didn’t receive the code?',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _seconds == 0 && !_busy ? _resend : null,
+                          child: LocalizedText('Resend code'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Expanded(flex: 5, child: _numericKeypad(context)),
-              if (_busy)
-                const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-            ],
+                Expanded(flex: 5, child: _numericKeypad(context)),
+                if (_busy)
+                  const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

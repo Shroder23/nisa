@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
 
@@ -293,259 +294,264 @@ class _CreateAccountScreenState
         ),
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  const SizedBox(height: 16),
+      body: NisaPageBody(
+        form: true,
+        child: SafeArea(
+          child: Stack(
+            children: [
+              Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    const SizedBox(height: 16),
 
-                  Icon(
-                    _isExistingAccount
-                        ? Icons.login_rounded
-                        : Icons.person_add_rounded,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  LocalizedText(
-                    _isExistingAccount
-                        ? 'Continue your profile'
-                        : 'Create your Nisa account',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                    Icon(
+                      _isExistingAccount
+                          ? Icons.login_rounded
+                          : Icons.person_add_rounded,
+                      size: 64,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
-                  ),
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
-                  LocalizedText(
-                    _isExistingAccount
-                        ? 'Your account already exists. Continue completing your profile.'
-                        : 'Your account will be securely connected to Firebase.',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      height: 1.5,
-                      color: Colors.black54,
+                    LocalizedText(
+                      _isExistingAccount
+                          ? 'Continue your profile'
+                          : 'Create your Nisa account',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 10),
 
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    enabled: !_isExistingAccount,
-                    onChanged: _scheduleEmailCheck,
-                    decoration: InputDecoration(
-                      labelText: AppLanguageService.translate('Email'),
-                      prefixIcon: Icon(Icons.email_outlined),
-                      suffixIcon: !_isExistingAccount && _checkingEmail
-                          ? const Padding(
-                              padding: EdgeInsets.all(14),
-                              child: SizedBox(
-                                width: 18,
-                                height: 18,
+                    LocalizedText(
+                      _isExistingAccount
+                          ? 'Your account already exists. Continue completing your profile.'
+                          : 'Your account will be securely connected to Firebase.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        height: 1.5,
+                        color: Colors.black54,
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      enabled: !_isExistingAccount,
+                      onChanged: _scheduleEmailCheck,
+                      decoration: InputDecoration(
+                        labelText: AppLanguageService.translate('Email'),
+                        prefixIcon: Icon(Icons.email_outlined),
+                        suffixIcon: !_isExistingAccount && _checkingEmail
+                            ? const Padding(
+                                padding: EdgeInsets.all(14),
+                                child: SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : null,
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return AppLanguageService.translate(
+                            'Please enter your email.',
+                          );
+                        }
+
+                        if (!value.contains('@')) {
+                          return AppLanguageService.translate(
+                            'Please enter a valid email.',
+                          );
+                        }
+
+                        return null;
+                      },
+                    ),
+
+                    if (!_isExistingAccount &&
+                        _emailAlreadyRegistered == true) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: LocalizedText(
+                              'Email already registered',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: _openLogin,
+                            icon: const Icon(Icons.login_rounded, size: 18),
+                            label: LocalizedText('Login'),
+                          ),
+                        ],
+                      ),
+                    ],
+
+                    const SizedBox(height: 16),
+
+                    const LocalizedText(
+                      'A 6-digit verification code will be sent to this email before your Firebase account is created.',
+                      style: TextStyle(color: Colors.black54),
+                    ),
+
+                    if (!_isExistingAccount) ...[
+                      const SizedBox(height: 16),
+
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        decoration: InputDecoration(
+                          labelText: AppLanguageService.translate('Password'),
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                          border: const OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppLanguageService.translate(
+                              'Please enter a password.',
+                            );
+                          }
+
+                          if (value.length < 6) {
+                            return AppLanguageService.translate(
+                              'Password must be at least 6 characters.',
+                            );
+                          }
+
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: _obscureConfirmPassword,
+                        decoration: InputDecoration(
+                          labelText: AppLanguageService.translate(
+                            'Confirm password',
+                          ),
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
+                          border: const OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppLanguageService.translate(
+                              'Please confirm your password.',
+                            );
+                          }
+
+                          if (value != _passwordController.text) {
+                            return AppLanguageService.translate(
+                              'Passwords do not match.',
+                            );
+                          }
+
+                          return null;
+                        },
+                      ),
+                    ],
+
+                    const SizedBox(height: 30),
+
+                    SizedBox(
+                      height: 54,
+                      child: FilledButton(
+                        onPressed: _isLoading ? null : _continue,
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                 ),
+                              )
+                            : LocalizedText(
+                                _isExistingAccount
+                                    ? 'Continue'
+                                    : 'Create Account',
                               ),
-                            )
-                          : null,
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return AppLanguageService.translate(
-                          'Please enter your email.',
-                        );
-                      }
-
-                      if (!value.contains('@')) {
-                        return AppLanguageService.translate(
-                          'Please enter a valid email.',
-                        );
-                      }
-
-                      return null;
-                    },
-                  ),
-
-                  if (!_isExistingAccount &&
-                      _emailAlreadyRegistered == true) ...[
-                    const SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: LocalizedText(
-                            'Email already registered',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: _openLogin,
-                          icon: const Icon(Icons.login_rounded, size: 18),
-                          label: LocalizedText('Login'),
-                        ),
-                      ],
-                    ),
-                  ],
-
-                  const SizedBox(height: 16),
-
-                  const LocalizedText(
-                    'A 6-digit verification code will be sent to this email before your Firebase account is created.',
-                    style: TextStyle(color: Colors.black54),
-                  ),
-
-                  if (!_isExistingAccount) ...[
-                    const SizedBox(height: 16),
-
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: AppLanguageService.translate('Password'),
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                        border: const OutlineInputBorder(),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return AppLanguageService.translate(
-                            'Please enter a password.',
-                          );
-                        }
-
-                        if (value.length < 6) {
-                          return AppLanguageService.translate(
-                            'Password must be at least 6 characters.',
-                          );
-                        }
-
-                        return null;
-                      },
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
 
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      obscureText: _obscureConfirmPassword,
-                      decoration: InputDecoration(
-                        labelText: AppLanguageService.translate(
-                          'Confirm password',
-                        ),
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirmPassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureConfirmPassword =
-                                  !_obscureConfirmPassword;
-                            });
-                          },
-                        ),
-                        border: const OutlineInputBorder(),
+                    if (_isExistingAccount)
+                      const LocalizedText(
+                        'You are continuing an existing Firebase account. A new account will not be created.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 13, color: Colors.black54),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return AppLanguageService.translate(
-                            'Please confirm your password.',
-                          );
-                        }
-
-                        if (value != _passwordController.text) {
-                          return AppLanguageService.translate(
-                            'Passwords do not match.',
-                          );
-                        }
-
-                        return null;
-                      },
-                    ),
                   ],
-
-                  const SizedBox(height: 30),
-
-                  SizedBox(
-                    height: 54,
-                    child: FilledButton(
-                      onPressed: _isLoading ? null : _continue,
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : LocalizedText(
-                              _isExistingAccount
-                                  ? 'Continue'
-                                  : 'Create Account',
-                            ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  if (_isExistingAccount)
-                    const LocalizedText(
-                      'You are continuing an existing Firebase account. A new account will not be created.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 13, color: Colors.black54),
-                    ),
-                ],
+                ),
               ),
-            ),
-            if (_isLoading)
-              Positioned.fill(
-                child: AbsorbPointer(
-                  child: ColoredBox(
-                    color: Color(0xF2FFF9FF),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const CircularProgressIndicator(),
-                          const SizedBox(height: 18),
-                          LocalizedText(
-                            'Preparing your profile…',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ],
+              if (_isLoading)
+                Positioned.fill(
+                  child: AbsorbPointer(
+                    child: ColoredBox(
+                      color: Color(0xF2FFF9FF),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 18),
+                            LocalizedText(
+                              'Preparing your profile…',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

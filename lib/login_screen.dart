@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
 
@@ -137,117 +138,120 @@ class _LoginScreenState extends LanguageAwareState<LoginScreen> {
         centerTitle: true,
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              const SizedBox(height: 20),
-              Icon(
-                Icons.lock_open_rounded,
-                size: 70,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 24),
-              LocalizedText(
-                AppLanguageService.translate('Welcome back'),
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              LocalizedText(
-                AppLanguageService.translate(
-                  'Sign in to continue your Nisa journey.',
+      body: NisaPageBody(
+        form: true,
+        child: SafeArea(
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                const SizedBox(height: 20),
+                Icon(
+                  Icons.lock_open_rounded,
+                  size: 70,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15, color: Colors.black54),
-              ),
-              const SizedBox(height: 32),
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Email'),
-                  prefixIcon: Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 24),
+                LocalizedText(
+                  AppLanguageService.translate('Welcome back'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return AppLanguageService.translate(
-                      'Please enter your email.',
-                    );
-                  }
-
-                  if (!value.contains('@')) {
-                    return AppLanguageService.translate(
-                      'Please enter a valid email.',
-                    );
-                  }
-
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Password'),
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
+                const SizedBox(height: 10),
+                LocalizedText(
+                  AppLanguageService.translate(
+                    'Sign in to continue your Nisa journey.',
                   ),
-                  border: const OutlineInputBorder(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, color: Colors.black54),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return AppLanguageService.translate(
-                      'Please enter your password.',
-                    );
-                  }
+                const SizedBox(height: 32),
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Email'),
+                    prefixIcon: Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return AppLanguageService.translate(
+                        'Please enter your email.',
+                      );
+                    }
 
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: _isLoading ? null : _forgotPassword,
-                  child: LocalizedText('Forgot password?'),
+                    if (!value.contains('@')) {
+                      return AppLanguageService.translate(
+                        'Please enter a valid email.',
+                      );
+                    }
+
+                    return null;
+                  },
                 ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 54,
-                child: FilledButton(
-                  onPressed: _isLoading ? null : _login,
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : LocalizedText(
-                          AppLanguageService.translate('Sign In'),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Password'),
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                    border: const OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return AppLanguageService.translate(
+                        'Please enter your password.',
+                      );
+                    }
+
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: TextButton(
+                    onPressed: _isLoading ? null : _forgotPassword,
+                    child: LocalizedText('Forgot password?'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 54,
+                  child: FilledButton(
+                    onPressed: _isLoading ? null : _login,
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : LocalizedText(
+                            AppLanguageService.translate('Sign In'),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

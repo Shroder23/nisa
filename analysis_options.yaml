@@ -11,6 +11,7 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   exclude:
+    - nisa-premium-kit/** # Supplied reference sources; integrated code is in lib/.
     - build/**
     - android/**
     - ios/**

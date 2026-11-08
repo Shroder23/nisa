@@ -1,0 +1,201 @@
+{
+  "account_type_screen.dart": [
+    "CreateAccountScreen",
+    "LoginScreen"
+  ],
+  "admin_identity_screen.dart": [],
+  "admin_verification_detail_screen.dart": [
+    "SecureAdminVideoScreen",
+    "_InfoCard",
+    "_InfoRow"
+  ],
+  "admin_verification_list_screen.dart": [
+    "AdminVerificationDetailScreen"
+  ],
+  "age_restricted_screen.dart": [],
+  "api_account_restrictions_screen.dart": [],
+  "api_account_restriction_screen.dart": [],
+  "api_admin_direct_ban_screen.dart": [],
+  "api_admin_reports_screen.dart": [
+    "ApiModeratorRequestsScreen"
+  ],
+  "api_admin_user_management_screen.dart": [],
+  "api_admin_verification_screen.dart": [],
+  "api_blocked_users_screen.dart": [],
+  "api_candidate_details_screen.dart": [
+    "ApiChatScreen"
+  ],
+  "api_chat_screen.dart": [
+    "ReportUserScreen"
+  ],
+  "api_conversations_screen.dart": [
+    "ApiChatScreen"
+  ],
+  "api_discovery_screen.dart": [
+    "ApiCandidateDetailsScreen",
+    "ReportUserScreen"
+  ],
+  "api_email_access_screen.dart": [
+    "ApiLoginScreen"
+  ],
+  "api_family_invitations_screen.dart": [],
+  "api_family_screen.dart": [
+    "ApiFamilyInvitationsScreen"
+  ],
+  "api_home_dashboard.dart": [
+    "ApiCandidateDetailsScreen",
+    "ReportUserScreen"
+  ],
+  "api_home_screen.dart": [
+    "ApiAdminDirectBanScreen",
+    "ApiAdminReportsScreen",
+    "ApiAdminUserManagementScreen",
+    "ApiAdminVerificationScreen",
+    "ApiBlockedUsersScreen",
+    "ApiConversationsScreen",
+    "ApiDiscoveryScreen",
+    "ApiFamilyInvitationsScreen",
+    "ApiFamilyScreen",
+    "ApiHomeDashboard",
+    "ApiMatchesScreen",
+    "ApiMatchmakerScreen",
+    "ApiModeratorLogsScreen",
+    "ApiModeratorRecommendationsScreen",
+    "ApiModeratorRequestsScreen",
+    "ApiMyReportsScreen",
+    "ApiNotificationsScreen",
+    "ApiPrivacySettingsScreen",
+    "ApiSessionManagementScreen",
+    "EditProfileScreen",
+    "MatrimonialPreferencesScreen",
+    "VerificationScreen"
+  ],
+  "api_incoming_interests_screen.dart": [
+    "ApiConversationsScreen",
+    "ReportUserScreen"
+  ],
+  "api_login_screen.dart": [
+    "ApiEmailAccessScreen",
+    "_GoogleMark"
+  ],
+  "api_matches_screen.dart": [
+    "ApiCandidateDetailsScreen",
+    "ApiChatScreen",
+    "_MatchCard"
+  ],
+  "api_matchmaker_screen.dart": [],
+  "api_moderator_logs_screen.dart": [],
+  "api_moderator_recommendations_screen.dart": [],
+  "api_moderator_requests_screen.dart": [],
+  "api_my_reports_screen.dart": [],
+  "api_notifications_screen.dart": [
+    "ApiAccountRestrictionsScreen",
+    "ApiChatScreen",
+    "ApiConversationsScreen",
+    "ApiIncomingInterestsScreen",
+    "ApiModeratorLogsScreen",
+    "ApiModeratorRecommendationsScreen",
+    "ApiModeratorRequestsScreen",
+    "ApiMyReportsScreen"
+  ],
+  "api_privacy_settings_screen.dart": [],
+  "api_sent_interests_screen.dart": [
+    "ApiConversationsScreen",
+    "ReportUserScreen"
+  ],
+  "api_session_management_screen.dart": [],
+  "api_session_preview_screen.dart": [
+    "ApiConversationsScreen",
+    "ApiDiscoveryScreen",
+    "ApiIncomingInterestsScreen",
+    "ApiNotificationsScreen",
+    "ApiSentInterestsScreen",
+    "EditProfileScreen",
+    "MatrimonialPreferencesScreen"
+  ],
+  "api_verification_pending_screen.dart": [],
+  "api_verification_screen.dart": [
+    "ApiVerificationPendingScreen",
+    "ApiVerificationUploadScreen",
+    "AuthGate",
+    "EditProfileScreen"
+  ],
+  "api_verification_upload_screen.dart": [],
+  "basic_profile_screen.dart": [
+    "AccountTypeScreen",
+    "ProfileDetailsScreen"
+  ],
+  "blocked_users_screen.dart": [],
+  "candidate_details_screen.dart": [
+    "ChatScreen",
+    "ReportUserScreen"
+  ],
+  "chat_screen.dart": [
+    "ReportUserScreen"
+  ],
+  "create_account_screen.dart": [
+    "BasicProfileScreen",
+    "EmailOtpScreen",
+    "LoginScreen"
+  ],
+  "edit_profile_screen.dart": [
+    "AgeRestrictedScreen"
+  ],
+  "email_otp_screen.dart": [],
+  "family_invitations_screen.dart": [],
+  "family_screen.dart": [],
+  "firebase_options.dart": [],
+  "home_screen.dart": [
+    "AdminVerificationListScreen",
+    "AuthGate",
+    "BlockedUsersScreen",
+    "CandidateDetailsScreen",
+    "ChatScreen",
+    "EditProfileScreen",
+    "FamilyInvitationsScreen",
+    "FamilyScreen",
+    "IncomingInterestsScreen",
+    "MatrimonialPreferencesScreen",
+    "NotificationScreen",
+    "VerificationScreen"
+  ],
+  "incoming_interests_screen.dart": [
+    "CandidateDetailsScreen"
+  ],
+  "interests_screen.dart": [],
+  "login_screen.dart": [],
+  "main.dart": [
+    "AccountTypeScreen",
+    "AgeRestrictedScreen",
+    "ApiAccountRestrictionScreen",
+    "ApiEmailAccessScreen",
+    "ApiHomeScreen",
+    "ApiLoginScreen",
+    "BasicProfileScreen",
+    "CreateAccountScreen",
+    "HomeScreen",
+    "LoginScreen"
+  ],
+  "matrimonial_preferences_screen.dart": [
+    "ProfileDetailsScreen",
+    "VerificationScreen"
+  ],
+  "notification_screen.dart": [
+    "IncomingInterestsScreen"
+  ],
+  "notification_service.dart": [],
+  "photo_gallery_screen.dart": [],
+  "profile_details_screen.dart": [
+    "MatrimonialPreferencesScreen"
+  ],
+  "report_user_screen.dart": [],
+  "secure_admin_video_screen.dart": [],
+  "verification_screen.dart": [
+    "ApiVerificationScreen",
+    "AuthGate",
+    "VerificationUploadScreen"
+  ],
+  "verification_upload_screen.dart": [
+    "AuthGate"
+  ]
+}

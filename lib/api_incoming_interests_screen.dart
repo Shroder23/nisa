@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/app_language_service.dart';
@@ -157,22 +159,25 @@ class _ApiIncomingInterestsScreenState
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? _InterestMessage(message: _error!, onRetry: _load)
-          : _interests.isEmpty
-          ? const _InterestMessage(message: 'No pending interests yet.')
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: _interests.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
-                itemBuilder: (context, index) =>
-                    _interestCard(_interests[index]),
+      body: NisaPageBody(
+        form: false,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? _InterestMessage(message: _error!, onRetry: _load)
+            : _interests.isEmpty
+            ? const _InterestMessage(message: 'No pending interests yet.')
+            : RefreshIndicator(
+                onRefresh: _load,
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _interests.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) =>
+                      _interestCard(_interests[index]),
+                ),
               ),
-            ),
+      ),
     );
   }
 

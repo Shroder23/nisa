@@ -15,6 +15,7 @@ class ProfilePhoto extends StatefulWidget {
   final String? fallbackText;
   final bool showBorder;
   final bool enablePreview;
+  final BorderRadius? borderRadius;
 
   const ProfilePhoto({
     super.key,
@@ -23,6 +24,7 @@ class ProfilePhoto extends StatefulWidget {
     this.fallbackText,
     this.showBorder = false,
     this.enablePreview = true,
+    this.borderRadius,
   });
 
   @override
@@ -77,7 +79,7 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
         future: _protectedImage,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircleAvatar(
+            return _avatar(
               radius: widget.radius,
               child: SizedBox(
                 width: widget.radius * .55,
@@ -88,9 +90,11 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
           }
           if (!snapshot.hasData) return _fallback(context);
           final provider = MemoryImage(snapshot.data!);
-          Widget photo = CircleAvatar(
+          Widget photo = _avatar(
             radius: widget.radius,
-            child: ClipOval(
+            child: ClipRRect(
+              borderRadius:
+                  widget.borderRadius ?? BorderRadius.circular(widget.radius),
               child: SizedBox.square(
                 dimension: widget.radius * 2,
                 child: Image(
@@ -137,10 +141,10 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
       child = CachedNetworkImage(
         imageUrl: resolvedUrl,
         imageBuilder: (context, provider) {
-          return CircleAvatar(radius: widget.radius, backgroundImage: provider);
+          return _avatar(radius: widget.radius, backgroundImage: provider);
         },
         placeholder: (context, url) {
-          return CircleAvatar(
+          return _avatar(
             radius: widget.radius,
             child: SizedBox(
               width: widget.radius * .55,
@@ -252,10 +256,35 @@ class _ProfilePhotoState extends State<ProfilePhoto> {
     }
   }
 
+  Widget _avatar({
+    required double radius,
+    Widget? child,
+    ImageProvider? backgroundImage,
+  }) {
+    if (widget.borderRadius == null) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundImage: backgroundImage,
+        child: child,
+      );
+    }
+    return ClipRRect(
+      borderRadius: widget.borderRadius!,
+      child: Container(
+        width: radius * 2,
+        height: radius * 2,
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        child: backgroundImage == null
+            ? Center(child: child)
+            : Image(image: backgroundImage, fit: BoxFit.cover),
+      ),
+    );
+  }
+
   Widget _fallback(BuildContext context) {
     final text = widget.fallbackText?.trim();
 
-    return CircleAvatar(
+    return _avatar(
       radius: widget.radius,
       child: text != null && text.isNotEmpty
           ? Text(

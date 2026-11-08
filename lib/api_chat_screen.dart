@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -307,106 +309,112 @@ class _ApiChatScreenState extends State<ApiChatScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(_error!, textAlign: TextAlign.center),
-                          const SizedBox(height: 12),
-                          OutlinedButton(
-                            onPressed: () => _loadMessages(),
-                            child: const LocalizedText('Try again'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : _messages.isEmpty
-                ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: LocalizedText(
-                        'You matched. Start a respectful conversation.',
-                      ),
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: () => _loadMessages(),
-                    child: ListView.builder(
-                      reverse: true,
-                      padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) {
-                        final message = _messages[_messages.length - 1 - index];
-                        return _ApiMessageBubble(
-                          message: message,
-                          mine: message.senderId == _currentUserId,
-                        );
-                      },
-                    ),
-                  ),
-          ),
-          if (_blockedBetween)
-            const SafeArea(
-              top: false,
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: LocalizedText(
-                  'Messaging is unavailable because one of you has blocked the other.',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            )
-          else
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        enabled: !_sending && !_blocking,
-                        minLines: 1,
-                        maxLines: 5,
-                        maxLength: 2000,
-                        textCapitalization: TextCapitalization.sentences,
-                        decoration: InputDecoration(
-                          hintText: AppLanguageService.translate(
-                            'Write a message…',
-                          ),
-                          border: OutlineInputBorder(),
-                          counterText: '',
+      body: NisaPageBody(
+        form: false,
+        child: Column(
+          children: [
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(_error!, textAlign: TextAlign.center),
+                            const SizedBox(height: 12),
+                            OutlinedButton(
+                              onPressed: () => _loadMessages(),
+                              child: const LocalizedText('Try again'),
+                            ),
+                          ],
                         ),
-                        onSubmitted: (_) => _send(),
+                      ),
+                    )
+                  : _messages.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: LocalizedText(
+                          'You matched. Start a respectful conversation.',
+                        ),
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () => _loadMessages(),
+                      child: ListView.builder(
+                        reverse: true,
+                        padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, index) {
+                          final message =
+                              _messages[_messages.length - 1 - index];
+                          return _ApiMessageBubble(
+                            message: message,
+                            mine: message.senderId == _currentUserId,
+                          );
+                        },
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    IconButton.filled(
-                      onPressed: _sending || _blocking ? null : _send,
-                      icon: _sending
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.send),
-                    ),
-                  ],
+            ),
+            if (_blockedBetween)
+              const SafeArea(
+                top: false,
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: LocalizedText(
+                    'Messaging is unavailable because one of you has blocked the other.',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              )
+            else
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          enabled: !_sending && !_blocking,
+                          minLines: 1,
+                          maxLines: 5,
+                          maxLength: 2000,
+                          textCapitalization: TextCapitalization.sentences,
+                          decoration: InputDecoration(
+                            hintText: AppLanguageService.translate(
+                              'Write a message…',
+                            ),
+                            border: OutlineInputBorder(),
+                            counterText: '',
+                          ),
+                          onSubmitted: (_) => _send(),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton.filled(
+                        onPressed: _sending || _blocking ? null : _send,
+                        icon: _sending
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.send),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -425,7 +433,9 @@ class _ApiMessageBubble extends StatelessWidget {
     final messageTime = MaterialLocalizations.of(context)
         .formatTimeOfDay(TimeOfDay.fromDateTime(time));
     return Align(
-      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: mine
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 320),
         margin: const EdgeInsets.only(bottom: 8),
@@ -440,7 +450,7 @@ class _ApiMessageBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerStart,
               child: Text(message.text, style: const TextStyle(height: 1.35)),
             ),
             const SizedBox(height: 4),
@@ -461,7 +471,7 @@ class _ApiMessageBubble extends StatelessWidget {
                         : Icons.done,
                     size: 15,
                     color: message.seenAt != null
-                        ? const Color(0xFF34B7F1)
+                        ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ],

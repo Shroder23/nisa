@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'widgets/localized_text.dart';
@@ -174,64 +176,67 @@ class _ApiVerificationScreenState extends State<ApiVerificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const LocalizedText('Parent Verification')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const LocalizedText(
-            'Verification is optional. Unverified members can still use discovery, interests, messaging after a match, blocking, and reporting.',
-          ),
-          const SizedBox(height: 18),
-          FutureBuilder<Map<String, dynamic>>(
-            future: _status,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Column(
-                  children: [
-                    LocalizedText('Something went wrong. Please try again.'),
-                    TextButton(
-                      onPressed: () => setState(
-                        () => _status = ApiVerificationService.getStatus(),
+      body: NisaPageBody(
+        form: false,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            const LocalizedText(
+              'Verification is optional. Unverified members can still use discovery, interests, messaging after a match, blocking, and reporting.',
+            ),
+            const SizedBox(height: 18),
+            FutureBuilder<Map<String, dynamic>>(
+              future: _status,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Column(
+                    children: [
+                      LocalizedText('Something went wrong. Please try again.'),
+                      TextButton(
+                        onPressed: () => setState(
+                          () => _status = ApiVerificationService.getStatus(),
+                        ),
+                        child: const LocalizedText('Try again'),
                       ),
-                      child: const LocalizedText('Try again'),
-                    ),
+                    ],
+                  );
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final data = snapshot.data!;
+                final approved =
+                    _profile.isVerified ||
+                    data['status']?.toString() == 'approved';
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _statusBody(data),
+                    if (widget.isRegistration && approved) ...[
+                      const SizedBox(height: 14),
+                      FilledButton(
+                        onPressed: _continuing ? null : _completeRegistration,
+                        child: LocalizedText(
+                          _continuing ? 'Continuing…' : 'Continue',
+                        ),
+                      ),
+                    ] else if (widget.isRegistration && !approved) ...[
+                      const SizedBox(height: 14),
+                      OutlinedButton(
+                        onPressed: _continuing ? null : _completeRegistration,
+                        child: LocalizedText(
+                          _continuing
+                              ? 'Continuing…'
+                              : 'Continue without verification',
+                        ),
+                      ),
+                    ],
                   ],
                 );
-              }
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final data = snapshot.data!;
-              final approved =
-                  _profile.isVerified ||
-                  data['status']?.toString() == 'approved';
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _statusBody(data),
-                  if (widget.isRegistration && approved) ...[
-                    const SizedBox(height: 14),
-                    FilledButton(
-                      onPressed: _continuing ? null : _completeRegistration,
-                      child: LocalizedText(
-                        _continuing ? 'Continuing…' : 'Continue',
-                      ),
-                    ),
-                  ] else if (widget.isRegistration && !approved) ...[
-                    const SizedBox(height: 14),
-                    OutlinedButton(
-                      onPressed: _continuing ? null : _completeRegistration,
-                      child: LocalizedText(
-                        _continuing
-                            ? 'Continuing…'
-                            : 'Continue without verification',
-                      ),
-                    ),
-                  ],
-                ],
-              );
-            },
-          ),
-        ],
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

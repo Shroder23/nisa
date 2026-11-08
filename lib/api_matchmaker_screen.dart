@@ -1,7 +1,13 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'models/matchmaker_profile.dart';
 import 'services/api_matchmaker_service.dart';
+import 'services/app_language_service.dart';
 import 'services/matchmaker_import_service.dart';
 import 'widgets/localized_text.dart';
 
@@ -55,15 +61,18 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const LocalizedText('Matchmaker Network')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? _message(_error!, retry: true)
-          : _account == null
-          ? _application()
-          : _account!['status'] != 'approved'
-          ? _pending()
-          : _dashboard(),
+      body: NisaPageBody(
+        form: false,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? _message(_error!, retry: true)
+            : _account == null
+            ? _application()
+            : _account!['status'] != 'approved'
+            ? _pending()
+            : _dashboard(),
+      ),
     );
   }
 
@@ -76,7 +85,10 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
           Text(text, textAlign: TextAlign.center),
           if (retry) ...[
             const SizedBox(height: 12),
-            FilledButton(onPressed: _load, child: const Text('Try again')),
+            FilledButton(
+              onPressed: _load,
+              child: const LocalizedText('Try Again'),
+            ),
           ],
         ],
       ),
@@ -93,13 +105,13 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
       children: [
         const Icon(Icons.handshake_outlined, size: 64),
         const SizedBox(height: 12),
-        Text(
+        LocalizedText(
           'Join the Nisa Matchmaker Network',
           style: Theme.of(context).textTheme.headlineSmall,
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        const Text(
+        const LocalizedText(
           'Manage your own clients, import existing biodata safely, request consent, and collaborate through Nisa without exposing your private client database.',
           textAlign: TextAlign.center,
         ),
@@ -107,27 +119,29 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
         TextField(
           controller: name,
           decoration: const InputDecoration(
-            labelText: 'Business / matchmaker name',
+            label: LocalizedText('Business / matchmaker name'),
           ),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: phone,
           keyboardType: TextInputType.phone,
-          decoration: const InputDecoration(labelText: 'Business phone'),
+          decoration: const InputDecoration(
+            label: LocalizedText('Business phone'),
+          ),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: notes,
           maxLines: 3,
           decoration: const InputDecoration(
-            labelText: 'About your matchmaking work',
+            label: LocalizedText('About your matchmaking work'),
           ),
         ),
         const SizedBox(height: 20),
         FilledButton.icon(
           icon: const Icon(Icons.verified_user_outlined),
-          label: const Text('Apply as matchmaker'),
+          label: const LocalizedText('Apply as matchmaker'),
           onPressed: () async {
             if (name.text.trim().isEmpty || phone.text.trim().isEmpty) return;
             final messenger = ScaffoldMessenger.of(context);
@@ -150,7 +164,10 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
   }
 
   Widget _pending() => _message(
-    'Your matchmaker application is ${_account!['status'] ?? 'pending'}. Nisa will enable client-management tools after review.',
+    AppLanguageService.translateTemplate(
+      'Your matchmaker application is {status}. Nisa will enable client-management tools after review.',
+      {'status': _account!['status'] ?? 'pending'},
+    ),
   );
 
   Widget _dashboard() {
@@ -163,7 +180,8 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            _account!['business_name']?.toString() ?? 'Matchmaker Dashboard',
+            _account!['business_name']?.toString() ??
+                AppLanguageService.translate('Matchmaker Network'),
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 12),
@@ -183,16 +201,16 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
           FilledButton.icon(
             onPressed: _openImport,
             icon: const Icon(Icons.person_add_alt_1),
-            label: const Text('Import client profiles'),
+            label: const LocalizedText('Import client profiles'),
           ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: _profiles.isEmpty ? null : _exportCsv,
             icon: const Icon(Icons.download_outlined),
-            label: const Text('Export my represented profiles'),
+            label: const LocalizedText('Export my represented profiles'),
           ),
           const SizedBox(height: 20),
-          const Text(
+          const LocalizedText(
             'Represented clients',
             style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
           ),
@@ -201,7 +219,7 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
             const Card(
               child: Padding(
                 padding: EdgeInsets.all(20),
-                child: Text(
+                child: LocalizedText(
                   'No client profiles yet. Import WhatsApp biodata, CSV, or JSON to create private drafts.',
                 ),
               ),
@@ -213,20 +231,27 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
   }
 
   Widget _stat(String label, int value) => Chip(
-    avatar: CircleAvatar(child: Text('$value')),
-    label: Text(label),
+    avatar: CircleAvatar(child: Text(value.toString())),
+    label: LocalizedText(label),
   );
 
   Widget _profileTile(MatchmakerProfile p) => Card(
     child: ListTile(
       title: Text(p.fullName),
-      subtitle: Text(
-        [
-          p.age?.toString(),
-          p.profession,
-          p.city,
-          'Consent: ${p.consentStatus}',
-        ].where((e) => e != null && e.toString().isNotEmpty).join(' • '),
+      subtitle: LocalizedRichText(
+        spanBuilder: () => TextSpan(
+          children: [
+            TextSpan(text: AppLanguageService.translate(p.gender)),
+            if (p.age != null)
+              TextSpan(text: ' • ${AppLanguageService.formatNumber(p.age!)}'),
+            if (p.city.isNotEmpty) TextSpan(text: ' • ${p.city}'),
+            if (p.profession.isNotEmpty) TextSpan(text: '\n${p.profession}'),
+            TextSpan(
+              text:
+                  '\n${AppLanguageService.translateTemplate('Consent: {status}', {'status': p.consentStatus})}',
+            ),
+          ],
+        ),
       ),
       trailing: p.id != null && p.consentStatus != 'approved'
           ? TextButton(
@@ -236,7 +261,9 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
                   await ApiMatchmakerService.requestConsent(p.id!);
                   if (mounted) {
                     messenger.showSnackBar(
-                      const SnackBar(content: Text('Consent request sent.')),
+                      const SnackBar(
+                        content: LocalizedText('Consent request sent.'),
+                      ),
                     );
                   }
                 } catch (e) {
@@ -247,7 +274,7 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
                   }
                 }
               },
-              child: const Text('Consent'),
+              child: const LocalizedText('Consent'),
             )
           : null,
     ),
@@ -264,11 +291,15 @@ class _ApiMatchmakerScreenState extends State<ApiMatchmakerScreen> {
   }
 
   Future<void> _exportCsv() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Export feature will be enabled in release build.'),
+    final uri = await FilePicker.saveFile(
+      fileName: 'nisa-represented-profiles.csv',
+      bytes: utf8.encode(MatchmakerImportService.toCsv(_profiles)),
+      mimeType: 'text/csv',
+      dialogTitle: AppLanguageService.translate(
+        'Export my represented profiles',
       ),
     );
+    if (!mounted || uri == null) return;
   }
 }
 
@@ -303,15 +334,8 @@ class _MatchmakerImportScreenState extends State<MatchmakerImportScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     try {
-      final result = await ApiMatchmakerService.importProfiles(_profiles);
+      await ApiMatchmakerService.importProfiles(_profiles);
       if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            'Imported ${result['created'] ?? _profiles.length} private draft profile(s).',
-          ),
-        ),
-      );
       navigator.pop(true);
     } catch (e) {
       if (!mounted) return;
@@ -325,62 +349,95 @@ class _MatchmakerImportScreenState extends State<MatchmakerImportScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Import client profiles')),
-    body: ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const Text(
-          'Imports are created as private drafts. They are not published until consent and required verification are complete.',
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _text,
-          minLines: 8,
-          maxLines: 16,
-          decoration: const InputDecoration(
-            labelText: 'Paste WhatsApp / biodata text',
-            hintText: 'Name: Ayesha\nGender: Female\nAge: 26\nCity: Karachi\nEducation: MBBS\nProfession: Doctor\nLooking for: ...',
-            border: OutlineInputBorder(),
+    appBar: AppBar(title: const LocalizedText('Import client profiles')),
+    body: NisaPageBody(
+      form: false,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const LocalizedText(
+            'Imports are created as private drafts. They are not published until consent and required verification are complete.',
           ),
-        ),
-        const SizedBox(height: 12),
-        FilledButton.tonal(
-          onPressed: _parseText,
-          child: const Text('Parse pasted biodata'),
-        ),
-        if (_warnings.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          ..._warnings.map(
-            (w) => Text(
-              '• $w',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _text,
+            minLines: 8,
+            maxLines: 16,
+            decoration: const InputDecoration(
+              label: LocalizedText('Paste WhatsApp / biodata text'),
+              border: OutlineInputBorder(),
             ),
           ),
-        ],
-        if (_profiles.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Text(
-            '${_profiles.length} valid profile(s) ready for review',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+          const SizedBox(height: 12),
+          FilledButton.tonal(
+            onPressed: _parseText,
+            child: const LocalizedText('Parse pasted biodata'),
           ),
-          ..._profiles.map(
-            (p) => Card(
-              child: ListTile(
-                title: Text(p.fullName),
-                subtitle: Text(
-                  '${p.gender}${p.age == null ? '' : ' • ${p.age}'}${p.city.isEmpty ? '' : ' • ${p.city}'}\n${p.profession}',
+          if (_warnings.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ..._warnings.map(
+              (w) => Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      w,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (_profiles.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            LocalizedRichText(
+              spanBuilder: () => TextSpan(
+                text: AppLanguageService.translateTemplate(
+                  'Profiles ready for review: {count}',
+                  {'count': AppLanguageService.formatNumber(_profiles.length)},
+                ),
+              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            ..._profiles.map(
+              (p) => Card(
+                child: ListTile(
+                  title: Text(p.fullName),
+                  subtitle: LocalizedRichText(
+                    spanBuilder: () => TextSpan(
+                      children: [
+                        TextSpan(text: AppLanguageService.translate(p.gender)),
+                        if (p.age != null)
+                          TextSpan(
+                            text:
+                                ' • ${AppLanguageService.formatNumber(p.age!)}',
+                          ),
+                        if (p.city.isNotEmpty) TextSpan(text: ' • ${p.city}'),
+                        if (p.profession.isNotEmpty)
+                          TextSpan(text: '\n${p.profession}'),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: _saving ? null : _createDrafts,
-            icon: const Icon(Icons.lock_outline),
-            label: Text(_saving ? 'Saving…' : 'Create private drafts'),
-          ),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: _saving ? null : _createDrafts,
+              icon: const Icon(Icons.lock_outline),
+              label: Text(_saving ? 'Saving…' : 'Create private drafts'),
+            ),
+          ],
         ],
-      ],
+      ),
     ),
   );
 }

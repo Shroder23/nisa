@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:io';
 
 import 'services/app_language_service.dart';
@@ -550,150 +552,152 @@ class _EditProfileScreenState extends LanguageAwareState<EditProfileScreen> {
         centerTitle: true,
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            if (ApiAppState.isSignedIn) ...[
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    children: [
-                      ProfilePhoto(
-                        imageUrl: _profilePhotoUrl,
-                        radius: 34,
-                        fallbackText: _nameController.text,
-                      ),
-                      const SizedBox(width: 14),
-                      const Expanded(
-                        child: LocalizedText(
-                          'Add a profile photo before submitting parent verification.',
+      body: NisaPageBody(
+        form: true,
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              if (ApiAppState.isSignedIn) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        ProfilePhoto(
+                          imageUrl: _profilePhotoUrl,
+                          radius: 34,
+                          fallbackText: _nameController.text,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      OutlinedButton.icon(
-                        onPressed: _isSaving || _uploadingProfilePhoto
-                            ? null
-                            : _chooseAndUploadProfilePhoto,
-                        icon: _uploadingProfilePhoto
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Icons.add_a_photo_outlined),
-                        label: Text(
-                          _profilePhotoUrl == null ? 'Add' : 'Change',
+                        const SizedBox(width: 14),
+                        const Expanded(
+                          child: LocalizedText(
+                            'Add a profile photo before submitting parent verification.',
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        OutlinedButton.icon(
+                          onPressed: _isSaving || _uploadingProfilePhoto
+                              ? null
+                              : _chooseAndUploadProfilePhoto,
+                          icon: _uploadingProfilePhoto
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.add_a_photo_outlined),
+                          label: Text(
+                            _profilePhotoUrl == null ? 'Add' : 'Change',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('Full Name'),
+                  prefixIcon: Icon(Icons.person_outline),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              InkWell(
+                onTap: _isSaving || ApiAppState.isSignedIn
+                    ? null
+                    : _pickDateOfBirth,
+                borderRadius: BorderRadius.circular(4),
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate(
+                      'Age / Date of Birth',
+                    ),
+                    helperText: ApiAppState.isSignedIn
+                        ? 'Date of birth cannot be changed in this preview.'
+                        : null,
+                    prefixIcon: Icon(Icons.cake_outlined),
+                    suffixIcon: Icon(Icons.calendar_month_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  child: LocalizedRichText(
+                    spanBuilder: () => TextSpan(
+                      children: [
+                        TextSpan(
+                          text: AppLanguageService.translateAge(
+                            '{age} years',
+                            age: _ageFrom(_dateOfBirth),
+                          ),
+                        ),
+                        const TextSpan(text: ' ('),
+                        TextSpan(text: _formatDate(_dateOfBirth)),
+                        const TextSpan(text: ')'),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
-            ],
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Full Name'),
-                prefixIcon: Icon(Icons.person_outline),
-                border: OutlineInputBorder(),
-              ),
-            ),
 
-            const SizedBox(height: 18),
+              const SizedBox(height: 18),
 
-            InkWell(
-              onTap: _isSaving || ApiAppState.isSignedIn
-                  ? null
-                  : _pickDateOfBirth,
-              borderRadius: BorderRadius.circular(4),
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate(
-                    'Age / Date of Birth',
+              InkWell(
+                onTap: _isSaving ? null : _chooseCountry,
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Country'),
+                    prefixIcon: Icon(Icons.public),
+                    suffixIcon: Icon(Icons.arrow_drop_down),
+                    border: OutlineInputBorder(),
                   ),
-                  helperText: ApiAppState.isSignedIn
-                      ? 'Date of birth cannot be changed in this preview.'
-                      : null,
-                  prefixIcon: Icon(Icons.cake_outlined),
-                  suffixIcon: Icon(Icons.calendar_month_outlined),
-                  border: OutlineInputBorder(),
-                ),
-                child: LocalizedRichText(
-                  spanBuilder: () => TextSpan(
-                    children: [
-                      TextSpan(
-                        text: AppLanguageService.translateAge(
-                          '{age} years',
-                          age: _ageFrom(_dateOfBirth),
-                        ),
-                      ),
-                      const TextSpan(text: ' ('),
-                      TextSpan(text: _formatDate(_dateOfBirth)),
-                      const TextSpan(text: ')'),
-                    ],
+                  child: LocalizedText(
+                    _countryController.text.isEmpty
+                        ? 'Pakistan'
+                        : _countryController.text,
                   ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 18),
+              const SizedBox(height: 18),
 
-            InkWell(
-              onTap: _isSaving ? null : _chooseCountry,
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Country'),
-                  prefixIcon: Icon(Icons.public),
-                  suffixIcon: Icon(Icons.arrow_drop_down),
-                  border: OutlineInputBorder(),
-                ),
-                child: LocalizedText(
-                  _countryController.text.isEmpty
-                      ? 'Pakistan'
-                      : _countryController.text,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            InkWell(
-              onTap: _isSaving ? null : _chooseCity,
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('City'),
-                  prefixIcon: Icon(Icons.location_city_outlined),
-                  suffixIcon: Icon(Icons.arrow_drop_down),
-                  border: OutlineInputBorder(),
-                ),
-                child: LocalizedText(
-                  _citiesLoading
-                      ? 'Loading cities...'
-                      : (_cityController.text.isEmpty
-                            ? 'Select city'
-                            : _cityController.text),
+              InkWell(
+                onTap: _isSaving ? null : _chooseCity,
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('City'),
+                    prefixIcon: Icon(Icons.location_city_outlined),
+                    suffixIcon: Icon(Icons.arrow_drop_down),
+                    border: OutlineInputBorder(),
+                  ),
+                  child: LocalizedText(
+                    _citiesLoading
+                        ? 'Loading cities...'
+                        : (_cityController.text.isEmpty
+                              ? 'Select city'
+                              : _cityController.text),
+                  ),
                 ),
               ),
-            ),
 
-            /* Controllers are retained so the existing save path and legacy
+              /* Controllers are retained so the existing save path and legacy
                profiles continue to work. */
-            Offstage(
-              offstage: true,
-              child: Column(
-                children: [
-                  TextField(controller: _cityController),
-                  TextField(controller: _countryController),
-                ],
+              Offstage(
+                offstage: true,
+                child: Column(
+                  children: [
+                    TextField(controller: _cityController),
+                    TextField(controller: _countryController),
+                  ],
+                ),
               ),
-            ),
 
-            /*
+              /*
             TextFormField(
               controller: _cityController,
               decoration: InputDecoration(
@@ -702,9 +706,9 @@ class _EditProfileScreenState extends LanguageAwareState<EditProfileScreen> {
                 border: OutlineInputBorder(),
               ),
             ), */
-            const SizedBox(height: 18),
+              const SizedBox(height: 18),
 
-            /* TextFormField(
+              /* TextFormField(
               controller: _countryController,
               decoration: InputDecoration(
                 labelText: AppLanguageService.translate('Country'),
@@ -712,159 +716,173 @@ class _EditProfileScreenState extends LanguageAwareState<EditProfileScreen> {
                 border: OutlineInputBorder(),
               ),
             ), */
-            const SizedBox(height: 18),
+              const SizedBox(height: 18),
 
-            DropdownButtonFormField<String>(
-              initialValue: LocationService.heightOptions.contains(_height)
-                  ? _height
-                  : null,
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Height'),
-                prefixIcon: Icon(Icons.height),
-                border: OutlineInputBorder(),
-              ),
-              items: LocationService.heightOptions
-                  .map(
-                    (v) => DropdownMenuItem(
-                      value: v,
-                      child: LocalizedHeightText(v),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _height = value;
-                });
-              },
-            ),
-
-            const SizedBox(height: 18),
-
-            DropdownButtonFormField<String>(
-              initialValue:
-                  LocationService.educationOptions.contains(
-                    _educationController.text,
-                  )
-                  ? _educationController.text
-                  : null,
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Education'),
-                prefixIcon: Icon(Icons.school_outlined),
-                border: OutlineInputBorder(),
-              ),
-              items: LocationService.educationOptions
-                  .map(
-                    (v) => DropdownMenuItem(value: v, child: LocalizedText(v)),
-                  )
-                  .toList(),
-              onChanged: (value) =>
-                  setState(() => _educationController.text = value ?? ''),
-            ),
-
-            const SizedBox(height: 18),
-
-            TextFormField(
-              controller: _professionController,
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Profession'),
-                prefixIcon: Icon(Icons.work_outline),
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            TextFormField(
-              controller: _languageController,
-              readOnly: true,
-              onTap: () async {
-                final value = await _searchChoice(
-                  'Language',
-                  _languageOptions,
-                  _languageController.text,
-                );
-                if (value != null) {
-                  setState(() => _languageController.text = value);
-                }
-              },
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Language'),
-                prefixIcon: Icon(Icons.language),
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            DropdownButtonFormField<String>(
-              initialValue:
-                  const [
-                    'Willing to relocate',
-                    'Not willing to relocate',
-                    'Maybe',
-                  ].contains(_relocation)
-                  ? _relocation
-                  : null,
-              decoration: InputDecoration(
-                labelText: AppLanguageService.translate('Relocation'),
-                prefixIcon: Icon(Icons.flight_takeoff),
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(
-                  value: 'Willing to relocate',
-                  child: LocalizedText('Willing to relocate'),
-                ),
-                DropdownMenuItem(
-                  value: 'Not willing to relocate',
-                  child: LocalizedText('Not willing to relocate'),
-                ),
-                DropdownMenuItem(value: 'Maybe', child: LocalizedText('Maybe')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _relocation = value;
-                });
-              },
-            ),
-
-            const SizedBox(height: 18),
-
-            if (!ApiAppState.isSignedIn)
-              TextFormField(
-                controller: _aboutController,
-                maxLines: 5,
-                maxLength: 500,
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                itemHeight: null,
+                isDense: false,
+                initialValue: LocationService.heightOptions.contains(_height)
+                    ? _height
+                    : null,
                 decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('About Me'),
-                  hintText: AppLanguageService.translate(
-                    'Tell potential matches about yourself...',
-                  ),
-                  alignLabelWithHint: true,
+                  labelText: AppLanguageService.translate('Height'),
+                  prefixIcon: Icon(Icons.height),
+                  border: OutlineInputBorder(),
+                ),
+                items: LocationService.heightOptions
+                    .map(
+                      (v) => DropdownMenuItem(
+                        value: v,
+                        child: LocalizedHeightText(v),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _height = value;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 18),
+
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                itemHeight: null,
+                isDense: false,
+                initialValue:
+                    LocationService.educationOptions.contains(
+                      _educationController.text,
+                    )
+                    ? _educationController.text
+                    : null,
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('Education'),
+                  prefixIcon: Icon(Icons.school_outlined),
+                  border: OutlineInputBorder(),
+                ),
+                items: LocationService.educationOptions
+                    .map(
+                      (v) =>
+                          DropdownMenuItem(value: v, child: LocalizedText(v)),
+                    )
+                    .toList(),
+                onChanged: (value) =>
+                    setState(() => _educationController.text = value ?? ''),
+              ),
+
+              const SizedBox(height: 18),
+
+              TextFormField(
+                controller: _professionController,
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('Profession'),
+                  prefixIcon: Icon(Icons.work_outline),
                   border: OutlineInputBorder(),
                 ),
               ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
-            SizedBox(
-              height: 56,
-              child: FilledButton.icon(
-                onPressed: _isSaving ? null : _save,
-                icon: _isSaving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.save_outlined),
-                label: LocalizedText(
-                  _isSaving ? 'Saving...' : 'Save Changes',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+              TextFormField(
+                controller: _languageController,
+                readOnly: true,
+                onTap: () async {
+                  final value = await _searchChoice(
+                    'Language',
+                    _languageOptions,
+                    _languageController.text,
+                  );
+                  if (value != null) {
+                    setState(() => _languageController.text = value);
+                  }
+                },
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('Language'),
+                  prefixIcon: Icon(Icons.language),
+                  border: OutlineInputBorder(),
                 ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 18),
+
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                itemHeight: null,
+                isDense: false,
+                initialValue:
+                    const [
+                      'Willing to relocate',
+                      'Not willing to relocate',
+                      'Maybe',
+                    ].contains(_relocation)
+                    ? _relocation
+                    : null,
+                decoration: InputDecoration(
+                  labelText: AppLanguageService.translate('Relocation'),
+                  prefixIcon: Icon(Icons.flight_takeoff),
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: 'Willing to relocate',
+                    child: LocalizedText('Willing to relocate'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'Not willing to relocate',
+                    child: LocalizedText('Not willing to relocate'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'Maybe',
+                    child: LocalizedText('Maybe'),
+                  ),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _relocation = value;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 18),
+
+              if (!ApiAppState.isSignedIn)
+                TextFormField(
+                  controller: _aboutController,
+                  maxLines: 5,
+                  maxLength: 500,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('About Me'),
+                    hintText: AppLanguageService.translate(
+                      'Tell potential matches about yourself...',
+                    ),
+                    alignLabelWithHint: true,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+
+              const SizedBox(height: 16),
+
+              SizedBox(
+                height: 56,
+                child: FilledButton.icon(
+                  onPressed: _isSaving ? null : _save,
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save_outlined),
+                  label: LocalizedText(
+                    _isSaving ? 'Saving...' : 'Save Changes',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

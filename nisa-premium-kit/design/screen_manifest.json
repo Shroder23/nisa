@@ -1,0 +1,596 @@
+[
+  {
+    "id": "01",
+    "slug": "home",
+    "title": "Home — Nearby Rail",
+    "output": "01_home.png",
+    "layout": "Deep plum brand header with menu, botanical mark and bell. Blush welcome card with circular empty avatar, greeting and neutral name/subtitle slots. Nearby profiles heading and See all, three compact blank-image cards in a horizontal rail. Fine divider. Recommended for you heading and three horizontal rows with square blank thumbnails, neutral text bars and interest controls. Five root destinations; Home selected. No dashboard tiles or large completion banner.",
+    "states": "Separate nearby/recommendation loading; location unavailable; no nearby results; recommendation failure; signed-in content slots.",
+    "sources": [
+      "api_home_screen.dart",
+      "home_screen.dart"
+    ]
+  },
+  {
+    "id": "02",
+    "slug": "search",
+    "title": "Search",
+    "output": "02_search.png",
+    "layout": "Contextual Search title. Search field and filter action, modest wrapping filter chips. Two-column result grid at standard width, one column when needed. Neutral image slots, text bars and interest controls. Search selected in root navigation. Keep submitted query and filter state in the existing controller.",
+    "states": "Initial empty query; active filters; no results; loading; retry; pagination.",
+    "sources": [
+      "api_discovery_screen.dart"
+    ]
+  },
+  {
+    "id": "03",
+    "slug": "filters",
+    "title": "Search filters",
+    "output": "03_filters.png",
+    "layout": "Full-height modal with title, close action, scrollable labeled groups for only supported filters: age range, location, education, profession, language and existing preferences. Neutral values. Reset and Apply in a safe-area footer; use vertical buttons if translated labels are long. No root nav.",
+    "states": "Defaults; edited; invalid range; keyboard open; applying.",
+    "sources": []
+  },
+  {
+    "id": "04",
+    "slug": "nearby",
+    "title": "Nearby results",
+    "output": "04_nearby.png",
+    "layout": "Back header Nearby profiles. Compact approximate-location control and radius selector only if supported. Results grid or rows using shared cards. Keep filter controls visually secondary. No map pins, coordinates or made-up distance values.",
+    "states": "Permission needed; services off; empty radius; request error; content; loading more.",
+    "sources": []
+  },
+  {
+    "id": "05",
+    "slug": "location_permission",
+    "title": "Location explanation",
+    "output": "05_location_permission.png",
+    "layout": "Bottom sheet with location outline icon, short heading and plain explanation that approximate location supports nearby discovery. Primary Enable location, secondary Not now. A separate permanently-denied variant uses Open settings. Do not draw an imitation operating-system permission dialog.",
+    "states": "Not requested; denied; permanently denied; services disabled.",
+    "sources": []
+  },
+  {
+    "id": "06",
+    "slug": "profile_details",
+    "title": "Member profile details",
+    "output": "06_profile_details.png",
+    "layout": "Back header and overflow menu. Spacious protected-photo slot, neutral identity bars and structured About/Preferences sections. Use labeled sections for available profile information. Bottom Send interest action bound to the existing relationship state. Report/block are reachable from overflow, not dominant destructive controls.",
+    "states": "Photo private; no photo; interest pending; accepted; blocked; request failure.",
+    "sources": [
+      "api_candidate_details_screen.dart",
+      "candidate_details_screen.dart",
+      "profile_details_screen.dart"
+    ]
+  },
+  {
+    "id": "07",
+    "slug": "photo_gallery",
+    "title": "Photo gallery",
+    "output": "07_photo_gallery.png",
+    "layout": "Focused gallery with close/back and a large blank image area, thumbnail slots only when real permitted images exist. Appropriate dark neutral viewing canvas is allowed within the design family. No fabricated photo count. Keep privacy limitations visible using existing wording.",
+    "states": "Loading; missing; unauthorized; available image.",
+    "sources": [
+      "photo_gallery_screen.dart"
+    ]
+  },
+  {
+    "id": "08",
+    "slug": "received_interests",
+    "title": "Received interests",
+    "output": "08_received_interests.png",
+    "layout": "Matches root with Received/Sent/Matches segments. Shared compact rows with neutral image/name slots. Clear Accept and Decline actions with proper target sizes. Avoid ambiguous unlabeled destructive crosses. No fake receipt timestamps.",
+    "states": "Empty; pending action; accepted/declined result; error.",
+    "sources": [
+      "api_incoming_interests_screen.dart",
+      "incoming_interests_screen.dart",
+      "interests_screen.dart"
+    ]
+  },
+  {
+    "id": "09",
+    "slug": "sent_interests",
+    "title": "Sent interests",
+    "output": "09_sent_interests.png",
+    "layout": "Same segmented shell with Sent selected. Neutral profile rows with state slot and existing cancellation/withdrawal action only if supported. Do not fabricate approval or delivery states.",
+    "states": "Empty; pending; withdrawn; error.",
+    "sources": [
+      "api_sent_interests_screen.dart"
+    ]
+  },
+  {
+    "id": "10",
+    "slug": "matches",
+    "title": "Matches",
+    "output": "10_matches.png",
+    "layout": "Matches segment selected. Calm list of compact profile rows with a clear View profile and existing Message action. Avoid celebratory animations or invented compatibility scores. Matches selected in root nav.",
+    "states": "No matches; loading; available content slots; disabled messaging eligibility.",
+    "sources": [
+      "api_matches_screen.dart"
+    ]
+  },
+  {
+    "id": "11",
+    "slug": "conversations",
+    "title": "Messages inbox",
+    "output": "11_conversations.png",
+    "layout": "Messages heading, search field if already supported, list of circular blank avatar slots and neutral text bars. Subtle separators. No invented messages, times, unread dots or counts. Messages selected in root nav.",
+    "states": "No conversations; loading; offline; failed refresh.",
+    "sources": [
+      "api_conversations_screen.dart"
+    ]
+  },
+  {
+    "id": "12",
+    "slug": "chat",
+    "title": "Conversation",
+    "output": "12_chat.png",
+    "layout": "Back header with empty avatar/name slot and existing overflow menu. Incoming and outgoing bubble shapes use neutral bars, not sample conversation text. Empty composer with Message label, send control, and only supported attachment actions. No root bottom nav behind keyboard. Align outgoing bubbles to locale-aware trailing side.",
+    "states": "No messages; loading history; keyboard open; sending; send failed; messaging restricted.",
+    "sources": [
+      "api_chat_screen.dart",
+      "chat_screen.dart"
+    ]
+  },
+  {
+    "id": "13",
+    "slug": "my_profile",
+    "title": "My profile",
+    "output": "13_my_profile.png",
+    "layout": "Root Profile header. Blank avatar, identity slots and Edit profile. Group rows into Profile, Preferences, Family, Verification, Account and Privacy as supported. Completion/status belongs here, driven by real data, not artificial percentages. Profile selected in root nav.",
+    "states": "Incomplete data; complete data; verification action needed; loading/error.",
+    "sources": []
+  },
+  {
+    "id": "14",
+    "slug": "edit_profile",
+    "title": "Edit profile",
+    "output": "14_edit_profile.png",
+    "layout": "Back header and Save action. Empty avatar/photo edit control. Scrollable labeled form groups, using only existing profile fields. Visible labels above inputs, appropriate keyboard types and helper/error areas. Multiline About section. No tiny fields crammed into dense rows.",
+    "states": "Unchanged; edited; field errors; keyboard open; saving; save failed; unsaved-exit dialog.",
+    "sources": [
+      "edit_profile_screen.dart"
+    ]
+  },
+  {
+    "id": "15",
+    "slug": "preferences",
+    "title": "Matrimonial preferences",
+    "output": "15_preferences.png",
+    "layout": "Back header Preferences. Group existing criteria by location, age, education and other supported preferences. Comfortable selectors and optional fields. Clear save footer. No predetermined partner attributes in the design.",
+    "states": "Unset; editing; invalid combination; saving; error.",
+    "sources": [
+      "matrimonial_preferences_screen.dart"
+    ]
+  },
+  {
+    "id": "16",
+    "slug": "welcome",
+    "title": "Welcome and sign-in choice",
+    "output": "16_welcome.png",
+    "layout": "No authenticated menu, notification bell or bottom navigation. Small botanical mark and Nisa e Sakina wordmark, restrained service tagline, generous blank space. Continue with email primary, Continue with Google outlined with a reserved slot for the official logo. Language/help and actual legal links remain available.",
+    "states": "Ready; sign-in loading; sign-in canceled; error.",
+    "sources": [
+      "main.dart:WelcomeScreen"
+    ]
+  },
+  {
+    "id": "17",
+    "slug": "login",
+    "title": "Password login",
+    "output": "17_login.png",
+    "layout": "Back header, welcoming page title, empty Email and Password fields with visible labels and visibility toggle. Sign in primary, Forgot password secondary, current registration/navigation links. Inline error area without exposing internal exception strings.",
+    "states": "Empty; invalid input; invalid credentials; submitting; recovery offered when appropriate.",
+    "sources": [
+      "api_login_screen.dart",
+      "login_screen.dart"
+    ]
+  },
+  {
+    "id": "18",
+    "slug": "signup",
+    "title": "Create account",
+    "output": "18_signup.png",
+    "layout": "Existing account-creation fields in a clear form; do not add new onboarding requirements. Empty inputs, concise consent/terms links from existing policy, primary Continue/Create account. Real validation and password requirements remain visible.",
+    "states": "Empty; validation error; submitting; account conflict.",
+    "sources": [
+      "create_account_screen.dart"
+    ]
+  },
+  {
+    "id": "19",
+    "slug": "email_access",
+    "title": "Email access",
+    "output": "19_email_access.png",
+    "layout": "Single-purpose Email access page with empty email field and existing send-link/send-code action. Short instruction and restrained help link. Use the actual implemented recovery/sign-in method; do not invent a new one.",
+    "states": "Entry; invalid email; submitting; sent; retry.",
+    "sources": [
+      "api_email_access_screen.dart"
+    ]
+  },
+  {
+    "id": "20",
+    "slug": "email_otp",
+    "title": "Email verification code",
+    "output": "20_email_otp.png",
+    "layout": "Back header, verification heading, instruction with a neutral recipient slot rather than an invented email. Large accessible code input supporting paste, confirm action, resend secondary and actual server-driven cooldown slot. No fabricated countdown.",
+    "states": "Empty; entered; invalid/expired; verifying; resend available.",
+    "sources": [
+      "email_otp_screen.dart"
+    ]
+  },
+  {
+    "id": "21",
+    "slug": "password_recovery",
+    "title": "Password recovery",
+    "output": "21_password_recovery.png",
+    "layout": "Existing recovery flow presented with labeled email or new-password fields appropriate to its actual step. Clear one-action hierarchy and success confirmation. Keep this separate from generic session expiration and forbidden-action handling.",
+    "states": "Request; sent; token expired; new password validation; success.",
+    "sources": []
+  },
+  {
+    "id": "22",
+    "slug": "account_type",
+    "title": "Account type",
+    "output": "22_account_type.png",
+    "layout": "Existing account-role options as restrained selectable cards with icon, title and description. Preserve role definitions from code; no invented membership tiers. Clear Continue button and visible selection state.",
+    "states": "Unselected; selected; saving/error.",
+    "sources": [
+      "account_type_screen.dart"
+    ]
+  },
+  {
+    "id": "23",
+    "slug": "basic_profile",
+    "title": "Basic profile setup",
+    "output": "23_basic_profile.png",
+    "layout": "Existing onboarding sequence with concise progress indication only if already supported. Empty basic information fields and optional photo slot. Clear Back and Continue, accessible validation and keyboard-safe footer. No example personal values.",
+    "states": "Empty; partial; invalid; saving.",
+    "sources": [
+      "basic_profile_screen.dart"
+    ]
+  },
+  {
+    "id": "24",
+    "slug": "age_confirmation",
+    "title": "Age confirmation",
+    "output": "24_age_confirmation.png",
+    "layout": "Single-purpose eligibility confirmation using the exact product policy and supported controls. Neutral illustration, clear explanation and primary confirmation. Do not invent thresholds or legal wording.",
+    "states": "Unconfirmed; confirmed; invalid/ineligible routing.",
+    "sources": [
+      "main.dart:AgeConfirmationScreen"
+    ]
+  },
+  {
+    "id": "25",
+    "slug": "age_restricted",
+    "title": "Age restriction",
+    "output": "25_age_restricted.png",
+    "layout": "Calm restriction page with neutral icon, existing eligibility explanation and supported exit/help actions. No shame, alarming full-red screen or ability to bypass the restriction.",
+    "states": "Restricted; help route; signed-out exit.",
+    "sources": [
+      "age_restricted_screen.dart"
+    ]
+  },
+  {
+    "id": "26",
+    "slug": "notifications",
+    "title": "Notifications",
+    "output": "26_notifications.png",
+    "layout": "Back header Notifications. Grouped list of icon slots and neutral content bars; read/unread styling can be demonstrated as a separate annotated state with no fake count. Empty state explains where genuine updates will appear.",
+    "states": "Empty; loading; unread/read styling; retry; destination unavailable.",
+    "sources": [
+      "api_notifications_screen.dart",
+      "notification_screen.dart"
+    ]
+  },
+  {
+    "id": "27",
+    "slug": "family",
+    "title": "Family",
+    "output": "27_family.png",
+    "layout": "Header Family, brief purpose text, primary Invite family. Default reference shows genuine empty state No family members added with neutral linked-rings icon. Additional state uses neutral rows for existing family records and their actual permissions.",
+    "states": "Empty; members; invitation pending; role-limited actions.",
+    "sources": [
+      "api_family_screen.dart",
+      "family_screen.dart"
+    ]
+  },
+  {
+    "id": "28",
+    "slug": "family_invitations",
+    "title": "Family invitations",
+    "output": "28_family_invitations.png",
+    "layout": "Back header Invitations. Existing incoming/outgoing organization, neutral inviter/recipient slots and role descriptors from real contract. Accept/Decline or Cancel controls appropriate to the real invitation state. Invite form uses blank inputs.",
+    "states": "Empty; incoming; outgoing; expired; action busy/error.",
+    "sources": [
+      "api_family_invitations_screen.dart",
+      "family_invitations_screen.dart"
+    ]
+  },
+  {
+    "id": "29",
+    "slug": "matchmaker",
+    "title": "Matchmaker workspace",
+    "output": "29_matchmaker.png",
+    "layout": "Preserve the existing matchmaker workflow and role. Use compact section headers, neutral assigned-member rows and existing application/import/management controls only where supported. Dense data uses legible tables at wide widths and cards on mobile. No fictitious placements or metrics.",
+    "states": "No access; application state; empty assignments; importing; error.",
+    "sources": [
+      "api_matchmaker_screen.dart"
+    ]
+  },
+  {
+    "id": "30",
+    "slug": "verification",
+    "title": "Verification overview",
+    "output": "30_verification.png",
+    "layout": "Back header Verification. Neutral document outline icon, existing steps and requirements in short sections. Primary Start/Continue based on real state. No checkmarked verified badge in an unverified state and no promises of guaranteed approval.",
+    "states": "Not started; incomplete; under review; approved/rejected only as separately labeled states.",
+    "sources": [
+      "api_verification_screen.dart",
+      "verification_screen.dart"
+    ]
+  },
+  {
+    "id": "31",
+    "slug": "verification_upload",
+    "title": "Verification upload",
+    "output": "31_verification_upload.png",
+    "layout": "Back header, exact document requirements from existing flow, empty upload area with file picker action, policy-reviewed privacy note, Continue disabled until requirements are met. Display real file metadata only after selection. Do not invent document images or identity details.",
+    "states": "Empty; selected; uploading; unsupported file; failed; success.",
+    "sources": [
+      "api_verification_upload_screen.dart",
+      "verification_upload_screen.dart"
+    ]
+  },
+  {
+    "id": "32",
+    "slug": "verification_pending",
+    "title": "Verification pending",
+    "output": "32_verification_pending.png",
+    "layout": "Neutral clock/document icon, pending review message and available status/help action. No made-up review duration, percentage or approval guarantee. Status must remain visibly different from approved.",
+    "states": "Pending; retry status; approved/rejected transition from server.",
+    "sources": [
+      "api_verification_pending_screen.dart"
+    ]
+  },
+  {
+    "id": "33",
+    "slug": "privacy",
+    "title": "Privacy settings",
+    "output": "33_privacy.png",
+    "layout": "Back header Privacy. Group supported profile and photo visibility controls with clear descriptions, then blocked accounts, reports and session routes. Use actual defaults in production; design reference shows unselected neutral control slots. No unsupported encryption or anonymity claims.",
+    "states": "Loading settings; loaded; updating; save failed.",
+    "sources": [
+      "api_privacy_settings_screen.dart"
+    ]
+  },
+  {
+    "id": "34",
+    "slug": "blocked_accounts",
+    "title": "Blocked accounts",
+    "output": "34_blocked_accounts.png",
+    "layout": "Back header, genuine empty state or neutral existing-user rows with explicit Unblock action. Confirmation explains the actual effect. No fabricated people.",
+    "states": "Empty; loading; unblock confirmation; busy/error.",
+    "sources": [
+      "api_blocked_users_screen.dart",
+      "blocked_users_screen.dart"
+    ]
+  },
+  {
+    "id": "35",
+    "slug": "sessions",
+    "title": "Active sessions",
+    "output": "35_sessions.png",
+    "layout": "Back header Active sessions. Existing device/session information in concise rows; neutral metadata slots. Current-device status and sign-out actions reflect actual data. Destructive actions separated from normal navigation.",
+    "states": "Loading; sessions; revoke confirmation; revoked; failure.",
+    "sources": [
+      "api_session_management_screen.dart"
+    ]
+  },
+  {
+    "id": "36",
+    "slug": "session_preview",
+    "title": "Session preview",
+    "output": "36_session_preview.png",
+    "layout": "Reproduce the actual purpose of the existing session-preview route after source inspection. Use contextual title, clear status area and grouped metadata with neutral slots; preserve its access guard. Do not assume it is a normal device session if the code says otherwise.",
+    "states": "Allowed; unavailable; loading/error; expired if applicable.",
+    "sources": [
+      "api_session_preview_screen.dart"
+    ]
+  },
+  {
+    "id": "37",
+    "slug": "report_member",
+    "title": "Report member",
+    "output": "37_report_member.png",
+    "layout": "Back header Report. Neutral target slot, existing report reason selector, optional details field and supported evidence control. Clear Submit report, explanation using actual policy, and confirmation state. No fake allegation text.",
+    "states": "Empty; reason chosen; validation; submitting; submitted/error.",
+    "sources": [
+      "report_user_screen.dart"
+    ]
+  },
+  {
+    "id": "38",
+    "slug": "my_reports",
+    "title": "My reports",
+    "output": "38_my_reports.png",
+    "layout": "Header My reports, compact neutral report rows with actual status fields and detail navigation. Empty state offers appropriate explanation. No invented moderation outcomes.",
+    "states": "Empty; loading; reports; details; error.",
+    "sources": [
+      "api_my_reports_screen.dart"
+    ]
+  },
+  {
+    "id": "39",
+    "slug": "account_restriction",
+    "title": "Account restriction notice",
+    "output": "39_account_restriction.png",
+    "layout": "Focused status page with clear title, actual restriction reason/expiry slots where allowed, and available appeal/help/exit controls. Neutral caution styling, no fake cause or dates. Do not hide enforcement status behind decorative cards.",
+    "states": "Restricted; appeal available; unavailable help; retry.",
+    "sources": [
+      "api_account_restriction_screen.dart"
+    ]
+  },
+  {
+    "id": "40",
+    "slug": "account_restrictions",
+    "title": "Restriction details",
+    "output": "40_account_restrictions.png",
+    "layout": "Use the existing account-restrictions screen purpose and role. Structured status rows and policy text, with actual allowed actions. Distinguish plural history/management from the singular restriction notice. Neutral data slots.",
+    "states": "Empty; active restriction; history; action confirmation/error.",
+    "sources": [
+      "api_account_restrictions_screen.dart"
+    ]
+  },
+  {
+    "id": "41",
+    "slug": "language_settings",
+    "title": "Language and settings",
+    "output": "41_language_settings.png",
+    "layout": "Back header Settings or Language matching the current route. Supported languages listed in their own names with selected state. Group account actions and help separately. Locale selection stays readable in its script; do not map Punjabi to Hindi. Include logout/account deletion confirmations only if existing.",
+    "states": "Current language; selecting; RTL; long language labels.",
+    "sources": []
+  },
+  {
+    "id": "42",
+    "slug": "drawer",
+    "title": "Navigation drawer",
+    "output": "42_drawer.png",
+    "layout": "Ivory drawer over subdued scrim with small brand mark, neutral account slot, concise current menu items and role-specific destinations only for permitted roles. Include language/help/settings access. Do not duplicate all Home content.",
+    "states": "Member; family; matchmaker; moderator/admin visibility as actually supported.",
+    "sources": []
+  },
+  {
+    "id": "43",
+    "slug": "admin_reports",
+    "title": "Admin reports",
+    "output": "43_admin_reports.png",
+    "layout": "Role-guarded reports workspace with title, existing status filters and neutral case rows. Wide screens can use a table; mobile uses stacked summaries. Destructive decisions require their existing review/confirmation flow. No fabricated report evidence.",
+    "states": "Empty queue; loading; selected case; decision busy/error.",
+    "sources": [
+      "api_admin_reports_screen.dart"
+    ]
+  },
+  {
+    "id": "44",
+    "slug": "admin_users",
+    "title": "Admin user management",
+    "output": "44_admin_users.png",
+    "layout": "Role-guarded management screen with search and existing filters, neutral user rows and clearly separated management actions. Do not display full sensitive fields by default or invent metrics. Preserve pagination.",
+    "states": "Empty search; loading; selected user; restricted action.",
+    "sources": [
+      "api_admin_user_management_screen.dart"
+    ]
+  },
+  {
+    "id": "45",
+    "slug": "admin_ban",
+    "title": "Admin restriction action",
+    "output": "45_admin_ban.png",
+    "layout": "Focused administrative form with neutral subject slot, actual reason/duration inputs where supported, consequence explanation and explicit confirmation. Use semantic danger styling on the final action; no decorative premium treatment obscuring risk.",
+    "states": "Unselected target; editing; confirmation; submitting/error.",
+    "sources": [
+      "api_admin_direct_ban_screen.dart"
+    ]
+  },
+  {
+    "id": "46",
+    "slug": "admin_verification",
+    "title": "Verification review queue",
+    "output": "46_admin_verification.png",
+    "layout": "Role-guarded queue with existing status filters and neutral applicant/document slots. Clear review navigation, legible data density and consistent cards/tables. No verified badges on pending records.",
+    "states": "Empty; loading; pending rows; filtered; error.",
+    "sources": [
+      "api_admin_verification_screen.dart",
+      "admin_verification_list_screen.dart"
+    ]
+  },
+  {
+    "id": "47",
+    "slug": "verification_review",
+    "title": "Verification review details",
+    "output": "47_verification_review.png",
+    "layout": "Back header and actual review status slot, protected document viewer placeholders, structured submitted fields, existing decision notes/actions. Desktop split view may be used; mobile stacks safely. Approval/rejection must be distinct and retain confirmation.",
+    "states": "Loading; protected content denied; reviewable; decision pending; failure.",
+    "sources": [
+      "admin_verification_detail_screen.dart"
+    ]
+  },
+  {
+    "id": "48",
+    "slug": "admin_identity",
+    "title": "Admin identity",
+    "output": "48_admin_identity.png",
+    "layout": "Inspect the actual identity workflow before laying out its fields. Use a restrained secure-task presentation, visible labels and protected-data slots. Preserve existing guards and audit behavior; never invent sample identity documents.",
+    "states": "Initial; validation; loading; denied; completed according to source.",
+    "sources": [
+      "admin_identity_screen.dart"
+    ]
+  },
+  {
+    "id": "49",
+    "slug": "secure_video",
+    "title": "Protected video review",
+    "output": "49_secure_video.png",
+    "layout": "Focused protected-media viewer, blank video frame, real playback control layout and authorized contextual information. No invented video still, timeline duration or identity. Keep access-denied and expired states clear.",
+    "states": "Loading; allowed; denied; expired; playback error.",
+    "sources": [
+      "secure_admin_video_screen.dart"
+    ]
+  },
+  {
+    "id": "50",
+    "slug": "moderator_recommendations",
+    "title": "Moderator recommendations",
+    "output": "50_moderator_recommendations.png",
+    "layout": "Preserve the existing moderation recommendation workflow. Neutral candidate rows, actual filters and supported assignment/recommendation actions, with explanation fields only if implemented. No fabricated scores or matches.",
+    "states": "Empty; loading; selected item; saving; denied/error.",
+    "sources": [
+      "api_moderator_recommendations_screen.dart"
+    ]
+  },
+  {
+    "id": "51",
+    "slug": "moderator_logs",
+    "title": "Moderator activity logs",
+    "output": "51_moderator_logs.png",
+    "layout": "Legible audit/event list with supported filters. Neutral content and time slots, consistent hierarchy and pagination. Do not fabricate activity or remove event detail needed for review.",
+    "states": "Empty; loading; filtered; record detail; error.",
+    "sources": [
+      "api_moderator_logs_screen.dart"
+    ]
+  },
+  {
+    "id": "52",
+    "slug": "moderator_requests",
+    "title": "Moderator requests",
+    "output": "52_moderator_requests.png",
+    "layout": "Existing role-guarded request queue with status filters, neutral requester/content slots and real review actions. Keep decision consequences clear. No fake requests or pre-approved status.",
+    "states": "Empty; pending; details; action confirmation; error.",
+    "sources": [
+      "api_moderator_requests_screen.dart"
+    ]
+  },
+  {
+    "id": "53",
+    "slug": "startup_states",
+    "title": "Startup and unavailable states",
+    "output": "53_startup_states.png",
+    "layout": "Neutral branded loading state and a separate recoverable startup-error composition with concise message and Retry. Preserve existing sign-in/connection routing and do not display raw exception traces. Error composition must be distinguishable from indefinite loading.",
+    "states": "Loading; offline; startup failed; retrying.",
+    "sources": [
+      "main.dart:_StartupLoadingScreen",
+      "main.dart:_StartupErrorScreen",
+      "main.dart:FirebaseStartupErrorApp"
+    ]
+  },
+  {
+    "id": "54",
+    "slug": "shared_states",
+    "title": "Shared dialogs and state components",
+    "output": "54_shared_states.png",
+    "layout": "Generate one focused state sheet per request: empty list, loading skeleton, request failure with Retry, permission explanation, destructive confirmation, success feedback, disabled/busy button or bottom sheet. Use neutral slots only. Preserve 48-pixel touch targets and visible focus; no fake user content.",
+    "states": "Choose one named component/state per export; this is a component reference, not a new app route.",
+    "sources": []
+  }
+]

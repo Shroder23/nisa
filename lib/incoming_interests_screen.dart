@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
 import 'services/app_language_service.dart';
@@ -359,7 +360,7 @@ class _IncomingInterestsScreenState
         centerTitle: true,
         actions: const [LanguageSelectorButton()],
       ),
-      body: _buildBody(),
+      body: NisaPageBody(form: false, child: _buildBody()),
     );
   }
 }

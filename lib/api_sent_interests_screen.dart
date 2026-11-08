@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/app_language_service.dart';
@@ -135,24 +137,27 @@ class _ApiSentInterestsScreenState extends State<ApiSentInterestsScreen> {
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? _SentInterestMessage(message: _error!, onRetry: _load)
-          : _interests.isEmpty
-          ? const _SentInterestMessage(
-              message: 'You have not sent any interests yet.',
-            )
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: _interests.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
-                itemBuilder: (context, index) =>
-                    _interestCard(_interests[index]),
+      body: NisaPageBody(
+        form: false,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? _SentInterestMessage(message: _error!, onRetry: _load)
+            : _interests.isEmpty
+            ? const _SentInterestMessage(
+                message: 'You have not sent any interests yet.',
+              )
+            : RefreshIndicator(
+                onRefresh: _load,
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _interests.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) =>
+                      _interestCard(_interests[index]),
+                ),
               ),
-            ),
+      ),
     );
   }
 

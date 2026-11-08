@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'services/app_language_service.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
@@ -87,7 +88,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
           centerTitle: true,
           actions: const [LanguageSelectorButton()],
         ),
-        body: const Center(child: LocalizedText('You are not signed in.')),
+        body: NisaPageBody(
+          form: false,
+          child: const Center(child: LocalizedText('You are not signed in.')),
+        ),
       );
     }
 
@@ -117,209 +121,214 @@ class _NotificationScreenState extends State<NotificationScreen> {
         ],
       ),
 
-      body: StreamBuilder<List<NotificationItem>>(
-        stream: NotificationService.stream(uid),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: LocalizedText(
-                  snapshot.error.toString(),
-                  textAlign: TextAlign.center,
+      body: NisaPageBody(
+        form: false,
+        child: StreamBuilder<List<NotificationItem>>(
+          stream: NotificationService.stream(uid),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: LocalizedText(
+                    snapshot.error.toString(),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ),
-            );
-          }
+              );
+            }
 
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          final notifications = snapshot.data!;
+            final notifications = snapshot.data!;
 
-          if (notifications.isEmpty) {
+            if (notifications.isEmpty) {
+              return RefreshIndicator(
+                onRefresh: () async {
+                  await Future.delayed(const Duration(milliseconds: 300));
+                },
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: const [
+                    SizedBox(height: 120),
+
+                    Icon(
+                      Icons.notifications_none_rounded,
+                      size: 80,
+                      color: Colors.grey,
+                    ),
+
+                    SizedBox(height: 20),
+
+                    Center(
+                      child: LocalizedText(
+                        'No notifications yet',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 12),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 32),
+                      child: LocalizedText(
+                        'When someone sends an interest,\naccepts your request,\nor sends you a message,\nyou will see it here.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey, height: 1.5),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             return RefreshIndicator(
               onRefresh: () async {
                 await Future.delayed(const Duration(milliseconds: 300));
               },
-              child: ListView(
+
+              child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(height: 120),
 
-                  Icon(
-                    Icons.notifications_none_rounded,
-                    size: 80,
-                    color: Colors.grey,
-                  ),
+                itemCount: notifications.length,
 
-                  SizedBox(height: 20),
+                itemBuilder: (context, index) {
+                  final notification = notifications[index];
 
-                  Center(
-                    child: LocalizedText(
-                      'No notifications yet',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  return Dismissible(
+                    key: ValueKey(notification.id),
+
+                    background: Container(
+                      color: Colors.red,
+
+                      alignment: AlignmentDirectional.centerEnd,
+
+                      padding: const EdgeInsets.only(right: 24),
+
+                      child: const Icon(Icons.delete, color: Colors.white),
                     ),
-                  ),
 
-                  SizedBox(height: 12),
+                    direction: DismissDirection.endToStart,
 
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32),
-                    child: LocalizedText(
-                      'When someone sends an interest,\naccepts your request,\nor sends you a message,\nyou will see it here.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey, height: 1.5),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
+                    onDismissed: (_) async {
+                      await NotificationService.delete(uid, notification.id);
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              await Future.delayed(const Duration(milliseconds: 300));
-            },
-
-            child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-
-              itemCount: notifications.length,
-
-              itemBuilder: (context, index) {
-                final notification = notifications[index];
-
-                return Dismissible(
-                  key: ValueKey(notification.id),
-
-                  background: Container(
-                    color: Colors.red,
-
-                    alignment: Alignment.centerRight,
-
-                    padding: const EdgeInsets.only(right: 24),
-
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-
-                  direction: DismissDirection.endToStart,
-
-                  onDismissed: (_) async {
-                    await NotificationService.delete(uid, notification.id);
-
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: LocalizedText('Notification deleted'),
-                        ),
-                      );
-                    }
-                  },
-
-                  child: NotificationTile(
-                    notification: notification,
-
-                    onTap: () async {
-                      if (!notification.isRead) {
-                        try {
-                          await NotificationService.markRead(
-                            uid,
-                            notification.id,
-                          );
-                        } catch (error) {
-                          // Read-state failure must never block navigation.
-                          debugPrint('Notification mark-read failed: $error');
-                        }
-                      }
-
-                      if (!context.mounted) return;
-
-                      switch (notification.type) {
-                        case NotificationType.interestReceived:
-                          await _openIncomingInterests(context);
-                          break;
-
-                        case NotificationType.interestAccepted:
-                          await _openIncomingInterests(context);
-                          break;
-
-                        case NotificationType.interestDeclined:
-                          await _openIncomingInterests(context);
-                          break;
-
-                        case NotificationType.messageReceived:
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: LocalizedText('Open conversation'),
-                            ),
-                          );
-
-                          break;
-
-                        case NotificationType.matchCreated:
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: LocalizedText('New match')),
-                          );
-
-                          break;
-
-                        case NotificationType.verificationApproved:
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: LocalizedText('Verification approved'),
-                            ),
-                          );
-
-                          break;
-
-                        case NotificationType.verificationRejected:
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: LocalizedText('Verification rejected'),
-                            ),
-                          );
-
-                          break;
-
-                        case NotificationType.verificationPending:
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: LocalizedText('Verification pending'),
-                            ),
-                          );
-
-                          break;
-
-                        case NotificationType.guardianJoined:
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: LocalizedText('Guardian linked'),
-                            ),
-                          );
-
-                          break;
-
-                        case NotificationType.reportResolved:
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: LocalizedText('Report resolved'),
-                            ),
-                          );
-
-                          break;
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: LocalizedText('Notification deleted'),
+                          ),
+                        );
                       }
                     },
-                  ),
-                );
-              },
-            ),
-          );
-        },
+
+                    child: NotificationTile(
+                      notification: notification,
+
+                      onTap: () async {
+                        if (!notification.isRead) {
+                          try {
+                            await NotificationService.markRead(
+                              uid,
+                              notification.id,
+                            );
+                          } catch (error) {
+                            // Read-state failure must never block navigation.
+                            debugPrint('Notification mark-read failed: $error');
+                          }
+                        }
+
+                        if (!context.mounted) return;
+
+                        switch (notification.type) {
+                          case NotificationType.interestReceived:
+                            await _openIncomingInterests(context);
+                            break;
+
+                          case NotificationType.interestAccepted:
+                            await _openIncomingInterests(context);
+                            break;
+
+                          case NotificationType.interestDeclined:
+                            await _openIncomingInterests(context);
+                            break;
+
+                          case NotificationType.messageReceived:
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: LocalizedText('Open conversation'),
+                              ),
+                            );
+
+                            break;
+
+                          case NotificationType.matchCreated:
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: LocalizedText('New match'),
+                              ),
+                            );
+
+                            break;
+
+                          case NotificationType.verificationApproved:
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: LocalizedText('Verification approved'),
+                              ),
+                            );
+
+                            break;
+
+                          case NotificationType.verificationRejected:
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: LocalizedText('Verification rejected'),
+                              ),
+                            );
+
+                            break;
+
+                          case NotificationType.verificationPending:
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: LocalizedText('Verification pending'),
+                              ),
+                            );
+
+                            break;
+
+                          case NotificationType.guardianJoined:
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: LocalizedText('Guardian linked'),
+                              ),
+                            );
+
+                            break;
+
+                          case NotificationType.reportResolved:
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: LocalizedText('Report resolved'),
+                              ),
+                            );
+
+                            break;
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }

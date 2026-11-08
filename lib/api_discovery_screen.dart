@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/api_location_service.dart';
@@ -13,7 +15,7 @@ import 'services/api_social_service.dart';
 import 'services/location_service.dart';
 import 'services/app_language_service.dart';
 import 'report_user_screen.dart';
-import 'widgets/api_profile_photo.dart';
+import 'widgets/api_candidate_cards.dart';
 import 'widgets/localized_text.dart';
 
 /// PostgreSQL-backed discovery surface for API-authenticated users.
@@ -64,6 +66,11 @@ class _ApiDiscoveryScreenState extends LanguageAwareState<ApiDiscoveryScreen> {
     } catch (_) {
       _locationSharingEnabled = false;
     }
+    try {
+      _radiusMiles = await ApiLocationService.selectedRadiusMiles();
+    } catch (_) {
+      _radiusMiles = ApiLocationService.defaultRadiusMiles;
+    }
     if (!mounted) return;
     _setNearbyFilterFlag();
     await _load();
@@ -104,36 +111,11 @@ class _ApiDiscoveryScreenState extends LanguageAwareState<ApiDiscoveryScreen> {
   }
 
   DiscoveryFilters _defaultFilters() {
-    final preferences = widget.currentUser.preferences;
-    return DiscoveryFilters(
-      minimumAge: preferences.minimumAge.clamp(18, 100),
-      maximumAge: preferences.maximumAge.clamp(18, 100),
-      minimumHeight: preferences.minimumHeight,
-      maximumHeight: preferences.maximumHeight,
-      country: preferences.country,
-      city: preferences.city,
-      // Legacy rows use both labels for the same single status. Keep the
-      // dropdown value canonical and the client filter comparison tolerant.
-      maritalStatus: _canonicalMaritalFilter(preferences.maritalStatus),
-      education: preferences.education,
+    return ApiDiscoveryService.defaultFiltersFor(
+      widget.currentUser,
       prioritizeNearby: _nearestMode,
       maxDistanceMiles: _nearestMode ? _radiusMiles : null,
     );
-  }
-
-  String? _canonicalMaritalFilter(String? value) {
-    final normalized = value?.trim().toLowerCase() ?? '';
-    if (normalized.isEmpty || normalized.startsWith('any')) return null;
-    if (normalized == 'single' ||
-        normalized == 'never married' ||
-        normalized == 'single (never married)') {
-      return 'Single (Never Married)';
-    }
-    const supported = {'married', 'separated', 'divorced', 'widowed'};
-    if (supported.contains(normalized)) {
-      return normalized[0].toUpperCase() + normalized.substring(1);
-    }
-    return null;
   }
 
   String? _normalizedMaritalValue(String? value) {
@@ -238,6 +220,7 @@ class _ApiDiscoveryScreenState extends LanguageAwareState<ApiDiscoveryScreen> {
 
   Future<void> _applyRadius() async {
     if (!_nearestMode) return;
+    await ApiLocationService.saveSelectedRadiusMiles(_radiusMiles);
     setState(() {
       _setNearbyFilterFlag();
       _profiles = const [];
@@ -568,26 +551,7 @@ class _ApiDiscoveryScreenState extends LanguageAwareState<ApiDiscoveryScreen> {
               ],
             )
           : null,
-      body: widget.showSearchTools
-          ? Column(
-              children: [
-                _locationBanner(),
-                Card(
-                  margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
-                    child: _searchHeader(),
-                  ),
-                ),
-                Expanded(child: _buildSearchResults()),
-              ],
-            )
-          : Column(
-              children: [
-                _locationBanner(),
-                Expanded(child: _buildHomeResults()),
-              ],
-            ),
+      body: NisaPageBody(form: false, child: _resultsView()),
     );
   }
 
@@ -595,60 +559,85 @@ class _ApiDiscoveryScreenState extends LanguageAwareState<ApiDiscoveryScreen> {
       ? _profiles.where(_matchesFilters).toList()
       : _profiles;
 
-  Widget _buildSearchResults() {
-    if (_loading) return const Center(child: CircularProgressIndicator());
-    if (_error != null) return _MessageState(message: _error!, onRetry: _load);
-    if (_visibleProfiles.isEmpty) {
-      return _MessageState(
-        message: _hasMore
-            ? 'No matches on this page. Load more profiles or adjust your filters.'
-            : 'No profiles match these filters. Try broadening your search.',
-        // Retry the Search request; the filter icon remains available.
-        onRetry: _hasMore ? _loadMore : _load,
+  Widget _resultsView() => LayoutBuilder(
+    builder: (context, box) {
+      final columns =
+          box.maxWidth >= 360 &&
+              MediaQuery.textScalerOf(context).scale(16) <= 22
+          ? 2
+          : 1;
+      final profiles = _visibleProfiles;
+      final rowCount = (profiles.length / columns).ceil();
+      return RefreshIndicator(
+        onRefresh: _load,
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: _locationBanner()),
+            if (widget.showSearchTools)
+              SliverPadding(
+                padding: const EdgeInsets.all(20),
+                sliver: SliverToBoxAdapter(child: _searchHeader()),
+              ),
+            if (_loading)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              )
+            else if (_error != null)
+              SliverToBoxAdapter(
+                child: _MessageState(
+                  message: 'Something went wrong. Please try again.',
+                  onRetry: _load,
+                ),
+              )
+            else if (profiles.isEmpty)
+              SliverToBoxAdapter(
+                child: _MessageState(
+                  message: widget.showSearchTools
+                      ? 'No profiles match these filters. Try broadening your search.'
+                      : 'No matching profiles are available yet. Try again later.',
+                  onRetry: _hasMore ? _loadMore : _load,
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverList.builder(
+                  itemCount: rowCount,
+                  itemBuilder: (context, row) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var column = 0; column < columns; column++) ...[
+                          if (column > 0) const SizedBox(width: 12),
+                          Expanded(
+                            child: row * columns + column < profiles.length
+                                ? _profileCard(profiles[row * columns + column])
+                                : const SizedBox(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            if (_loadingMore)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          ],
+        ),
       );
-    }
-    return _profileList(includeSearchHeader: false);
-  }
-
-  Widget _buildHomeResults() {
-    if (_loading) return const Center(child: CircularProgressIndicator());
-    if (_error != null) return _MessageState(message: _error!, onRetry: _load);
-    if (_visibleProfiles.isEmpty) {
-      return _hasMore
-          ? _MessageState(
-              message: 'No matching profiles on this page yet.',
-              onRetry: _loadMore,
-            )
-          : const _MessageState(
-              message:
-                  'No matching profiles are available yet. Try again later.',
-            );
-    }
-    return _profileList(includeSearchHeader: false);
-  }
-
-  Widget _profileList({required bool includeSearchHeader}) => RefreshIndicator(
-    onRefresh: _load,
-    child: ListView.separated(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(16),
-      itemCount:
-          _visibleProfiles.length +
-          (_loadingMore ? 1 : 0) +
-          (includeSearchHeader ? 1 : 0),
-      separatorBuilder: (_, _) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        if (includeSearchHeader && index == 0) return _searchHeader();
-        final profileIndex = index - (includeSearchHeader ? 1 : 0);
-        if (profileIndex >= _visibleProfiles.length) {
-          return const Padding(
-            padding: EdgeInsets.all(20),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-        return _profileCard(_visibleProfiles[profileIndex]);
-      },
-    ),
+    },
   );
 
   Widget _searchHeader() => Padding(
@@ -734,174 +723,16 @@ class _ApiDiscoveryScreenState extends LanguageAwareState<ApiDiscoveryScreen> {
     final status = _interestStatuses[profile.id];
     final existingRecommendationInterest =
         !widget.showSearchTools && profile.hasExistingInterest;
-    final alreadyConnected =
-        status == InterestStatus.pending ||
-        status == InterestStatus.accepted ||
-        existingRecommendationInterest;
-    final sending = _sendingTo == profile.id;
-    final location = [
-      profile.city,
-      profile.country,
-    ].where((value) => value.trim().isNotEmpty).join(', ');
-    final details = <String>[
-      if (profile.maritalStatus.trim().isNotEmpty) profile.maritalStatus,
-      if (profile.height?.trim().isNotEmpty == true) profile.height!,
-      if (profile.education?.trim().isNotEmpty == true) profile.education!,
-    ];
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                ApiProfilePhoto(
-                  imageUrl: profile.profilePhoto,
-                  radius: 30,
-                  fallbackText: profile.name,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        profile.name,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      LocalizedRichText(
-                        spanBuilder: () => TextSpan(
-                          children: [
-                            TextSpan(text: AppLanguageService.translate('Age')),
-                            const TextSpan(text: ' '),
-                            TextSpan(
-                              text: AppLanguageService.formatAgeNumber(
-                                profile.age,
-                              ),
-                            ),
-                            if (location.isNotEmpty) ...[
-                              const TextSpan(text: ' • '),
-                              TextSpan(text: location),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (profile.verified)
-                  Tooltip(
-                    message: AppLanguageService.translate('Parent verified'),
-                    child: const Icon(Icons.verified, color: Colors.blue),
-                  ),
-                PopupMenuButton<String>(
-                  tooltip: AppLanguageService.translate('Safety options'),
-                  onSelected: (value) {
-                    if (value == 'report') _report(profile);
-                    if (value == 'block') _block(profile);
-                  },
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(
-                      value: 'report',
-                      child: ListTile(
-                        leading: Icon(Icons.flag_outlined),
-                        title: LocalizedText('Report'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'block',
-                      child: ListTile(
-                        leading: Icon(Icons.block_outlined),
-                        title: LocalizedText('Block'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            if (!widget.showSearchTools &&
-                profile.recommendationReasons.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 6,
-                runSpacing: 2,
-                children: profile.recommendationReasons
-                    .take(3)
-                    .map(
-                      (reason) => Chip(
-                        visualDensity: VisualDensity.compact,
-                        label: LocalizedText(reason),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
-            if (existingRecommendationInterest) ...[
-              const SizedBox(height: 6),
-              const LocalizedText('Interest already exists'),
-            ],
-            if (profile.distanceBand == 'nearby') ...[
-              const SizedBox(height: 8),
-              const Chip(
-                avatar: Icon(Icons.near_me_outlined, size: 16),
-                visualDensity: VisualDensity.compact,
-                label: LocalizedText('Nearby'),
-              ),
-            ],
-            if (profile.profession?.trim().isNotEmpty == true) ...[
-              const SizedBox(height: 12),
-              Text(profile.profession!),
-            ],
-            if (details.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(details.join(' • ')),
-            ],
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () => _openProfile(profile),
-              icon: const Icon(Icons.person_outline),
-              label: const LocalizedText('View Profile'),
-            ),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: sending || alreadyConnected
-                    ? null
-                    : () => _sendInterest(profile),
-                icon: sending
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Icon(
-                        status == InterestStatus.accepted
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                      ),
-                label: Text(
-                  sending
-                      ? 'Sending…'
-                      : existingRecommendationInterest
-                      ? 'Interest already exists'
-                      : switch (status) {
-                          InterestStatus.pending => 'Interest sent',
-                          InterestStatus.accepted => 'Matched',
-                          InterestStatus.declined => 'Previously declined',
-                          InterestStatus.cancelled => 'Send interest again',
-                          null => 'Send interest',
-                        },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return ApiCandidateProfileCard(
+      profile: profile,
+      interestStatus: status,
+      existingInterest: existingRecommendationInterest,
+      sendingInterest: _sendingTo == profile.id,
+      showRecommendationReasons: !widget.showSearchTools,
+      onOpen: () => _openProfile(profile),
+      onInterest: () => _sendInterest(profile),
+      onBlock: () => _block(profile),
+      onReport: () => _report(profile),
     );
   }
 }
@@ -1111,6 +942,9 @@ class _ApiDiscoveryFilterSheetState
         _locationField('City', _city, _pickCity),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
+          isExpanded: true,
+          itemHeight: null,
+          isDense: false,
           initialValue: _maritalStatus,
           decoration: InputDecoration(
             labelText: AppLanguageService.translate('Marital Status'),
@@ -1136,6 +970,8 @@ class _ApiDiscoveryFilterSheetState
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
+          itemHeight: null,
+          isDense: false,
           initialValue: _education,
           isExpanded: true,
           decoration: InputDecoration(
@@ -1152,6 +988,8 @@ class _ApiDiscoveryFilterSheetState
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
+          itemHeight: null,
+          isDense: false,
           initialValue: LocationService.heightOptions.contains(_minimumHeight)
               ? _minimumHeight
               : '',
@@ -1169,6 +1007,8 @@ class _ApiDiscoveryFilterSheetState
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
+          itemHeight: null,
+          isDense: false,
           initialValue: LocationService.heightOptions.contains(_maximumHeight)
               ? _maximumHeight
               : '',

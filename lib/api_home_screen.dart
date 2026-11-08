@@ -2,12 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'widgets/localized_text.dart';
 
 import 'widgets/language_selector_button.dart';
 import 'widgets/api_profile_photo.dart';
 
 import 'api_conversations_screen.dart';
+import 'api_home_dashboard.dart';
 import 'api_blocked_users_screen.dart';
 import 'api_discovery_screen.dart';
 import 'api_family_invitations_screen.dart';
@@ -51,6 +54,7 @@ class ApiHomeScreen extends StatefulWidget {
 class _ApiHomeScreenState extends LanguageAwareState<ApiHomeScreen>
     with WidgetsBindingObserver {
   final PageController _pageController = PageController();
+  final GlobalKey<ScaffoldState> _shellKey = GlobalKey<ScaffoldState>();
   int _selectedTab = 0;
   late UserProfile _profile = widget.profile;
   int _unreadNotifications = 0;
@@ -235,8 +239,7 @@ class _ApiHomeScreenState extends LanguageAwareState<ApiHomeScreen>
     final media = MediaQuery.of(context);
     final useNavigationRail = media.size.width >= 840;
     final compactNavigation =
-        !useNavigationRail &&
-        (media.size.width <= 520 || media.textScaler.scale(1) > 1);
+        !useNavigationRail && media.textScaler.scale(1) > 1.3;
     final labels = [
       'Home',
       'Search',
@@ -276,21 +279,79 @@ class _ApiHomeScreenState extends LanguageAwareState<ApiHomeScreen>
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLanguageService.translate(_titleForIndex(_selectedTab))),
-        actions: [
-          const LanguageSelectorButton(),
-          IconButton(
-            tooltip: AppLanguageService.translate('Notifications'),
-            onPressed: () => _open(const ApiNotificationsScreen()),
-            icon: _countBadge(
-              _unreadNotifications,
-              child: const Icon(Icons.notifications_outlined),
-            ),
+      key: _shellKey,
+      drawer: Drawer(
+        child: SafeArea(
+          child: ListView(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: LocalizedText(
+                  'Nisa e Sakina',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              for (var index = 0; index < labels.length; index++)
+                ListTile(
+                  leading: Icon(icons[index]),
+                  title: Text(labels[index]),
+                  selected: _selectedTab == index,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _selectTab(index);
+                  },
+                ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.language),
+                title: Text(AppLanguageService.selected.nativeName),
+                trailing: const LanguageSelectorButton(),
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const LocalizedText('Log Out'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmSignOut();
+                },
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-        ],
+        ),
       ),
+      appBar: _selectedTab == 0
+          ? NisaBrandAppBar(
+              title: AppLanguageService.translate('Nisa e Sakina'),
+              menuLabel: MaterialLocalizations.of(context).openAppDrawerTooltip,
+              onMenu: () => _shellKey.currentState?.openDrawer(),
+              brandMark: const Icon(
+                Icons.favorite_rounded,
+                color: NisaPremiumTheme.gold,
+              ),
+              notificationLabel: AppLanguageService.translate('Notifications'),
+              onNotifications: () => _open(const ApiNotificationsScreen()),
+              notificationIcon: _countBadge(
+                _unreadNotifications,
+                child: const Icon(Icons.notifications_outlined),
+              ),
+            )
+          : AppBar(
+              title: Text(
+                AppLanguageService.translate(_titleForIndex(_selectedTab)),
+              ),
+              actions: [
+                const LanguageSelectorButton(),
+                IconButton(
+                  tooltip: AppLanguageService.translate('Notifications'),
+                  onPressed: () => _open(const ApiNotificationsScreen()),
+                  icon: _countBadge(
+                    _unreadNotifications,
+                    child: const Icon(Icons.notifications_outlined),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+            ),
       body: SafeArea(
         child: useNavigationRail
             ? Row(
@@ -498,13 +559,20 @@ class _ApiHomeScreenState extends LanguageAwareState<ApiHomeScreen>
               if (_profile.country?.trim().isNotEmpty == true)
                 _profile.country!,
             ].join(', '),
-            style: TextStyle(color: Colors.grey.shade600),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
         if (email.isNotEmpty) ...[
           const SizedBox(height: 4),
           Center(
-            child: Text(email, style: TextStyle(color: Colors.grey.shade600)),
+            child: Text(
+              email,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
         ],
         const SizedBox(height: 12),
@@ -536,7 +604,9 @@ class _ApiHomeScreenState extends LanguageAwareState<ApiHomeScreen>
                 TextSpan(text: AppLanguageService.translate(status)),
               ],
             ),
-            style: TextStyle(color: Colors.grey.shade600),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -617,7 +687,8 @@ class _ApiHomeScreenState extends LanguageAwareState<ApiHomeScreen>
             _HomeAction(
               icon: Icons.business_center_outlined,
               title: 'Matchmaker Network',
-              subtitle: 'Apply, manage represented clients, imports and consent',
+              subtitle:
+                  'Apply, manage represented clients, imports and consent',
               onTap: () => _open(const ApiMatchmakerScreen()),
             ),
           ],
@@ -820,150 +891,11 @@ class _ApiHomeScreenState extends LanguageAwareState<ApiHomeScreen>
     },
   );
 
-  Widget _dashboardPage() => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    ApiProfilePhoto(
-                      imageUrl: _profile.profilePhoto,
-                      radius: 25,
-                      fallbackText: _profile.name,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _profile.name.trim().isEmpty
-                              ? const LocalizedText(
-                                  'Nisa',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                )
-                              : Text(
-                                  _profile.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.titleLarge
-                                      ?.copyWith(fontWeight: FontWeight.w700),
-                                ),
-                          const SizedBox(height: 2),
-                          const LocalizedText('Find a meaningful connection.'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        _profile.isVerified
-                            ? Icons.verified_rounded
-                            : _profile.verificationPending
-                            ? Icons.hourglass_top_rounded
-                            : Icons.verified_outlined,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: LocalizedText(
-                          _profile.isVerified
-                              ? 'Parent verified'
-                              : _profile.verificationPending
-                              ? 'Parent verification pending'
-                              : 'Parent verification not completed',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      SizedBox(
-                        width: 38,
-                        height: 38,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            CircularProgressIndicator(
-                              value: _profileCompletion / 100,
-                              strokeWidth: 3,
-                              semanticsLabel: AppLanguageService.translate(
-                                'Profile Completion',
-                              ),
-                              semanticsValue: AppLanguageService.formatNumber(
-                                _profileCompletion,
-                              ),
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainer,
-                            ),
-                            LocalizedText(
-                              '{percent}%',
-                              substitutions: {
-                                'percent': AppLanguageService.formatNumber(
-                                  _profileCompletion,
-                                ),
-                              },
-                              style: Theme.of(context).textTheme.labelSmall
-                                  ?.copyWith(fontWeight: FontWeight.w700),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: LocalizedText(
-                        'Recommended for you',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: _editProfile,
-                      child: const LocalizedText('Edit Profile'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      Expanded(
-        child: ApiDiscoveryScreen(
-          key: const ValueKey('home_recommendations'),
-          currentUser: _profile,
-          showAppBar: false,
-          showSearchTools: false,
-        ),
-      ),
-    ],
+  Widget _dashboardPage() => ApiHomeDashboard(
+    profile: _profile,
+    profileCompletion: _profileCompletion,
+    onEditProfile: _editProfile,
+    onSeeAll: () => _selectTab(1),
   );
 }
 

@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'services/app_language_service.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
@@ -125,171 +126,174 @@ class _AdminVerificationDetailScreenState
         title: const LocalizedText('Verification Detail'),
         actions: const [LanguageSelectorButton()],
       ),
-      body: FutureBuilder<AdminVerificationRequest>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: LocalizedText('Something went wrong. Please try again.'),
+      body: NisaPageBody(
+        form: false,
+        child: FutureBuilder<AdminVerificationRequest>(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(
+                child: LocalizedText('Something went wrong. Please try again.'),
+              );
+            }
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final request = snapshot.data!;
+            final idUrl = AdminVerificationApiService.resolveUrl(
+              request.parentIdUrl,
             );
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
 
-          final request = snapshot.data!;
-          final idUrl = AdminVerificationApiService.resolveUrl(
-            request.parentIdUrl,
-          );
-
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _InfoCard(
-                title: AppLanguageService.translate('Request'),
-                children: [
-                  _InfoRow(
-                    label: AppLanguageService.translate('Request ID'),
-                    value: request.id,
-                  ),
-                  _InfoRow(
-                    label: AppLanguageService.translate('User ID'),
-                    value: request.userId,
-                  ),
-                  _InfoRow(
-                    label: AppLanguageService.translate('Status'),
-                    value: request.status,
-                  ),
-                  if (request.createdAt.isNotEmpty)
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _InfoCard(
+                  title: AppLanguageService.translate('Request'),
+                  children: [
                     _InfoRow(
-                      label: AppLanguageService.translate('Created'),
-                      value: request.createdAt,
+                      label: AppLanguageService.translate('Request ID'),
+                      value: request.id,
                     ),
-                ],
-              ),
-              _InfoCard(
-                title: AppLanguageService.translate('Parent / Guardian'),
-                children: [
-                  _InfoRow(
-                    label: AppLanguageService.translate('Name'),
-                    value: request.guardianName.isEmpty
-                        ? 'Not provided'
-                        : request.guardianName,
-                  ),
-                  _InfoRow(
-                    label: AppLanguageService.translate('Relation'),
-                    value: request.guardianRelation.isEmpty
-                        ? 'Not provided'
-                        : request.guardianRelation,
-                  ),
-                ],
-              ),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      LocalizedText(
-                        'Parent ID',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                    _InfoRow(
+                      label: AppLanguageService.translate('User ID'),
+                      value: request.userId,
+                    ),
+                    _InfoRow(
+                      label: AppLanguageService.translate('Status'),
+                      value: request.status,
+                    ),
+                    if (request.createdAt.isNotEmpty)
+                      _InfoRow(
+                        label: AppLanguageService.translate('Created'),
+                        value: request.createdAt,
                       ),
-                      const SizedBox(height: 12),
-                      if (idUrl.isEmpty)
-                        const LocalizedText('No parent ID file found.')
-                      else
-                        FutureBuilder<Map<String, String>>(
-                          future: _mediaHeaders,
-                          builder: (context, headersSnapshot) {
-                            if (headersSnapshot.hasError) {
-                              return LocalizedText(
-                                'Could not authorize ID preview: '
-                                '${headersSnapshot.error}',
-                              );
-                            }
-                            if (!headersSnapshot.hasData) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(20),
-                                  child: CircularProgressIndicator(),
+                  ],
+                ),
+                _InfoCard(
+                  title: AppLanguageService.translate('Parent / Guardian'),
+                  children: [
+                    _InfoRow(
+                      label: AppLanguageService.translate('Name'),
+                      value: request.guardianName.isEmpty
+                          ? 'Not provided'
+                          : request.guardianName,
+                    ),
+                    _InfoRow(
+                      label: AppLanguageService.translate('Relation'),
+                      value: request.guardianRelation.isEmpty
+                          ? 'Not provided'
+                          : request.guardianRelation,
+                    ),
+                  ],
+                ),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        LocalizedText(
+                          'Parent ID',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 12),
+                        if (idUrl.isEmpty)
+                          const LocalizedText('No parent ID file found.')
+                        else
+                          FutureBuilder<Map<String, String>>(
+                            future: _mediaHeaders,
+                            builder: (context, headersSnapshot) {
+                              if (headersSnapshot.hasError) {
+                                return LocalizedText(
+                                  'Could not authorize ID preview: '
+                                  '${headersSnapshot.error}',
+                                );
+                              }
+                              if (!headersSnapshot.hasData) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
+
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Image.network(
+                                  idUrl,
+                                  headers: headersSnapshot.data!,
+                                  height: 280,
+                                  width: double.infinity,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: LocalizedText(
+                                        'This ID may be a PDF or could not be '
+                                        'previewed as an image.',
+                                      ),
+                                    );
+                                  },
                                 ),
                               );
-                            }
-
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: Image.network(
-                                idUrl,
-                                headers: headersSnapshot.data!,
-                                height: 280,
-                                width: double.infinity,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: LocalizedText(
-                                      'This ID may be a PDF or could not be '
-                                      'previewed as an image.',
-                                    ),
-                                  );
-                                },
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.video_file_outlined),
+                    title: const LocalizedText('Parent Confirmation Video'),
+                    subtitle: const LocalizedText(
+                      'Protected admin-only playback',
+                    ),
+                    trailing: const Icon(Icons.play_circle_outline),
+                    onTap: request.parentVideoUrl.isEmpty
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => SecureAdminVideoScreen(
+                                  adminKey: widget.adminKey,
+                                  protectedUrl: request.parentVideoUrl,
+                                ),
                               ),
                             );
                           },
-                        ),
-                    ],
                   ),
                 ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: const Icon(Icons.video_file_outlined),
-                  title: const LocalizedText('Parent Confirmation Video'),
-                  subtitle: const LocalizedText(
-                    'Protected admin-only playback',
-                  ),
-                  trailing: const Icon(Icons.play_circle_outline),
-                  onTap: request.parentVideoUrl.isEmpty
+                const SizedBox(height: 14),
+                FilledButton.icon(
+                  onPressed: _working || request.status != 'pending'
                       ? null
-                      : () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => SecureAdminVideoScreen(
-                                adminKey: widget.adminKey,
-                                protectedUrl: request.parentVideoUrl,
-                              ),
-                            ),
-                          );
-                        },
+                      : () => _approve(request),
+                  icon: _working
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.verified_outlined),
+                  label: const LocalizedText('Approve Verification'),
                 ),
-              ),
-              const SizedBox(height: 14),
-              FilledButton.icon(
-                onPressed: _working || request.status != 'pending'
-                    ? null
-                    : () => _approve(request),
-                icon: _working
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.verified_outlined),
-                label: const LocalizedText('Approve Verification'),
-              ),
-              const SizedBox(height: 10),
-              OutlinedButton.icon(
-                onPressed: _working || request.status != 'pending'
-                    ? null
-                    : () => _reject(request),
-                icon: const Icon(Icons.cancel_outlined),
-                label: const LocalizedText('Reject Verification'),
-              ),
-            ],
-          );
-        },
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: _working || request.status != 'pending'
+                      ? null
+                      : () => _reject(request),
+                  icon: const Icon(Icons.cancel_outlined),
+                  label: const LocalizedText('Reject Verification'),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

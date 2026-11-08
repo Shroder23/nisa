@@ -21,9 +21,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(body: ApiProfilePhoto(radius: 24)),
-      ),
+      const MaterialApp(home: Scaffold(body: ApiProfilePhoto(radius: 24))),
     );
 
     expect(find.byIcon(Icons.person), findsOneWidget);

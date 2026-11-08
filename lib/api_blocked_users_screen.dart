@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/app_language_service.dart';
@@ -87,57 +89,60 @@ class _ApiBlockedUsersScreenState extends State<ApiBlockedUsersScreen> {
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? _Message(message: _error!, onRetry: _load)
-          : _blocks.isEmpty
-          ? const _Message(message: 'You have not blocked anyone.')
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView.separated(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                itemCount: _blocks.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final block = _blocks[index];
-                  final id = block['blocked_id']?.toString() ?? '';
-                  final name = block['blocked_name']?.toString().trim();
-                  final location =
-                      [
-                            block['blocked_city']?.toString(),
-                            block['blocked_country']?.toString(),
-                          ]
-                          .where((value) => value?.trim().isNotEmpty == true)
-                          .join(', ');
-                  final busy = _unblocking.contains(id);
-                  return Card(
-                    child: ListTile(
-                      leading: const CircleAvatar(
-                        child: Icon(Icons.block_outlined),
+      body: NisaPageBody(
+        form: false,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? _Message(message: _error!, onRetry: _load)
+            : _blocks.isEmpty
+            ? const _Message(message: 'You have not blocked anyone.')
+            : RefreshIndicator(
+                onRefresh: _load,
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _blocks.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final block = _blocks[index];
+                    final id = block['blocked_id']?.toString() ?? '';
+                    final name = block['blocked_name']?.toString().trim();
+                    final location =
+                        [
+                              block['blocked_city']?.toString(),
+                              block['blocked_country']?.toString(),
+                            ]
+                            .where((value) => value?.trim().isNotEmpty == true)
+                            .join(', ');
+                    final busy = _unblocking.contains(id);
+                    return Card(
+                      child: ListTile(
+                        leading: const CircleAvatar(
+                          child: Icon(Icons.block_outlined),
+                        ),
+                        title: Text(
+                          name?.isNotEmpty == true ? name! : 'Nisa member',
+                        ),
+                        subtitle: Text(location.isEmpty ? id : location),
+                        trailing: TextButton(
+                          onPressed: busy ? null : () => _unblock(id),
+                          child: busy
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const LocalizedText('Unblock'),
+                        ),
                       ),
-                      title: Text(
-                        name?.isNotEmpty == true ? name! : 'Nisa member',
-                      ),
-                      subtitle: Text(location.isEmpty ? id : location),
-                      trailing: TextButton(
-                        onPressed: busy ? null : () => _unblock(id),
-                        child: busy
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const LocalizedText('Unblock'),
-                      ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
+      ),
     );
   }
 }

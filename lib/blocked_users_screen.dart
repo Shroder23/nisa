@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
 
@@ -21,43 +22,46 @@ class BlockedUsersScreen extends StatelessWidget {
         centerTitle: true,
         actions: const [LanguageSelectorButton()],
       ),
-      body: uid == null || uid.isEmpty
-          ? const Center(child: LocalizedText('You are not signed in.'))
-          : StreamBuilder<List<UserBlock>>(
-              stream: BlockService.watchMyBlocks(uid),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: LocalizedText(
-                      'Something went wrong. Please try again.',
-                    ),
-                  );
-                }
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final blocks = snapshot.data!;
-                if (blocks.isEmpty) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
+      body: NisaPageBody(
+        form: false,
+        child: uid == null || uid.isEmpty
+            ? const Center(child: LocalizedText('You are not signed in.'))
+            : StreamBuilder<List<UserBlock>>(
+                stream: BlockService.watchMyBlocks(uid),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
                       child: LocalizedText(
-                        'You have not blocked anyone.',
-                        textAlign: TextAlign.center,
+                        'Something went wrong. Please try again.',
                       ),
-                    ),
+                    );
+                  }
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final blocks = snapshot.data!;
+                  if (blocks.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: LocalizedText(
+                          'You have not blocked anyone.',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: blocks.length,
+                    itemBuilder: (context, index) {
+                      final block = blocks[index];
+                      return _BlockedUserTile(block: block, currentUserId: uid);
+                    },
                   );
-                }
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: blocks.length,
-                  itemBuilder: (context, index) {
-                    final block = blocks[index];
-                    return _BlockedUserTile(block: block, currentUserId: uid);
-                  },
-                );
-              },
-            ),
+                },
+              ),
+      ),
     );
   }
 }

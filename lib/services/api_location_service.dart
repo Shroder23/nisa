@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_auth_service.dart';
 
@@ -9,6 +10,20 @@ import 'api_auth_service.dart';
 /// The server rounds coordinates before storage and never returns raw values.
 class ApiLocationService {
   ApiLocationService._();
+
+  static const _radiusPreferenceKey = 'nisa_nearby_radius_miles';
+  static const int defaultRadiusMiles = 25;
+
+  static Future<int> selectedRadiusMiles() async {
+    final preferences = await SharedPreferences.getInstance();
+    return (preferences.getInt(_radiusPreferenceKey) ?? defaultRadiusMiles)
+        .clamp(5, 500);
+  }
+
+  static Future<void> saveSelectedRadiusMiles(int miles) async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setInt(_radiusPreferenceKey, miles.clamp(5, 500));
+  }
 
   static Future<bool> isSharingEnabled() async {
     final response = await ApiAuthService.get('/api/location/me');

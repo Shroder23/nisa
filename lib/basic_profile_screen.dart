@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:async';
 
 import 'widgets/localized_text.dart';
@@ -481,244 +483,257 @@ class _BasicProfileScreenState extends LanguageAwareState<BasicProfileScreen> {
         ),
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(10),
+      body: NisaPageBody(
+        form: true,
+        child: SafeArea(
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(10),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Container(
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(10),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Container(
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(10),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Container(
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 28),
-
-              LocalizedText(
-                'Tell us about yourself',
-                style: Theme.of(context).textTheme.headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 8),
-
-              LocalizedText(
-                'This information will help us create your matrimonial profile.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-
-              const SizedBox(height: 28),
-
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Full Name'),
-                  prefixIcon: Icon(Icons.person_outline),
-                  border: OutlineInputBorder(),
+                  ],
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-              ),
 
-              const SizedBox(height: 18),
+                const SizedBox(height: 28),
 
-              InkWell(
-                onTap: _chooseReligion,
-                child: InputDecorator(
+                LocalizedText(
+                  'Tell us about yourself',
+                  style: Theme.of(context).textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 8),
+
+                LocalizedText(
+                  'This information will help us create your matrimonial profile.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+
+                const SizedBox(height: 28),
+
+                TextFormField(
+                  controller: _nameController,
                   decoration: InputDecoration(
-                    labelText: AppLanguageService.translate('Religion'),
-                    prefixIcon: const Icon(Icons.public_outlined),
-                    suffixIcon: _sectsLoading
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: Padding(
-                              padding: EdgeInsets.all(12),
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          )
-                        : const Icon(Icons.arrow_drop_down),
+                    labelText: AppLanguageService.translate('Full Name'),
+                    prefixIcon: Icon(Icons.person_outline),
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter your name';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 18),
+
+                InkWell(
+                  onTap: _chooseReligion,
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: AppLanguageService.translate('Religion'),
+                      prefixIcon: const Icon(Icons.public_outlined),
+                      suffixIcon: _sectsLoading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: Padding(
+                                padding: EdgeInsets.all(12),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            )
+                          : const Icon(Icons.arrow_drop_down),
+                      border: const OutlineInputBorder(),
+                    ),
+                    child: LocalizedText(_religion),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
+                  initialValue: const ['Male', 'Female'].contains(_gender)
+                      ? _gender
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Gender'),
+                    prefixIcon: Icon(Icons.wc_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Male',
+                      child: LocalizedText('Male'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Female',
+                      child: LocalizedText('Female'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _gender = value;
+                      if (value == 'Female' && _maritalStatus == 'Married') {
+                        _maritalStatus = null;
+                      }
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select your gender';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 18),
+
+                InkWell(
+                  key: _dateOfBirthKey,
+                  onTap: _selectDateOfBirth,
+                  borderRadius: BorderRadius.circular(4),
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: AppLanguageService.translate('Date of Birth'),
+                      prefixIcon: Icon(Icons.calendar_today_outlined),
+                      border: OutlineInputBorder(),
+                      errorText: _dateOfBirthError
+                          ? AppLanguageService.translate(
+                              'Date of birth is required',
+                            )
+                          : null,
+                    ),
+                    child: LocalizedText(
+                      _dateOfBirth == null
+                          ? 'Select your date of birth'
+                          : _formatDate(_dateOfBirth!),
+                      style: TextStyle(
+                        color: _dateOfBirth == null
+                            ? Theme.of(context).colorScheme.onSurfaceVariant
+                            : Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                InkWell(
+                  onTap: _chooseCountry,
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: AppLanguageService.translate('Country'),
+                      prefixIcon: Icon(Icons.public),
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      border: OutlineInputBorder(),
+                    ),
+                    child: LocalizedText(_countryController.text),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                InkWell(
+                  onTap: _chooseCity,
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: AppLanguageService.translate('City'),
+                      prefixIcon: Icon(Icons.location_city_outlined),
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      border: OutlineInputBorder(),
+                    ),
+                    child: LocalizedText(
+                      _citiesLoading
+                          ? 'Loading cities...'
+                          : (_cityController.text.isEmpty
+                                ? 'Select city'
+                                : _cityController.text),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
+                  initialValue:
+                      LocationService.educationOptions.contains(_education)
+                      ? _education
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Education'),
+                    prefixIcon: const Icon(Icons.school_outlined),
                     border: const OutlineInputBorder(),
                   ),
-                  child: LocalizedText(_religion),
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              DropdownButtonFormField<String>(
-                initialValue: const ['Male', 'Female'].contains(_gender)
-                    ? _gender
-                    : null,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Gender'),
-                  prefixIcon: Icon(Icons.wc_outlined),
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'Male', child: LocalizedText('Male')),
-                  DropdownMenuItem(
-                    value: 'Female',
-                    child: LocalizedText('Female'),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _gender = value;
-                    if (value == 'Female' && _maritalStatus == 'Married') {
-                      _maritalStatus = null;
-                    }
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select your gender';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 18),
-
-              InkWell(
-                key: _dateOfBirthKey,
-                onTap: _selectDateOfBirth,
-                borderRadius: BorderRadius.circular(4),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: AppLanguageService.translate('Date of Birth'),
-                    prefixIcon: Icon(Icons.calendar_today_outlined),
-                    border: OutlineInputBorder(),
-                    errorText: _dateOfBirthError
-                        ? AppLanguageService.translate(
-                            'Date of birth is required',
-                          )
-                        : null,
-                  ),
-                  child: LocalizedText(
-                    _dateOfBirth == null
-                        ? 'Select your date of birth'
-                        : _formatDate(_dateOfBirth!),
-                    style: TextStyle(
-                      color: _dateOfBirth == null
-                          ? Theme.of(context).colorScheme.onSurfaceVariant
-                          : Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              InkWell(
-                onTap: _chooseCountry,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: AppLanguageService.translate('Country'),
-                    prefixIcon: Icon(Icons.public),
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    border: OutlineInputBorder(),
-                  ),
-                  child: LocalizedText(_countryController.text),
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              InkWell(
-                onTap: _chooseCity,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: AppLanguageService.translate('City'),
-                    prefixIcon: Icon(Icons.location_city_outlined),
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    border: OutlineInputBorder(),
-                  ),
-                  child: LocalizedText(
-                    _citiesLoading
-                        ? 'Loading cities...'
-                        : (_cityController.text.isEmpty
-                              ? 'Select city'
-                              : _cityController.text),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              DropdownButtonFormField<String>(
-                initialValue:
-                    LocationService.educationOptions.contains(_education)
-                    ? _education
-                    : null,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Education'),
-                  prefixIcon: const Icon(Icons.school_outlined),
-                  border: const OutlineInputBorder(),
-                ),
-                items: LocationService.educationOptions
-                    .map(
-                      (v) =>
-                          DropdownMenuItem(value: v, child: LocalizedText(v)),
-                    )
-                    .toList(),
-                onChanged: (value) => setState(() => _education = value),
-                validator: (value) => value == null || value.trim().isEmpty
-                    ? AppLanguageService.translate(
-                        'Please complete all required fields.',
+                  items: LocationService.educationOptions
+                      .map(
+                        (v) =>
+                            DropdownMenuItem(value: v, child: LocalizedText(v)),
                       )
-                    : null,
-              ),
+                      .toList(),
+                  onChanged: (value) => setState(() => _education = value),
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? AppLanguageService.translate(
+                          'Please complete all required fields.',
+                        )
+                      : null,
+                ),
 
-              /* Legacy city field retained only for form compatibility. */
-              Offstage(
-                offstage: true,
-                child: TextField(controller: _cityController),
-              ),
-              /*
+                /* Legacy city field retained only for form compatibility. */
+                Offstage(
+                  offstage: true,
+                  child: TextField(controller: _cityController),
+                ),
+                /*
               TextFormField(
                 controller: _cityController,
                 decoration: InputDecoration(
@@ -734,45 +749,54 @@ class _BasicProfileScreenState extends LanguageAwareState<BasicProfileScreen> {
                 },
               ), */
 
-              const SizedBox(height: 18),
+                const SizedBox(height: 18),
 
-              DropdownButtonFormField<String>(
-                initialValue:
-                    _maritalOptions.any((item) => item.value == _maritalStatus)
-                    ? _maritalStatus
-                    : null,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate('Marital Status'),
-                  prefixIcon: Icon(Icons.favorite_border),
-                  border: OutlineInputBorder(),
+                DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
+                  initialValue:
+                      _maritalOptions.any(
+                        (item) => item.value == _maritalStatus,
+                      )
+                      ? _maritalStatus
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate('Marital Status'),
+                    prefixIcon: Icon(Icons.favorite_border),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _maritalOptions,
+                  onChanged: (value) {
+                    setState(() {
+                      _maritalStatus = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select your marital status';
+                    }
+                    return null;
+                  },
                 ),
-                items: _maritalOptions,
-                onChanged: (value) {
-                  setState(() {
-                    _maritalStatus = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select your marital status';
-                  }
-                  return null;
-                },
-              ),
 
-              const SizedBox(height: 32),
+                const SizedBox(height: 32),
 
-              SizedBox(
-                height: 56,
-                child: FilledButton(
-                  onPressed: _goToProfileDetails,
-                  child: const LocalizedText(
-                    'Continue',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                SizedBox(
+                  height: 56,
+                  child: FilledButton(
+                    onPressed: _goToProfileDetails,
+                    child: const LocalizedText(
+                      'Continue',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

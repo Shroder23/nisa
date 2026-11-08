@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'services/app_language_service.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
@@ -259,109 +260,114 @@ class _VerificationUploadScreenState
         ),
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 30),
-          children: [
-            Row(
-              children: [
-                for (int i = 0; i < 4; i++) ...[
-                  Expanded(
-                    child: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: purple,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  if (i < 3) const SizedBox(width: 6),
-                ],
-              ],
-            ),
-            const SizedBox(height: 30),
-            const Icon(Icons.verified_user_rounded, size: 70, color: purple),
-            const SizedBox(height: 20),
-            const LocalizedText(
-              'Parent Verification',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            const LocalizedText(
-              'For a Verified badge, submit one parent/guardian identification image and a short confirmation video. No linked guardian account is required.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                height: 1.5,
-                color: Colors.black54,
-              ),
-            ),
-            const SizedBox(height: 26),
-            _UploadCard(
-              icon: Icons.badge_outlined,
-              title: AppLanguageService.translate('Parent Identification'),
-              description: 'Take or choose a clear image of one parent/guardian identification document.',
-              uploaded: _parentIdFile != null,
-              fileName: _parentIdFile == null
-                  ? null
-                  : _shortName(_parentIdFile!.path),
-              buttonText: _parentIdFile == null
-                  ? 'Select ID Image'
-                  : 'Change ID Image',
-              onPressed: _isSubmitting ? null : _pickParentId,
-            ),
-            const SizedBox(height: 18),
-            _UploadCard(
-              icon: Icons.videocam_outlined,
-              title: AppLanguageService.translate('Parent Confirmation Video'),
-              description: 'The parent should say they are your parent/guardian and permit you to seek marriage through Nisa.',
-              uploaded: _parentVideoFile != null,
-              fileName: _parentVideoFile == null
-                  ? null
-                  : _shortName(_parentVideoFile!.path),
-              buttonText: _parentVideoFile == null
-                  ? 'Select Video'
-                  : 'Change Video',
-              onPressed: _isSubmitting ? null : _pickParentVideo,
-            ),
-            const SizedBox(height: 28),
-            const _PrivacyNotice(),
-            const SizedBox(height: 28),
-            SizedBox(
-              height: 56,
-              child: FilledButton(
-                onPressed: _isSubmitting ? null : _submitVerification,
-                child: _isSubmitting
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2.5),
-                      )
-                    : const LocalizedText(
-                        'Submit for Verification',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
+      body: NisaPageBody(
+        form: true,
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 30),
+            children: [
+              Row(
+                children: [
+                  for (int i = 0; i < 4; i++) ...[
+                    Expanded(
+                      child: Container(
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: purple,
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                    ),
+                    if (i < 3) const SizedBox(width: 6),
+                  ],
+                ],
               ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 50,
-              child: OutlinedButton(
-                onPressed: _isSubmitting ? null : _completeUnverified,
-                child: const LocalizedText('Continue Without Verification'),
+              const SizedBox(height: 30),
+              const Icon(Icons.verified_user_rounded, size: 70, color: purple),
+              const SizedBox(height: 20),
+              const LocalizedText(
+                'Parent Verification',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
-            ),
-            const SizedBox(height: 12),
-            const LocalizedText(
-              'Verification is optional. You can continue without a Verified badge.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Colors.black45),
-            ),
-          ],
+              const SizedBox(height: 12),
+              const LocalizedText(
+                'For a Verified badge, submit one parent/guardian identification image and a short confirmation video. No linked guardian account is required.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.5,
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 26),
+              _UploadCard(
+                icon: Icons.badge_outlined,
+                title: AppLanguageService.translate('Parent Identification'),
+                description: 'Take or choose a clear image of one parent/guardian identification document.',
+                uploaded: _parentIdFile != null,
+                fileName: _parentIdFile == null
+                    ? null
+                    : _shortName(_parentIdFile!.path),
+                buttonText: _parentIdFile == null
+                    ? 'Select ID Image'
+                    : 'Change ID Image',
+                onPressed: _isSubmitting ? null : _pickParentId,
+              ),
+              const SizedBox(height: 18),
+              _UploadCard(
+                icon: Icons.videocam_outlined,
+                title: AppLanguageService.translate(
+                  'Parent Confirmation Video',
+                ),
+                description: 'The parent should say they are your parent/guardian and permit you to seek marriage through Nisa.',
+                uploaded: _parentVideoFile != null,
+                fileName: _parentVideoFile == null
+                    ? null
+                    : _shortName(_parentVideoFile!.path),
+                buttonText: _parentVideoFile == null
+                    ? 'Select Video'
+                    : 'Change Video',
+                onPressed: _isSubmitting ? null : _pickParentVideo,
+              ),
+              const SizedBox(height: 28),
+              const _PrivacyNotice(),
+              const SizedBox(height: 28),
+              SizedBox(
+                height: 56,
+                child: FilledButton(
+                  onPressed: _isSubmitting ? null : _submitVerification,
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
+                        )
+                      : const LocalizedText(
+                          'Submit for Verification',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 50,
+                child: OutlinedButton(
+                  onPressed: _isSubmitting ? null : _completeUnverified,
+                  child: const LocalizedText('Continue Without Verification'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const LocalizedText(
+                'Verification is optional. You can continue without a Verified badge.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: Colors.black45),
+              ),
+            ],
+          ),
         ),
       ),
     );

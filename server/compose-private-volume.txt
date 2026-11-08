@@ -1,0 +1,11 @@
+# Merge both mounts into the existing API service volumes list.
+services:
+  api: # use the API service name shown by `sudo docker compose config --services`
+    volumes:
+      - nisa_verification_private:/data/private/verification
+      - nisa_profile_photos:/data/profile-photos
+
+# Merge both entries under the existing top-level volumes block.
+volumes:
+  nisa_verification_private:
+  nisa_profile_photos:

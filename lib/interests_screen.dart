@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'services/app_language_service.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
@@ -326,7 +327,7 @@ class _InterestsScreenState extends LanguageAwareState<InterestsScreen> {
         title: const LocalizedText('Interests'),
         actions: const [LanguageSelectorButton()],
       ),
-      body: _content(),
+      body: NisaPageBody(form: false, child: _content()),
     );
   }
 }

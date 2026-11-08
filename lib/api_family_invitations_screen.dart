@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/app_language_service.dart';
@@ -134,25 +136,28 @@ class _ApiFamilyInvitationsScreenState
         ),
       ],
     ),
-    body: _loading
-        ? const Center(child: CircularProgressIndicator())
-        : _error != null
-        ? _InvitationMessage(message: _error!, onRetry: _load)
-        : _invitations.isEmpty
-        ? const _InvitationMessage(
-            message: 'No pending family invitations were found for your signed-in email address.',
-          )
-        : RefreshIndicator(
-            onRefresh: _load,
-            child: ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              itemCount: _invitations.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
-              itemBuilder: (context, index) =>
-                  _invitationCard(_invitations[index]),
+    body: NisaPageBody(
+      form: false,
+      child: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+          ? _InvitationMessage(message: _error!, onRetry: _load)
+          : _invitations.isEmpty
+          ? const _InvitationMessage(
+              message: 'No pending family invitations were found for your signed-in email address.',
+            )
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView.separated(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: _invitations.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
+                itemBuilder: (context, index) =>
+                    _invitationCard(_invitations[index]),
+              ),
             ),
-          ),
+    ),
   );
 
   Widget _invitationCard(Map<String, dynamic> invitation) {

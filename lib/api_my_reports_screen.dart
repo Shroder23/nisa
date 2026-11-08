@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/app_language_service.dart';
@@ -141,94 +143,97 @@ class _ApiMyReportsScreenState extends State<ApiMyReportsScreen> {
         IconButton(onPressed: _refresh, icon: const Icon(Icons.refresh)),
       ],
     ),
-    body: FutureBuilder<List<Map<String, dynamic>>>(
-      future: _reports,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return _message(
-            LocalizedText('Something went wrong. Please try again.'),
-          );
-        }
-        if (!snapshot.hasData) {
-          return _message(const CircularProgressIndicator());
-        }
-        final reports = snapshot.data!;
-        if (reports.isEmpty) {
-          return _message(
-            const LocalizedText('You have not submitted any reports.'),
-          );
-        }
-        return RefreshIndicator(
-          onRefresh: _refresh,
-          child: ListView.separated(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(12),
-            itemCount: reports.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final report = reports[index];
-              final reportId = report['id']?.toString() ?? '';
-              final created = DateTime.tryParse(
-                report['created_at']?.toString() ?? '',
-              )?.toLocal();
-              final appealAllowed = report['appeal_allowed'] == true;
-              final busy = _submittingAppeals.contains(reportId);
-              return Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        report['reason']?.toString() ?? 'Report',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          const LocalizedText('Status'),
-                          const LocalizedText(': '),
-                          LocalizedText(_status(report)),
-                        ],
-                      ),
-                      if (created != null)
-                        LocalizedText(
-                          'Submitted: {date}',
-                          substitutions: {
-                            'date': created.toString().split('.').first,
-                          },
+    body: NisaPageBody(
+      form: false,
+      child: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _reports,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return _message(
+              LocalizedText('Something went wrong. Please try again.'),
+            );
+          }
+          if (!snapshot.hasData) {
+            return _message(const CircularProgressIndicator());
+          }
+          final reports = snapshot.data!;
+          if (reports.isEmpty) {
+            return _message(
+              const LocalizedText('You have not submitted any reports.'),
+            );
+          }
+          return RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(12),
+              itemCount: reports.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final report = reports[index];
+                final reportId = report['id']?.toString() ?? '';
+                final created = DateTime.tryParse(
+                  report['created_at']?.toString() ?? '',
+                )?.toLocal();
+                final appealAllowed = report['appeal_allowed'] == true;
+                final busy = _submittingAppeals.contains(reportId);
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          report['reason']?.toString() ?? 'Report',
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                      const SizedBox(height: 8),
-                      LocalizedText(_nextStep(report)),
-                      if (appealAllowed) ...[
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: OutlinedButton.icon(
-                            onPressed: busy
-                                ? null
-                                : () => _submitAppeal(reportId),
-                            icon: busy
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(Icons.rate_review_outlined),
-                            label: const LocalizedText('Request a review'),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const LocalizedText('Status'),
+                            const LocalizedText(': '),
+                            LocalizedText(_status(report)),
+                          ],
+                        ),
+                        if (created != null)
+                          LocalizedText(
+                            'Submitted: {date}',
+                            substitutions: {
+                              'date': created.toString().split('.').first,
+                            },
                           ),
-                        ),
+                        const SizedBox(height: 8),
+                        LocalizedText(_nextStep(report)),
+                        if (appealAllowed) ...[
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: OutlinedButton.icon(
+                              onPressed: busy
+                                  ? null
+                                  : () => _submitAppeal(reportId),
+                              icon: busy
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.rate_review_outlined),
+                              label: const LocalizedText('Request a review'),
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-        );
-      },
+                );
+              },
+            ),
+          );
+        },
+      ),
     ),
   );
 }

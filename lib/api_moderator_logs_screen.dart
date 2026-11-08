@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/api_safety_service.dart';
@@ -150,140 +152,145 @@ class _ApiModeratorLogsScreenState extends State<ApiModeratorLogsScreen> {
         ),
       ],
     ),
-    body: RefreshIndicator(
-      onRefresh: () async => _refresh(),
-      child: FutureBuilder<Map<String, dynamic>>(
-        future: _logs,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return ListView(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(snapshot.error.toString()),
-                ),
-              ],
-            );
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final page = snapshot.data!;
-          if (_loadedLogs.isEmpty) {
-            _loadedLogs = (page['logs'] as List).cast<Map<String, dynamic>>();
-            _nextBeforeId = page['next_before_id'] as int?;
-          }
-          if (_loadedLogs.isEmpty) {
-            return ListView(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: LocalizedText(
-                    'No moderator actions have been recorded.',
+    body: NisaPageBody(
+      form: false,
+      child: RefreshIndicator(
+        onRefresh: () async => _refresh(),
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: _logs,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return ListView(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(snapshot.error.toString()),
                   ),
-                ),
-              ],
-            );
-          }
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              ..._loadedLogs.map((log) {
-                final actor =
-                    log['actor_name'] ?? log['actor_user_id'] ?? 'Moderator';
-                final target =
-                    log['target_name'] ?? log['target_user_id'] ?? '';
-                final active = log['sanction_active'] == true;
-                final eventType = log['event_type']?.toString() ?? '';
-                final decisionOverride =
-                    eventType == 'report_resolved' ||
-                    eventType == 'report_dismissed' ||
-                    eventType == 'verification_approve';
-                final canOverrideSanction =
-                    active && log['sanction_id'] != null;
-                final canOverrideDecision =
-                    decisionOverride && log['override_id'] == null;
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.history),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: LocalizedText(
-                                _eventLabel(
-                                  log['event_type']?.toString() ?? '',
-                                ),
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Expanded(child: Text(actor.toString())),
-                            if (target.toString().isNotEmpty) ...[
-                              const Icon(Icons.arrow_forward, size: 16),
-                              Expanded(child: Text(target.toString())),
-                            ],
-                          ],
-                        ),
-                        if ((log['reason']?.toString() ?? '').isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(log['reason'].toString()),
-                        ],
-                        if (log['occurred_at'] != null)
-                          Text(
-                            log['occurred_at'].toString(),
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        if (canOverrideSanction || canOverrideDecision)
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: OutlinedButton.icon(
-                              onPressed: _busy
-                                  ? null
-                                  : () => _override(
-                                      log,
-                                      decisionOverride: canOverrideDecision,
-                                    ),
-                              icon: Icon(Icons.undo),
-                              label: LocalizedText(
-                                !canOverrideDecision
-                                    ? 'Override'
-                                    : eventType.startsWith('report_')
-                                    ? 'Reopen report'
-                                    : 'Revoke verified badge',
-                              ),
-                            ),
-                          ),
-                      ],
+                ],
+              );
+            }
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final page = snapshot.data!;
+            if (_loadedLogs.isEmpty) {
+              _loadedLogs = (page['logs'] as List).cast<Map<String, dynamic>>();
+              _nextBeforeId = page['next_before_id'] as int?;
+            }
+            if (_loadedLogs.isEmpty) {
+              return ListView(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: LocalizedText(
+                      'No moderator actions have been recorded.',
                     ),
                   ),
-                );
-              }),
-              if (_nextBeforeId != null)
-                Center(
-                  child: TextButton.icon(
-                    onPressed: _loadingOlder ? null : _loadOlder,
-                    icon: _loadingOlder
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.expand_more),
-                    label: LocalizedText('Load older activity'),
+                ],
+              );
+            }
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                ..._loadedLogs.map((log) {
+                  final actor =
+                      log['actor_name'] ?? log['actor_user_id'] ?? 'Moderator';
+                  final target =
+                      log['target_name'] ?? log['target_user_id'] ?? '';
+                  final active = log['sanction_active'] == true;
+                  final eventType = log['event_type']?.toString() ?? '';
+                  final decisionOverride =
+                      eventType == 'report_resolved' ||
+                      eventType == 'report_dismissed' ||
+                      eventType == 'verification_approve';
+                  final canOverrideSanction =
+                      active && log['sanction_id'] != null;
+                  final canOverrideDecision =
+                      decisionOverride && log['override_id'] == null;
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.history),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: LocalizedText(
+                                  _eventLabel(
+                                    log['event_type']?.toString() ?? '',
+                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Expanded(child: Text(actor.toString())),
+                              if (target.toString().isNotEmpty) ...[
+                                const Icon(Icons.arrow_forward, size: 16),
+                                Expanded(child: Text(target.toString())),
+                              ],
+                            ],
+                          ),
+                          if ((log['reason']?.toString() ?? '').isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(log['reason'].toString()),
+                          ],
+                          if (log['occurred_at'] != null)
+                            Text(
+                              log['occurred_at'].toString(),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          if (canOverrideSanction || canOverrideDecision)
+                            Align(
+                              alignment: AlignmentDirectional.centerEnd,
+                              child: OutlinedButton.icon(
+                                onPressed: _busy
+                                    ? null
+                                    : () => _override(
+                                        log,
+                                        decisionOverride: canOverrideDecision,
+                                      ),
+                                icon: Icon(Icons.undo),
+                                label: LocalizedText(
+                                  !canOverrideDecision
+                                      ? 'Override'
+                                      : eventType.startsWith('report_')
+                                      ? 'Reopen report'
+                                      : 'Revoke verified badge',
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+                if (_nextBeforeId != null)
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: _loadingOlder ? null : _loadOlder,
+                      icon: _loadingOlder
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.expand_more),
+                      label: LocalizedText('Load older activity'),
+                    ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     ),
   );

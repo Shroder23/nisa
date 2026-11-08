@@ -1,3 +1,4 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
 import 'widgets/localized_text.dart';
 import 'widgets/language_selector_button.dart';
 
@@ -92,89 +93,94 @@ class FamilyInvitationsScreen extends StatelessWidget {
         centerTitle: true,
         actions: const [LanguageSelectorButton()],
       ),
-      body: StreamBuilder<List<FamilyInvitation>>(
-        stream: FamilyService.watchInvitationsForCurrentUser(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: LocalizedText(
-                  'Something went wrong. Please try again.',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            );
-          }
-
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final invitations = snapshot.data!;
-
-          if (invitations.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(28),
-                child: LocalizedText(
-                  'No pending family invitations were found for your '
-                  'signed-in email address.',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: invitations.length,
-            itemBuilder: (context, index) {
-              final invitation = invitations[index];
-
-              return Card(
+      body: NisaPageBody(
+        form: false,
+        child: StreamBuilder<List<FamilyInvitation>>(
+          stream: FamilyService.watchInvitationsForCurrentUser(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const CircleAvatar(
-                          child: Icon(Icons.family_restroom),
-                        ),
-                        title: LocalizedText(invitation.ownerName),
-                        subtitle: LocalizedText(
-                          'Invited you as {role}',
-                          substitutions: {'role': _roleLabel(invitation.role)},
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () =>
-                                  _respond(context, invitation, false),
-                              child: const LocalizedText('Decline'),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: FilledButton(
-                              onPressed: () =>
-                                  _respond(context, invitation, true),
-                              child: const LocalizedText('Accept'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                  padding: const EdgeInsets.all(24),
+                  child: LocalizedText(
+                    'Something went wrong. Please try again.',
+                    textAlign: TextAlign.center,
                   ),
                 ),
               );
-            },
-          );
-        },
+            }
+
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final invitations = snapshot.data!;
+
+            if (invitations.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(28),
+                  child: LocalizedText(
+                    'No pending family invitations were found for your '
+                    'signed-in email address.',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: invitations.length,
+              itemBuilder: (context, index) {
+                final invitation = invitations[index];
+
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const CircleAvatar(
+                            child: Icon(Icons.family_restroom),
+                          ),
+                          title: LocalizedText(invitation.ownerName),
+                          subtitle: LocalizedText(
+                            'Invited you as {role}',
+                            substitutions: {
+                              'role': _roleLabel(invitation.role),
+                            },
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () =>
+                                    _respond(context, invitation, false),
+                                child: const LocalizedText('Decline'),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: FilledButton(
+                                onPressed: () =>
+                                    _respond(context, invitation, true),
+                                child: const LocalizedText('Accept'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

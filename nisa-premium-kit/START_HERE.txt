@@ -1,0 +1,9 @@
+NISA E SAKINA — PREMIUM DESIGN KIT
+
+1. Read README.md.
+2. Review design/references/03_home_portrait_concept.png.
+3. For Nano Banana 2, use prompts/01_NANO_BANANA_MASTER.md plus ONE prompt from prompts/screens/ per request. Attach the approved Home reference.
+4. For Codex or Antigravity, open your existing Flutter project and use prompts/02_FLUTTER_INTEGRATION.md with this kit and your approved references.
+5. The Dart files are reusable styling/layout components, not a completed all-screen app. Run the included tests after integration.
+
+No invented profiles, members, photos or conversations are included.

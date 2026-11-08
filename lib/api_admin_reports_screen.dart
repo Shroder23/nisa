@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'package:flutter/material.dart';
 
 import 'services/app_language_service.dart';
@@ -505,75 +507,81 @@ class _ApiAdminReportsScreenState extends State<ApiAdminReportsScreen> {
         ),
       ],
     ),
-    body: FutureBuilder<List<Map<String, dynamic>>>(
-      future: _queue,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: LocalizedText('Something went wrong. Please try again.'),
-          );
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final reports = snapshot.data!;
-        return RefreshIndicator(
-          onRefresh: _refresh,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(12),
-            children: [
-              _metricsCard(),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String?>(
-                initialValue: _category,
-                decoration: InputDecoration(
-                  labelText: AppLanguageService.translate(
-                    'Filter by triage category',
+    body: NisaPageBody(
+      form: false,
+      child: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _queue,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: LocalizedText('Something went wrong. Please try again.'),
+            );
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final reports = snapshot.data!;
+          return RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(12),
+              children: [
+                _metricsCard(),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String?>(
+                  isExpanded: true,
+                  itemHeight: null,
+                  isDense: false,
+                  initialValue: _category,
+                  decoration: InputDecoration(
+                    labelText: AppLanguageService.translate(
+                      'Filter by triage category',
+                    ),
                   ),
+                  items: [
+                    const DropdownMenuItem<String?>(
+                      value: null,
+                      child: LocalizedText('All categories'),
+                    ),
+                    for (final category in [
+                      'profile_content',
+                      'identity_or_fraud',
+                      'harassment',
+                      'scam',
+                      'marital_status',
+                      'spam',
+                      'other',
+                    ])
+                      DropdownMenuItem<String?>(
+                        value: category,
+                        child: LocalizedText(_categoryLabel(category)),
+                      ),
+                  ],
+                  onChanged: _busy
+                      ? null
+                      : (value) {
+                          setState(() => _category = value);
+                          _refresh();
+                        },
                 ),
-                items: [
-                  const DropdownMenuItem<String?>(
-                    value: null,
-                    child: LocalizedText('All categories'),
-                  ),
-                  for (final category in [
-                    'profile_content',
-                    'identity_or_fraud',
-                    'harassment',
-                    'scam',
-                    'marital_status',
-                    'spam',
-                    'other',
-                  ])
-                    DropdownMenuItem<String?>(
-                      value: category,
-                      child: LocalizedText(_categoryLabel(category)),
+                const SizedBox(height: 8),
+                if (reports.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Center(
+                      child: LocalizedText(
+                        'No open reports or appeals are waiting for review.',
+                      ),
                     ),
-                ],
-                onChanged: _busy
-                    ? null
-                    : (value) {
-                        setState(() => _category = value);
-                        _refresh();
-                      },
-              ),
-              const SizedBox(height: 8),
-              if (reports.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Center(
-                    child: LocalizedText(
-                      'No open reports or appeals are waiting for review.',
-                    ),
-                  ),
-                )
-              else
-                ...reports.map(_queueCard),
-            ],
-          ),
-        );
-      },
+                  )
+                else
+                  ...reports.map(_queueCard),
+              ],
+            ),
+          );
+        },
+      ),
     ),
   );
 }
@@ -660,6 +668,9 @@ class _SanctionActionDialogState extends State<_SanctionActionDialog> {
             ),
           ),
           DropdownButtonFormField<int>(
+            isExpanded: true,
+            itemHeight: null,
+            isDense: false,
             initialValue: _durationDays,
             decoration: InputDecoration(
               labelText: AppLanguageService.translate('Duration'),
@@ -734,6 +745,9 @@ class _ReportDecisionDialogState extends State<_ReportDecisionDialog> {
             const LocalizedText('Outcome'),
             const SizedBox(height: 6),
             DropdownButtonFormField<String>(
+              isExpanded: true,
+              itemHeight: null,
+              isDense: false,
               initialValue: _outcome,
               items: const [
                 DropdownMenuItem(

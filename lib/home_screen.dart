@@ -1487,6 +1487,8 @@ class _DiscoveryFilterSheetState
       return true;
     }).toList();
     return DropdownButtonFormField<String>(
+      itemHeight: null,
+      isDense: false,
       // Do not include the asynchronously changing list length in the key.
       // Re-keying a DropdownButton while its route is open can leave duplicate
       // menu entries and trigger Flutter's _dependents.isEmpty assertion.

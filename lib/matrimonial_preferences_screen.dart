@@ -1,3 +1,5 @@
+import 'presentation/nisa_premium/nisa_premium.dart';
+
 import 'dart:async';
 
 import 'widgets/localized_text.dart';
@@ -407,10 +409,8 @@ class _MatrimonialPreferencesScreenState
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => VerificationScreen(
-          profile: widget.profile,
-          isRegistration: true,
-        ),
+        builder: (context) =>
+            VerificationScreen(profile: widget.profile, isRegistration: true),
       ),
     );
   }
@@ -462,6 +462,9 @@ class _MatrimonialPreferencesScreenState
     children: [
       Expanded(
         child: DropdownButtonFormField<int>(
+          isExpanded: true,
+          itemHeight: null,
+          isDense: false,
           initialValue: _minimumAge,
           decoration: InputDecoration(
             labelText: AppLanguageService.translate('Minimum'),
@@ -488,6 +491,9 @@ class _MatrimonialPreferencesScreenState
       const SizedBox(width: 12),
       Expanded(
         child: DropdownButtonFormField<int>(
+          isExpanded: true,
+          itemHeight: null,
+          isDense: false,
           initialValue: _maximumAge,
           decoration: InputDecoration(
             labelText: AppLanguageService.translate('Maximum'),
@@ -523,6 +529,9 @@ class _MatrimonialPreferencesScreenState
     children: [
       Expanded(
         child: DropdownButtonFormField<String>(
+          isExpanded: true,
+          itemHeight: null,
+          isDense: false,
           initialValue: _minimumHeight,
           hint: const LocalizedText('Any height'),
           decoration: InputDecoration(
@@ -536,6 +545,9 @@ class _MatrimonialPreferencesScreenState
       const SizedBox(width: 12),
       Expanded(
         child: DropdownButtonFormField<String>(
+          isExpanded: true,
+          itemHeight: null,
+          isDense: false,
           initialValue: _maximumHeight,
           hint: const LocalizedText('Any height'),
           decoration: InputDecoration(
@@ -581,6 +593,9 @@ class _MatrimonialPreferencesScreenState
   Widget _matchingCriteriaFields() => Column(
     children: [
       DropdownButtonFormField<String>(
+        isExpanded: true,
+        itemHeight: null,
+        isDense: false,
         initialValue:
             const [
               'Any',
@@ -618,6 +633,9 @@ class _MatrimonialPreferencesScreenState
       ),
       const SizedBox(height: 12),
       DropdownButtonFormField<String>(
+        isExpanded: true,
+        itemHeight: null,
+        isDense: false,
         initialValue:
             ['Any', ...LocationService.educationOptions].contains(_education)
             ? _education
@@ -638,6 +656,9 @@ class _MatrimonialPreferencesScreenState
       ),
       const SizedBox(height: 12),
       DropdownButtonFormField<String>(
+        isExpanded: true,
+        itemHeight: null,
+        isDense: false,
         initialValue:
             const [
               'Any',
@@ -668,6 +689,9 @@ class _MatrimonialPreferencesScreenState
       ),
       const SizedBox(height: 12),
       DropdownButtonFormField<String>(
+        isExpanded: true,
+        itemHeight: null,
+        isDense: false,
         initialValue: _relocationPreference,
         decoration: InputDecoration(
           labelText: AppLanguageService.translate('Relocation Preference'),
@@ -801,85 +825,88 @@ class _MatrimonialPreferencesScreenState
         ),
         actions: const [LanguageSelectorButton()],
       ),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-              children: [
-                if (!widget.isEditing)
-                  Row(
-                    children: List.generate(
-                      4,
-                      (index) => Expanded(
-                        child: Container(
-                          height: 4,
-                          margin: EdgeInsets.only(right: index == 3 ? 0 : 6),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(10),
+      body: NisaPageBody(
+        form: true,
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                children: [
+                  if (!widget.isEditing)
+                    Row(
+                      children: List.generate(
+                        4,
+                        (index) => Expanded(
+                          child: Container(
+                            height: 4,
+                            margin: EdgeInsets.only(right: index == 3 ? 0 : 6),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         ),
                       ),
                     ),
+                  const SizedBox(height: 20),
+                  LocalizedText(
+                    'What are you looking for?',
+                    style: Theme.of(context).textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                const SizedBox(height: 20),
-                LocalizedText(
-                  'What are you looking for?',
-                  style: Theme.of(context).textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                LocalizedText(
-                  'Set your preferred criteria. You can change these later.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 18),
-                _preferencesSection(
-                  title: 'Preferred Age',
-                  icon: Icons.cake_outlined,
-                  child: _ageFields(),
-                ),
-                _preferencesSection(
-                  title: 'Preferred Height',
-                  icon: Icons.height,
-                  child: _heightFields(),
-                ),
-                _preferencesSection(
-                  title: 'My preferences',
-                  icon: Icons.tune_rounded,
-                  child: Column(
-                    children: [
-                      _locationFields(),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Divider(height: 1),
-                      ),
-                      _matchingCriteriaFields(),
-                    ],
+                  const SizedBox(height: 6),
+                  LocalizedText(
+                    'Set your preferred criteria. You can change these later.',
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                ),
-                _reviewSummary(),
-                const SizedBox(height: 4),
-                SizedBox(
-                  height: 52,
-                  child: FilledButton(
-                    onPressed: _isSaving ? null : _continue,
-                    child: LocalizedText(
-                      _isSaving
-                          ? 'Saving…'
-                          : widget.isEditing
-                          ? 'Save Preferences'
-                          : 'Continue',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                  const SizedBox(height: 18),
+                  _preferencesSection(
+                    title: 'Preferred Age',
+                    icon: Icons.cake_outlined,
+                    child: _ageFields(),
+                  ),
+                  _preferencesSection(
+                    title: 'Preferred Height',
+                    icon: Icons.height,
+                    child: _heightFields(),
+                  ),
+                  _preferencesSection(
+                    title: 'My preferences',
+                    icon: Icons.tune_rounded,
+                    child: Column(
+                      children: [
+                        _locationFields(),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Divider(height: 1),
+                        ),
+                        _matchingCriteriaFields(),
+                      ],
+                    ),
+                  ),
+                  _reviewSummary(),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    height: 52,
+                    child: FilledButton(
+                      onPressed: _isSaving ? null : _continue,
+                      child: LocalizedText(
+                        _isSaving
+                            ? 'Saving…'
+                            : widget.isEditing
+                            ? 'Save Preferences'
+                            : 'Continue',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

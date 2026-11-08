@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../models/candidate_profile.dart';
 import '../models/discovery_filters.dart';
+import '../models/user_profile.dart';
 import 'location_service.dart';
 import 'api_auth_service.dart';
 
@@ -17,6 +18,26 @@ class ApiDiscoveryPage {
 /// Reads the preference-matched recommendation feed from PostgreSQL.
 class ApiDiscoveryService {
   ApiDiscoveryService._();
+
+  static DiscoveryFilters defaultFiltersFor(
+    UserProfile profile, {
+    bool prioritizeNearby = false,
+    int? maxDistanceMiles,
+  }) {
+    final preferences = profile.preferences;
+    return DiscoveryFilters(
+      minimumAge: preferences.minimumAge.clamp(18, 100),
+      maximumAge: preferences.maximumAge.clamp(18, 100),
+      minimumHeight: preferences.minimumHeight,
+      maximumHeight: preferences.maximumHeight,
+      country: preferences.country,
+      city: preferences.city,
+      maritalStatus: _canonicalMaritalFilter(preferences.maritalStatus),
+      education: preferences.education,
+      prioritizeNearby: prioritizeNearby,
+      maxDistanceMiles: prioritizeNearby ? maxDistanceMiles : null,
+    );
+  }
 
   static Future<ApiDiscoveryPage> getRecommendations({
     required String currentGender,
@@ -63,37 +84,51 @@ class ApiDiscoveryService {
       _ => null,
     };
 
-    final profiles = rows
-        .whereType<Map>()
-        .map((raw) {
-          final row = Map<String, dynamic>.from(raw);
-          final height = _heightFromCm(row['height_cm']);
-          return CandidateProfile.fromMap(row['id']?.toString() ?? '', {
-            'name': row['full_name'] ?? row['display_name'] ?? 'Nisa Member',
-            'age': row['age'],
-            'gender': row['gender'],
-            'country': row['country'],
-            'city': row['city'],
-            'height': height,
-            'maritalStatus': row['marital_status'],
-            'education': row['education'],
-            'profession': row['profession'],
-            'profilePhoto': row['photo_url'],
-            'isVerified': row['is_verified'],
-            'compatibilityScore': row['compatibility_score'],
-            'recommendationReasons': row['recommendation_reasons'],
-            'hasExistingInterest': row['has_existing_interest'],
-            'distanceBand': row['distance_band'],
-          });
-        })
-        .where((candidate) {
-          return candidate.id.isNotEmpty &&
-              candidate.age >= 18 &&
-              (expectedGender == null ||
-                  candidate.gender.trim().toLowerCase() == expectedGender);
-        })
-        .toList();
+    final profilesById = <String, CandidateProfile>{};
+    for (final raw in rows.whereType<Map>()) {
+      final row = Map<String, dynamic>.from(raw);
+      final height = _heightFromCm(row['height_cm']);
+      final candidate = CandidateProfile.fromMap(row['id']?.toString() ?? '', {
+        'name': row['full_name'] ?? row['display_name'] ?? 'Nisa Member',
+        'age': row['age'],
+        'gender': row['gender'],
+        'country': row['country'],
+        'city': row['city'],
+        'height': height,
+        'maritalStatus': row['marital_status'],
+        'education': row['education'],
+        'profession': row['profession'],
+        'profilePhoto': row['photo_url'],
+        'isVerified': row['is_verified'],
+        'compatibilityScore': row['compatibility_score'],
+        'recommendationReasons': row['recommendation_reasons'],
+        'hasExistingInterest': row['has_existing_interest'],
+        'distanceBand': row['distance_band'],
+      });
+      if (candidate.id.isNotEmpty &&
+          candidate.age >= 18 &&
+          (expectedGender == null ||
+              candidate.gender.trim().toLowerCase() == expectedGender)) {
+        profilesById.putIfAbsent(candidate.id, () => candidate);
+      }
+    }
+    final profiles = profilesById.values.toList(growable: false);
     return ApiDiscoveryPage(profiles: profiles, hasMore: hasMore);
+  }
+
+  static String? _canonicalMaritalFilter(String? value) {
+    final normalized = value?.trim().toLowerCase() ?? '';
+    if (normalized.isEmpty || normalized.startsWith('any')) return null;
+    if (normalized == 'single' ||
+        normalized == 'never married' ||
+        normalized == 'single (never married)') {
+      return 'Single (Never Married)';
+    }
+    const supported = {'married', 'separated', 'divorced', 'widowed'};
+    if (supported.contains(normalized)) {
+      return normalized[0].toUpperCase() + normalized.substring(1);
+    }
+    return null;
   }
 
   static Map<String, String> _filterParameters(
